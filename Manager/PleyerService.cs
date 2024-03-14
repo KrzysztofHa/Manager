@@ -31,7 +31,7 @@
                         }
                     }
                     newPleyer.Name = userName[0].ToString().ToUpper();
-                    newPleyer.Name += newPleyer.Name.Substring(1);
+                    newPleyer.Name += userName.Substring(1);
 
                 }
 
@@ -43,15 +43,21 @@
                 else
                 {
                     newPleyer.Id = Pleyers.Count + 1;
-                    Pleyers.Add(newPleyer);                    
+                    Pleyers.Add(newPleyer);
                 }
                 break;
             }
         }
 
-        public void AddNewPleyer(Pleyer pleyer)
+        public void ListOfPleyersView()
         {
-
+            Console.Clear();
+            Console.WriteLine("List Of Pleyers");
+            foreach (var pleyer in Pleyers)
+            {
+                Console.WriteLine($"{pleyer.Id}. {pleyer.Name}");
+            }
+            Console.ReadKey();
         }
 
 

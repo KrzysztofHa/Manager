@@ -49,6 +49,7 @@ internal class Program
                     ListOfPleyers.AddNewPleyerView();
                     break;
                 case '2':
+                    ListOfPleyers.ListOfPleyersView();
                     break;
                 case '3':
                     break;
@@ -73,11 +74,11 @@ internal class Program
     private static MenuActionService Initialize(MenuActionService actionService)
     {
         actionService.AddNewAction(1, "Add Pleyer", "Main");
-        actionService.AddNewAction(5, "Pleyers", "Main");
-        actionService.AddNewAction(2, "Turnaments", "Main");
-        actionService.AddNewAction(3, "Sparing", "Main");
-        actionService.AddNewAction(4, "Edit Data", "Main");
-        actionService.AddNewAction(5, "Ranking", "Main");
+        actionService.AddNewAction(2, "Pleyers", "Main");
+        actionService.AddNewAction(3, "Turnaments", "Main");
+        actionService.AddNewAction(4, "Sparing", "Main");
+        actionService.AddNewAction(5, "Edit Data", "Main");
+        actionService.AddNewAction(6, "Ranking", "Main");
 
 
 
