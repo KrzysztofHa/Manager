@@ -1,5 +1,6 @@
 ﻿
 using Manager;
+using Manager.Helpers;
 internal class Program
 {
     private static void Main(string[] args)
@@ -13,7 +14,7 @@ internal class Program
         /// Sparing
 
         new LogIn();
-        PleyerService ListOfPleyers = new PleyerService();
+        PleyerService pleyerService = new PleyerService();
 
         MenuActionService actionService = new MenuActionService();
         Initialize(actionService);
@@ -32,7 +33,7 @@ internal class Program
             }
             else
             {
-                Console.WriteLine($"Pres number key in menu options\n");
+                Console.WriteLine($"Press number key in Main menu options\n");
             }
 
             for (int i = 0; i < mainMenu.Count; i++)
@@ -46,10 +47,11 @@ internal class Program
             switch (operation.KeyChar)
             {
                 case '1':
-                    ListOfPleyers.AddNewPleyerView();
+                    ConsoleKeyInfo country = pleyerService.AddNewPleyerView(actionService);
+                    pleyerService.AddNewPleyer(country);
                     break;
                 case '2':
-                    ListOfPleyers.ListOfPleyersView();
+                    pleyerService.ListOfPleyersView();
                     break;
                 case '3':
                     break;
@@ -57,12 +59,13 @@ internal class Program
                     break;
                 case '5':
                     break;
+                case '6':
+                    break;
                 default:
 
                     noOption = true;
                     break;
             }
-
 
             if (operation.Key == ConsoleKey.Escape)
             {
@@ -73,6 +76,7 @@ internal class Program
 
     private static MenuActionService Initialize(MenuActionService actionService)
     {
+        var menuCountry = new Country();
         actionService.AddNewAction(1, "Add Pleyer", "Main");
         actionService.AddNewAction(2, "Pleyers", "Main");
         actionService.AddNewAction(3, "Turnaments", "Main");
@@ -80,8 +84,10 @@ internal class Program
         actionService.AddNewAction(5, "Edit Data", "Main");
         actionService.AddNewAction(6, "Ranking", "Main");
 
-
-
+        for (int i = 0; i <= menuCountry.CountryList.Count - 1; i++)
+        {
+            actionService.AddNewAction(i + 1, menuCountry.CountryList[i], "Country");
+        }
         return actionService;
     }
 }
