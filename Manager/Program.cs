@@ -5,17 +5,8 @@ internal class Program
 {
     private static void Main(string[] args)
     {
-        //Przywitanie
-        // Logowanie
-        //Dostanie możliwość wyboru
-        //// 
-        ////  Edycja danych 
-        /// Turniej
-        /// Sparing
-
         new LogIn();
         PleyerService pleyerService = new PleyerService();
-
         MenuActionService actionService = new MenuActionService();
         Initialize(actionService);
         var mainMenu = actionService.GetMenuActionsByName("Main");
