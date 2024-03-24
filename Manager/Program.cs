@@ -45,8 +45,16 @@ internal class Program
                     pleyerService.ListOfPleyersView();
                     break;
                 case '3':
+                    pleyerService.ListOfPleyersView();
+                    var removeId = pleyerService.RemovePleyerView();
+                    pleyerService.ReovePleyer(removeId);
+                    pleyerService.ListOfPleyersView();
                     break;
                 case '4':
+                    pleyerService.ListOfPleyersView();
+                    var updateId = pleyerService.UpdatePleyerView();
+                    pleyerService.UpdatePleyer(updateId);
+                    pleyerService.ListOfPleyersView();
                     break;
                 case '5':
                     break;
@@ -70,10 +78,11 @@ internal class Program
         var menuCountry = new Country();
         actionService.AddNewAction(1, "Add Pleyer", "Main");
         actionService.AddNewAction(2, "Pleyers", "Main");
-        actionService.AddNewAction(3, "Turnaments", "Main");
-        actionService.AddNewAction(4, "Sparing", "Main");
-        actionService.AddNewAction(5, "Edit Data", "Main");
-        actionService.AddNewAction(6, "Ranking", "Main");
+        actionService.AddNewAction(3, "Remove Pleyer", "Main");
+        actionService.AddNewAction(4, "Update Pleyer", "Main");
+        actionService.AddNewAction(5, "Tournaments Not implemented", "Main");
+        actionService.AddNewAction(6, "Ranking Not implemented ", "Main");
+        actionService.AddNewAction(7, "Sparing Not implemented", "Main");
 
         for (int i = 0; i <= menuCountry.CountryList.Count - 1; i++)
         {
