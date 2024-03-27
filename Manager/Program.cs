@@ -10,16 +10,16 @@ internal class Program
         MenuActionService actionService = new MenuActionService();
         Initialize(actionService);
         var mainMenu = actionService.GetMenuActionsByName("Main");
-        bool noOption = false;
+        bool noOperation = false;
 
         while (true)
         {
             Console.Clear();
             Console.WriteLine($"Hello User {LogIn.UserName}!\n\n");
 
-            if (noOption)
+            if (noOperation)
             {
-                noOption = false;
+                noOperation = false;
                 Console.WriteLine("Action You entered does not exist\n");
             }
             else
@@ -47,7 +47,7 @@ internal class Program
                 case '3':
                     pleyerService.ListOfPleyersView();
                     var removeId = pleyerService.RemovePleyerView();
-                    pleyerService.ReovePleyer(removeId);
+                    pleyerService.RemovePleyer(removeId);
                     pleyerService.ListOfPleyersView();
                     break;
                 case '4':
@@ -62,7 +62,7 @@ internal class Program
                     break;
                 default:
 
-                    noOption = true;
+                    noOperation = true;
                     break;
             }
 

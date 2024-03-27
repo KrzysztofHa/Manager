@@ -121,7 +121,7 @@ namespace Manager
             return id;
         }
 
-        public void ReovePleyer(int removeId)
+        public void RemovePleyer(int removeId)
         {
             Pleyer pleyerToRemove = new Pleyer();
             foreach (var pleyer in Pleyers)
@@ -158,7 +158,7 @@ namespace Manager
             while (true)
             {
                 Console.Clear();
-                Console.WriteLine("UPdate Pleyer\n");
+                Console.WriteLine("Update Pleyer\n");
                 Console.WriteLine("Enter Pleyer name:");
                 var pleyerName = Console.ReadLine();
                 if (!string.IsNullOrWhiteSpace(pleyerName))
