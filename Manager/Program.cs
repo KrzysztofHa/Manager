@@ -47,7 +47,7 @@ internal class Program
                 case '3':
                     pleyerService.ListOfPleyersView();
                     var removeId = pleyerService.RemovePleyerView();
-                    pleyerService.ReovePleyer(removeId);
+                    pleyerService.RemovePleyer(removeId);
                     pleyerService.ListOfPleyersView();
                     break;
                 case '4':
