@@ -39,7 +39,7 @@ namespace Manager.App.Common
             SomeItem.Remove(pleyer);
         }
 
-        public int UpdateAnyItem(T pleyer)
+        public int UpdateSomeItem(T pleyer)
         {
             var entity = SomeItem.FirstOrDefault(p => p.Id == pleyer.Id);
             if (entity != null)
