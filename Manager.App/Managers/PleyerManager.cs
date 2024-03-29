@@ -93,87 +93,107 @@ namespace Manager.App.Managers
         }
 
         public int RemovePleyer()
-        {
-            Console.WriteLine("\nPlease enter id for pleyer you want remove");
-            ListOfPleyersView();
-            var pleyerId = Console.ReadLine();
-            int.TryParse(pleyerId, out int id);
-            var pleyerToRemove = _pleyerService.Pleyers.FirstOrDefault(p => p.Id == id);
-            if (pleyerToRemove != null)
+        {            
+            if (ListOfPleyers())
             {
-                _pleyerService.Pleyers.Remove(pleyerToRemove);
+                Console.WriteLine("\nPlease enter id for pleyer you want remove");
+                var pleyerId = Console.ReadLine();
+                int.TryParse(pleyerId, out int id);
+                var pleyerToRemove = _pleyerService.SomeItem.FirstOrDefault(p => p.Id == id);
+                if (pleyerToRemove != null)
+                {
+                    _pleyerService.RemoveSomeItem(pleyerToRemove);
+                }
+                else
+                {
+                    return 0;
+                }
+                return pleyerToRemove.Id;
             }
             else
             {
                 return 0;
             }
-            return pleyerToRemove.Id;
         }
         public int UpdatePleyer()
         {
-            Console.WriteLine("Please enter id for pleyer you want update");
-            ListOfPleyersView();
-            var pleyerId = Console.ReadLine();
-            if (int.TryParse(pleyerId, out int id))
+
+            if (ListOfPleyers())
             {
-                var pleyerToUpdate = _pleyerService.Pleyers.FirstOrDefault(p => p.Id == id);
-                if (pleyerToUpdate != null)
+                Console.WriteLine("\nPlease enter id for pleyer you want update");
+                var pleyerId = Console.ReadLine();
+                if (int.TryParse(pleyerId, out int id))
                 {
-                    while (true)
+                    var pleyerToUpdate = _pleyerService.SomeItem.FirstOrDefault(p => p.Id == id);
+                    if (pleyerToUpdate != null)
                     {
-                        Console.Clear();
-                        Console.WriteLine("Update Pleyer\n");
-                        Console.WriteLine("Enter Pleyer name:");
-                        var pleyerName = Console.ReadLine();
-                        if (!string.IsNullOrWhiteSpace(pleyerName))
+                        while (true)
                         {
-                            pleyerName = pleyerName.ToString().Trim();
-                            pleyerName = pleyerName.ToLower();
-                            for (int i = 0; i <= pleyerName.Length - 1; i++)
+                            Console.Clear();
+                            Console.WriteLine("Update Pleyer\n");
+                            Console.WriteLine("Enter Pleyer name:");
+                            var pleyerName = Console.ReadLine();
+                            if (!string.IsNullOrWhiteSpace(pleyerName))
                             {
-                                if (char.IsWhiteSpace(pleyerName[i]))
+                                pleyerName = pleyerName.ToString().Trim();
+                                pleyerName = pleyerName.ToLower();
+                                for (int i = 0; i <= pleyerName.Length - 1; i++)
                                 {
-                                    pleyerName = pleyerName.Remove(i);
-                                    break;
+                                    if (char.IsWhiteSpace(pleyerName[i]))
+                                    {
+                                        pleyerName = pleyerName.Remove(i);
+                                        break;
+                                    }
                                 }
+                                pleyerToUpdate.Name = pleyerName[0].ToString().ToUpper();
+                                pleyerToUpdate.Name += pleyerName.Substring(1);
+                                _pleyerService.UpdateSomeItem(pleyerToUpdate);
+                                return pleyerToUpdate.Id;
                             }
-                            pleyerToUpdate.Name = pleyerName[0].ToString().ToUpper();
-                            pleyerToUpdate.Name += pleyerName.Substring(1);
-                            _pleyerService.UpdateAnyItem(pleyerToUpdate);
-                            return pleyerToUpdate.Id;
                         }
                     }
+                    else
+                    {
+                        Console.Clear();
+                        Console.WriteLine("Player no found");
+                        Console.WriteLine("Press Any key");
+                        Console.ReadKey();
+                        return 0;
+                    }
                 }
-                else
-                {
-                    Console.Clear();
-                    Console.WriteLine("Player no found");
-                    Console.WriteLine("Press Any key");
-                    Console.ReadKey();
-                    return 0;
-                }
-            }else
-            {
-                Console.Clear ();
+
+                Console.Clear();
                 Console.WriteLine("Player no found");
                 Console.WriteLine("Press Any key");
                 Console.ReadKey();
                 return 0;
             }
-        }
-
-       
-
-        public void ListOfPleyersView()
-        {
-            Console.Clear();
-            Console.WriteLine("List Of Pleyers");
-            foreach (var pleyer in _pleyerService.GetAllSomeItem())
+            else
             {
-                Console.WriteLine($"{pleyer.Id}. {pleyer.Name} Country: {pleyer.Country}");
+                return 0;
             }
-
         }
 
+
+
+        public bool ListOfPleyers()
+        {
+            if (_pleyerService.SomeItem.Any())
+            {
+                Console.Clear();
+                Console.WriteLine("List Of Pleyers");
+                foreach (var pleyer in _pleyerService.GetAllSomeItem())
+                {
+                    Console.WriteLine($"{pleyer.Id}. {pleyer.Name} Country: {pleyer.Country}");
+                }
+                return true;
+            }
+            else
+            {
+                Console.Clear();
+                Console.WriteLine("Empty List");
+                return false;
+            }
+        }
     }
 }
