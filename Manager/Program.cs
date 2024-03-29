@@ -3,11 +3,11 @@ using Manager.App.Managers;
 using Manager.Helpers;
 internal class Program
 {
-    private static void Main(string[] args)
+    private static void Main()
     {
         new LogIn();
-        MenuActionService actionService = new MenuActionService();
-        PleyerManager pleyerManager = new PleyerManager(actionService);
+        MenuActionService actionService = new();
+        PleyerManager pleyerManager = new(actionService);
         var mainMenu = actionService.GetMenuActionsByName("Main");
         bool noOperation = false;
 
@@ -40,19 +40,14 @@ internal class Program
                     var newId = pleyerManager.AddNewPleyer();
                     break;
                 case '2':
-                    pleyerService.ListOfPleyersView();
+                    pleyerManager.ListOfPleyers();
+                    Console.ReadKey();
                     break;
                 case '3':
-                    pleyerService.ListOfPleyersView();
-                    var removeId = pleyerService.RemovePleyerView();
-                    pleyerService.RemovePleyer(removeId);
-                    pleyerService.ListOfPleyersView();
+                    var removeId = pleyerManager.RemovePleyer();
                     break;
                 case '4':
-                    pleyerService.ListOfPleyersView();
-                    var updateId = pleyerService.UpdatePleyerView();
-                    pleyerService.UpdatePleyer(updateId);
-                    pleyerService.ListOfPleyersView();
+                    var updateId = pleyerManager.UpdatePleyer();
                     break;
                 case '5':
                     break;
@@ -70,6 +65,4 @@ internal class Program
             }
         }
     }
-
-
 }
