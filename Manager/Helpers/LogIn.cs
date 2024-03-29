@@ -1,4 +1,4 @@
-﻿namespace Manager
+﻿namespace Manager.Helpers
 {
     public class LogIn
     {
@@ -20,7 +20,6 @@
                         {
                             userName = userName.Remove(i);
                             break;
-
                         }
                     }
                     UserName = userName[0].ToString().ToUpper();

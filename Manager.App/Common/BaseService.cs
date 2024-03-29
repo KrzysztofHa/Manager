@@ -5,30 +5,43 @@ namespace Manager.App.Common
 {
     public class BaseService<T> : IService<T> where T : BaseEntity
     {
-        public List<T> Pleyers { get; set; }
+        public List<T> SomeItem { get; set; }
+
         public BaseService()
         {
-            Pleyers = new List<T>();
+            SomeItem = new List<T>();
         }
-        public int AddPleyer(T pleyer)
+
+        public int GetNextId() 
         {
-            Pleyers.Add(pleyer);
+            if (SomeItem.Any())
+            {
+                return SomeItem.Count() + 1;
+            }else
+            {
+                return 1;
+            }                       
+        }
+
+        public int AddSomeItem(T pleyer)
+        {
+            SomeItem.Add(pleyer);
             return pleyer.Id;
         }
 
-        public List<T> GetAllPleyers()
+        public List<T> GetAllSomeItem()
         {
-            return Pleyers;
+            return SomeItem;
         }
 
-        public void RemovePleyer(T pleyer)
+        public void RemoveSomeItem(T pleyer)
         {
-            Pleyers.Remove(pleyer);
+            SomeItem.Remove(pleyer);
         }
 
-        public int UpdatePleyer(T pleyer)
+        public int UpdateAnyItem(T pleyer)
         {
-            var entity = Pleyers.FirstOrDefault(p => p.Id == pleyer.Id);
+            var entity = SomeItem.FirstOrDefault(p => p.Id == pleyer.Id);
             if (entity != null)
             {
                 entity = pleyer;

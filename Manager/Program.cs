@@ -1,14 +1,13 @@
-﻿
-using Manager;
+﻿using Manager.App.Concrete;
+using Manager.App.Managers;
 using Manager.Helpers;
 internal class Program
 {
     private static void Main(string[] args)
     {
         new LogIn();
-        PleyerService pleyerService = new PleyerService();
         MenuActionService actionService = new MenuActionService();
-        Initialize(actionService);
+        PleyerManager pleyerManager = new PleyerManager(actionService);
         var mainMenu = actionService.GetMenuActionsByName("Main");
         bool noOperation = false;
 
@@ -38,8 +37,7 @@ internal class Program
             switch (operation.KeyChar)
             {
                 case '1':
-                    ConsoleKeyInfo country = pleyerService.AddNewPleyerView(actionService);
-                    pleyerService.AddNewPleyer(country);
+                    var newId = pleyerManager.AddNewPleyer();
                     break;
                 case '2':
                     pleyerService.ListOfPleyersView();
@@ -73,21 +71,5 @@ internal class Program
         }
     }
 
-    private static MenuActionService Initialize(MenuActionService actionService)
-    {
-        var menuCountry = new Country();
-        actionService.AddNewAction(1, "Add Pleyer", "Main");
-        actionService.AddNewAction(2, "Pleyers", "Main");
-        actionService.AddNewAction(3, "Remove Pleyer", "Main");
-        actionService.AddNewAction(4, "Update Pleyer", "Main");
-        actionService.AddNewAction(5, "Tournaments Not implemented", "Main");
-        actionService.AddNewAction(6, "Ranking Not implemented ", "Main");
-        actionService.AddNewAction(7, "Sparing Not implemented", "Main");
 
-        for (int i = 0; i <= menuCountry.CountryList.Count - 1; i++)
-        {
-            actionService.AddNewAction(i + 1, menuCountry.CountryList[i], "Country");
-        }
-        return actionService;
-    }
 }
