@@ -7,11 +7,8 @@ internal class Program
     {
         new LogIn();
         MenuActionService actionService = new();
-<<<<<<< HEAD
         PleyerManager pleyerManager = new(actionService);
-=======
         PleyerManager pleyerManager = new PleyerManager(actionService);
->>>>>>> ddf750d7db3ed0b6c850a4179359cb63fa759cb6
         var mainMenu = actionService.GetMenuActionsByName("Main");
         bool noOperation = false;
 
