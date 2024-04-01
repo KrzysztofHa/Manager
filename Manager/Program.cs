@@ -7,19 +7,19 @@ internal class Program
     {
         new LogIn();
         MenuActionService actionService = new();
-        PleyerManager pleyerManager = new(actionService);
+        PlayerManager playerManager = new(actionService);
 
         var mainMenu = actionService.GetMenuActionsByName("Main");
-        bool noOperation = false;
+        bool wrongOperation = false;
 
         while (true)
         {
             Console.Clear();
             Console.WriteLine($"Hello User {LogIn.UserName}!\n\n");
 
-            if (noOperation)
+            if (wrongOperation)
             {
-                noOperation = false;
+                wrongOperation = false;
                 Console.WriteLine("Action You entered does not exist\n");
             }
             else
@@ -38,17 +38,17 @@ internal class Program
             switch (operation.KeyChar)
             {
                 case '1':
-                    var newId = pleyerManager.AddNewPleyer();
+                    var newId = playerManager.AddNewplayer();
                     break;
                 case '2':
-                    pleyerManager.ListOfPleyers();
+                    playerManager.ListOfplayers();
                     Console.ReadKey();
                     break;
                 case '3':
-                    var removeId = pleyerManager.RemovePleyer();
+                    var removeId = playerManager.Removeplayer();
                     break;
                 case '4':
-                    var updateId = pleyerManager.UpdatePleyer();
+                    var updateId = playerManager.Updateplayer();
                     break;
                 case '5':
                     break;
@@ -56,7 +56,7 @@ internal class Program
                     break;
                 default:
 
-                    noOperation = true;
+                    wrongOperation = true;
                     break;
             }
 

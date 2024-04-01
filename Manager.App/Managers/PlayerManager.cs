@@ -5,25 +5,25 @@ using Manager.Domain.Entity;
 
 namespace Manager.App.Managers
 {
-    public class PleyerManager
+    public class PlayerManager
     {
         private readonly MenuActionService _actionService;
-        private PleyerService _pleyerService;
+        private PlayerService _playerService;
 
-        public PleyerManager(MenuActionService actionService)
+        public PlayerManager(MenuActionService actionService)
         {
             _actionService = actionService;
-            _pleyerService = new PleyerService();
+            _playerService = new PlayerService();
         }
 
-        public int AddNewPleyer()
+        public int AddNewplayer()
         {
             var countryList = _actionService.GetMenuActionsByName("Country");
             bool noCountry = false;
             while (true)
             {
                 Console.Clear();
-                Console.WriteLine("  Add New Pleyer\n");
+                Console.WriteLine("  Add New player\n");
 
                 if (noCountry)
                 {
@@ -48,34 +48,34 @@ namespace Manager.App.Managers
                 {
                     if (operation.Key != ConsoleKey.Q)
                     {
-                        var newPleyer = new Pleyer();
-                        var countryPleyer = new Country();
+                        var newplayer = new Player();
+                        var countryplayer = new Country();
                         Console.Clear();
 
                         while (true)
                         {
                             Console.Clear();
-                            Console.WriteLine("Add New Pleyer\n");
-                            Console.WriteLine("Enter Pleyer name:");
-                            var pleyerName = Console.ReadLine();
-                            if (!string.IsNullOrWhiteSpace(pleyerName))
+                            Console.WriteLine("Add New player\n");
+                            Console.WriteLine("Enter player name:");
+                            var playerName = Console.ReadLine();
+                            if (!string.IsNullOrWhiteSpace(playerName))
                             {
-                                pleyerName = pleyerName.ToString().Trim();
-                                pleyerName = pleyerName.ToLower();
-                                for (int i = 0; i <= pleyerName.Length - 1; i++)
+                                playerName = playerName.ToString().Trim();
+                                playerName = playerName.ToLower();
+                                for (int i = 0; i <= playerName.Length - 1; i++)
                                 {
-                                    if (char.IsWhiteSpace(pleyerName[i]))
+                                    if (char.IsWhiteSpace(playerName[i]))
                                     {
-                                        pleyerName = pleyerName.Remove(i);
+                                        playerName = playerName.Remove(i);
                                         break;
                                     }
                                 }
-                                newPleyer.Name = pleyerName[0].ToString().ToUpper();
-                                newPleyer.Name += pleyerName.Substring(1);
-                                newPleyer.Country = countryPleyer.CountryList[numberCountry - 1];
-                                newPleyer.Id = _pleyerService.GetNextId();
-                                _pleyerService.AddSomeItem(newPleyer);
-                                return newPleyer.Id;
+                                newplayer.Name = playerName[0].ToString().ToUpper();
+                                newplayer.Name += playerName.Substring(1);
+                                newplayer.Country = countryplayer.CountryList[numberCountry - 1];
+                                newplayer.Id = _playerService.GetNextId();
+                                _playerService.AddItem(newplayer);
+                                return newplayer.Id;
                             }
                         }
                     }
@@ -92,63 +92,63 @@ namespace Manager.App.Managers
             }
         }
 
-        public int RemovePleyer()
-        {            
-            if (ListOfPleyers())
+        public int Removeplayer()
+        {
+            if (ListOfplayers())
             {
-                Console.WriteLine("\nPlease enter id for pleyer you want remove");
-                var pleyerId = Console.ReadLine();
-                int.TryParse(pleyerId, out int id);
-                var pleyerToRemove = _pleyerService.SomeItem.FirstOrDefault(p => p.Id == id);
-                if (pleyerToRemove != null)
+                Console.WriteLine("\nPlease enter id for player you want remove");
+                var playerId = Console.ReadLine();
+                int.TryParse(playerId, out int id);
+                var playerToRemove = _playerService.Items.FirstOrDefault(p => p.Id == id);
+                if (playerToRemove != null)
                 {
-                    _pleyerService.RemoveSomeItem(pleyerToRemove);
+                    _playerService.RemoveItem(playerToRemove);
                 }
                 else
                 {
                     return 0;
                 }
-                return pleyerToRemove.Id;
+                return playerToRemove.Id;
             }
             else
             {
                 return 0;
             }
         }
-        public int UpdatePleyer()
+        public int Updateplayer()
         {
 
-            if (ListOfPleyers())
+            if (ListOfplayers())
             {
-                Console.WriteLine("\nPlease enter id for pleyer you want update");
-                var pleyerId = Console.ReadLine();
-                if (int.TryParse(pleyerId, out int id))
+                Console.WriteLine("\nPlease enter id for player you want update");
+                var playerId = Console.ReadLine();
+                if (int.TryParse(playerId, out int id))
                 {
-                    var pleyerToUpdate = _pleyerService.SomeItem.FirstOrDefault(p => p.Id == id);
-                    if (pleyerToUpdate != null)
+                    var playerToUpdate = _playerService.Items.FirstOrDefault(p => p.Id == id);
+                    if (playerToUpdate != null)
                     {
                         while (true)
                         {
                             Console.Clear();
-                            Console.WriteLine("Update Pleyer\n");
-                            Console.WriteLine("Enter Pleyer name:");
-                            var pleyerName = Console.ReadLine();
-                            if (!string.IsNullOrWhiteSpace(pleyerName))
+                            Console.WriteLine("Update player\n");
+                            Console.WriteLine("Enter player name:");
+                            var playerName = Console.ReadLine();
+                            if (!string.IsNullOrWhiteSpace(playerName))
                             {
-                                pleyerName = pleyerName.ToString().Trim();
-                                pleyerName = pleyerName.ToLower();
-                                for (int i = 0; i <= pleyerName.Length - 1; i++)
+                                playerName = playerName.ToString().Trim();
+                                playerName = playerName.ToLower();
+                                for (int i = 0; i <= playerName.Length - 1; i++)
                                 {
-                                    if (char.IsWhiteSpace(pleyerName[i]))
+                                    if (char.IsWhiteSpace(playerName[i]))
                                     {
-                                        pleyerName = pleyerName.Remove(i);
+                                        playerName = playerName.Remove(i);
                                         break;
                                     }
                                 }
-                                pleyerToUpdate.Name = pleyerName[0].ToString().ToUpper();
-                                pleyerToUpdate.Name += pleyerName.Substring(1);
-                                _pleyerService.UpdateSomeItem(pleyerToUpdate);
-                                return pleyerToUpdate.Id;
+                                playerToUpdate.Name = playerName[0].ToString().ToUpper();
+                                playerToUpdate.Name += playerName.Substring(1);
+                                _playerService.UpdateItem(playerToUpdate);
+                                return playerToUpdate.Id;
                             }
                         }
                     }
@@ -176,15 +176,15 @@ namespace Manager.App.Managers
 
 
 
-        public bool ListOfPleyers()
+        public bool ListOfplayers()
         {
-            if (_pleyerService.SomeItem.Any())
+            if (_playerService.Items.Any())
             {
                 Console.Clear();
-                Console.WriteLine("List Of Pleyers");
-                foreach (var pleyer in _pleyerService.GetAllSomeItem())
+                Console.WriteLine("List Of players");
+                foreach (var player in _playerService.GetAllItem())
                 {
-                    Console.WriteLine($"{pleyer.Id}. {pleyer.Name} Country: {pleyer.Country}");
+                    Console.WriteLine($"{player.Id}. {player.Name} Country: {player.Country}");
                 }
                 return true;
             }

@@ -2,7 +2,7 @@
 
 namespace Manager.Domain.Entity
 {
-    public class Pleyer : BaseEntity
+    public class Player : BaseEntity
     {
         public string Name { get; set; }
         public string Country { get; set; }
