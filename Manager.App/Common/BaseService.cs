@@ -5,46 +5,46 @@ namespace Manager.App.Common
 {
     public class BaseService<T> : IService<T> where T : BaseEntity
     {
-        public List<T> SomeItem { get; set; }
+        public List<T> Items { get; set; }
 
         public BaseService()
         {
-            SomeItem = new List<T>();
+            Items = new List<T>();
         }
 
         public int GetNextId() 
         {
-            if (SomeItem.Any())
+            if (Items.Any())
             {
-                return SomeItem.Count() + 1;
+                return Items.Count() + 1;
             }else
             {
                 return 1;
             }                       
         }
 
-        public int AddSomeItem(T pleyer)
+        public int AddItem(T player)
         {
-            SomeItem.Add(pleyer);
-            return pleyer.Id;
+            Items.Add(player);
+            return player.Id;
         }
 
-        public List<T> GetAllSomeItem()
+        public List<T> GetAllItem()
         {
-            return SomeItem;
+            return Items;
         }
 
-        public void RemoveSomeItem(T pleyer)
+        public void RemoveItem(T player)
         {
-            SomeItem.Remove(pleyer);
+            Items.Remove(player);
         }
 
-        public int UpdateSomeItem(T pleyer)
+        public int UpdateItem(T player)
         {
-            var entity = SomeItem.FirstOrDefault(p => p.Id == pleyer.Id);
+            var entity = Items.FirstOrDefault(p => p.Id == player.Id);
             if (entity != null)
             {
-                entity = pleyer;
+                entity = player;
             }
             return entity.Id;
         }
