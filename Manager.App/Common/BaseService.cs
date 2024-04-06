@@ -24,10 +24,10 @@ namespace Manager.App.Common
             }
         }
 
-        public int AddItem(T player)
+        public int AddItem(T item)
         {
-            Items.Add(player);
-            return player.Id;
+            Items.Add(item);
+            return item.Id;
         }
 
         public List<T> GetAllItem()
@@ -35,17 +35,17 @@ namespace Manager.App.Common
             return Items;
         }
 
-        public void RemoveItem(T player)
+        public void RemoveItem(T item)
         {
-            Items.Remove(player);
+            Items.Remove(item);
         }
 
-        public int UpdateItem(T player)
+        public int UpdateItem(T item)
         {
-            var entity = Items.FirstOrDefault(p => p.Id == player.Id);
+            var entity = Items.FirstOrDefault(p => p.Id == item.Id);
             if (entity != null)
             {
-                entity = player;
+                entity = item;
             }
             return entity.Id;
         }

@@ -5,8 +5,9 @@
         List<T> Items { get; set; }
 
         List<T> GetAllItem();
-        int AddItem(T player);
-        int UpdateItem(T player);
-        void RemoveItem(T player);
+        int AddItem(T item);
+        int UpdateItem(T item);
+        void RemoveItem(T item);
+        int GetNextId();
     }
 }

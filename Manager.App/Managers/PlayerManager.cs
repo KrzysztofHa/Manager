@@ -1,4 +1,5 @@
-﻿using Manager.App.Concrete;
+﻿using Manager.App.Abstract;
+using Manager.App.Concrete;
 using Manager.App.Concrete.Helpers;
 using Manager.Domain.Entity;
 
@@ -8,15 +9,15 @@ namespace Manager.App.Managers
     public class PlayerManager
     {
         private readonly MenuActionService _actionService;
-        private PlayerService _playerService;
+        private IService<Player> _playerService;
 
-        public PlayerManager(MenuActionService actionService)
+        public PlayerManager(MenuActionService actionService, IService<Player> playerService)
         {
             _actionService = actionService;
-            _playerService = new PlayerService();
+            _playerService = playerService;
         }
 
-        public int AddNewplayer()
+        public int AddNewPlayer()
         {
             var countryList = _actionService.GetMenuActionsByName("Country");
             bool noCountry = false;
@@ -92,9 +93,9 @@ namespace Manager.App.Managers
             }
         }
 
-        public int Removeplayer()
+        public int RemovePlayer()
         {
-            if (ListOfplayers())
+            if (ListOfPlayers())
             {
                 Console.WriteLine("\nPlease enter id for player you want remove");
                 var playerId = Console.ReadLine();
@@ -115,10 +116,10 @@ namespace Manager.App.Managers
                 return 0;
             }
         }
-        public int Updateplayer()
+        public int UpdatePlayer()
         {
 
-            if (ListOfplayers())
+            if (ListOfPlayers())
             {
                 Console.WriteLine("\nPlease enter id for player you want update");
                 var playerId = Console.ReadLine();
@@ -176,7 +177,7 @@ namespace Manager.App.Managers
 
 
 
-        public bool ListOfplayers()
+        public bool ListOfPlayers()
         {
             if (_playerService.Items.Any())
             {

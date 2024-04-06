@@ -1,5 +1,9 @@
-﻿using Manager.App.Concrete;
+﻿using Manager.App;
+using Manager.App.Abstract;
+using Manager.App.Common;
+using Manager.App.Concrete;
 using Manager.App.Managers;
+using Manager.Domain.Entity;
 using Manager.Helpers;
 internal class Program
 {
@@ -7,7 +11,8 @@ internal class Program
     {
         new LogIn();
         MenuActionService actionService = new();
-        PlayerManager playerManager = new(actionService);
+        IService<Player> playerService = new PlayerService();
+        PlayerManager playerManager = new(actionService, playerService);
 
         var mainMenu = actionService.GetMenuActionsByName("Main");
         bool wrongOperation = false;
@@ -38,17 +43,17 @@ internal class Program
             switch (operation.KeyChar)
             {
                 case '1':
-                    var newId = playerManager.AddNewplayer();
+                    var newId = playerManager.AddNewPlayer();
                     break;
                 case '2':
-                    playerManager.ListOfplayers();
+                    playerManager.ListOfPlayers();
                     Console.ReadKey();
                     break;
                 case '3':
-                    var removeId = playerManager.Removeplayer();
+                    var removeId = playerManager.RemovePlayer();
                     break;
                 case '4':
-                    var updateId = playerManager.Updateplayer();
+                    var updateId = playerManager.UpdatePlayer();
                     break;
                 case '5':
                     break;
