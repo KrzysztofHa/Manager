@@ -43,7 +43,7 @@ internal class Program
             switch (operation.KeyChar)
             {
                 case '1':
-                    var newId = playerManager.AddNewPlayer();
+                    playerManager.PlayerOptionView();                    
                     break;
                 case '2':
                     playerManager.ListOfPlayers();

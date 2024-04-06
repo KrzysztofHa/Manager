@@ -17,6 +17,42 @@ namespace Manager.App.Managers
             _playerService = playerService;
         }
 
+        public void PlayerOptionView()
+        {
+            var optionPlayerMenu = _actionService.GetMenuActionsByName("Players");
+            Console.Clear();
+            for (int i = 0; i < optionPlayerMenu.Count; i++)
+            {
+                Console.WriteLine($"{i + 1}. {optionPlayerMenu[i].Name}");
+            }
+            Console.WriteLine("Enter Option");
+            var option = Console.ReadKey();
+            if (int.TryParse(option.KeyChar.ToString(), out int operation))
+            {
+                switch (operation)
+                {
+                    case 1:
+                        ListOfPlayers();
+                        Console.ReadKey();
+                        break;
+                    case 2:
+
+                        break;
+                    case 3:
+                        AddNewPlayer();
+                        break;
+                    case 4:
+                        UpdatePlayer();
+                        break;
+                    case 5:
+                        RemovePlayer();
+                        break;
+                    default:
+                        break;
+
+                }
+            }
+        }
         public int AddNewPlayer()
         {
             var countryList = _actionService.GetMenuActionsByName("Country");
@@ -130,26 +166,74 @@ namespace Manager.App.Managers
                     {
                         while (true)
                         {
-                            Console.Clear();
-                            Console.WriteLine("Update player\n");
-                            Console.WriteLine("Enter player name:");
-                            var playerName = Console.ReadLine();
-                            if (!string.IsNullOrWhiteSpace(playerName))
+                            var countryList = _actionService.GetMenuActionsByName("Country");
+                            bool noCountry = false;
+                            while (true)
                             {
-                                playerName = playerName.ToString().Trim();
-                                playerName = playerName.ToLower();
-                                for (int i = 0; i <= playerName.Length - 1; i++)
+                                Console.Clear();
+                                Console.WriteLine("  Update Player\n");
+
+                                if (noCountry)
                                 {
-                                    if (char.IsWhiteSpace(playerName[i]))
+                                    noCountry = false;
+                                    Console.WriteLine("Action You entered does not exist\n");
+                                }
+                                else
+                                {
+                                    Console.WriteLine($"\n    Enter Country\n\n\nPress number key in menu options\n");
+                                }
+
+                                Console.WriteLine($"0. Skip changing country");
+                                for (int i = 0; i < countryList.Count; i++)
+                                {
+                                    Console.WriteLine($"{countryList[i].Id}. {countryList[i].Name}");
+                                }
+
+                                Console.WriteLine("\n\n\n\n       Press q to back in Main menu");
+                                var operation = Console.ReadKey();
+                                int.TryParse(operation.KeyChar.ToString(), out int numberCountry);
+
+                                if (numberCountry <= countryList.Count && numberCountry >= 0)
+                                {
+                                    if (operation.Key != ConsoleKey.Q)
                                     {
-                                        playerName = playerName.Remove(i);
-                                        break;
+                                        var countryplayer = new Country();
+
+                                        Console.Clear();
+                                        Console.WriteLine("Update player\n");
+                                        Console.WriteLine("Enter player name:");
+                                        var playerName = Console.ReadLine();
+                                        if (!string.IsNullOrWhiteSpace(playerName))
+                                        {
+                                            playerName = playerName.ToString().Trim();
+                                            playerName = playerName.ToLower();
+                                            for (int i = 0; i <= playerName.Length - 1; i++)
+                                            {
+                                                if (char.IsWhiteSpace(playerName[i]))
+                                                {
+                                                    playerName = playerName.Remove(i);
+                                                    break;
+                                                }
+                                            }
+                                            playerToUpdate.Name = playerName[0].ToString().ToUpper();
+                                            playerToUpdate.Name += playerName.Substring(1);
+                                            _playerService.UpdateItem(playerToUpdate);
+                                            return playerToUpdate.Id;
+                                        }
+                                        if (numberCountry != 0)
+                                        {
+                                            playerToUpdate.Country = countryplayer.CountryList[numberCountry - 1];
+                                        }
+                                    }
+                                    else
+                                    {
+                                        return 0;
                                     }
                                 }
-                                playerToUpdate.Name = playerName[0].ToString().ToUpper();
-                                playerToUpdate.Name += playerName.Substring(1);
-                                _playerService.UpdateItem(playerToUpdate);
-                                return playerToUpdate.Id;
+                                if (operation.Key == ConsoleKey.Q)
+                                {
+                                    return 0;
+                                }
                             }
                         }
                     }
