@@ -3,8 +3,13 @@ namespace Manager.Tests
     public class UnitTest1
     {
         [Fact]
-        public void Test1()
+        public void WillIFindAPlayer()
         {
+            //
+
+            //Act
+
+            //Aser
 
         }
     }

@@ -5,10 +5,13 @@ namespace Manager.App
 {
     public class PlayerService : BaseService<Player>
     {
+        // private readonly ISaveItem<Path> _SaveItem;
+        public const string PathName = "Players";
         public List<Player> Players { get; set; }
-        public PlayerService()
+        public PlayerService()//ISaveItem<Path> SaveItem)
         {
             Players = new List<Player>();
+            //_SaveItem = SaveItem;
         }
     }
 }

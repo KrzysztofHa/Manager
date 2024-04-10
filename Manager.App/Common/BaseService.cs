@@ -10,6 +10,8 @@ namespace Manager.App.Common
         public BaseService()
         {
             Items = new List<T>();
+            //_SaveItem = SaveItem;
+            //Items = _fileSaveItem.Load("Player");
         }
 
         public int GetNextId()
@@ -32,12 +34,12 @@ namespace Manager.App.Common
 
         public List<T> GetAllItem()
         {
-            return Items;
+            return Items.FindAll(p => p.Active == true);
         }
 
         public void RemoveItem(T item)
         {
-            Items.Remove(item);
+            item.Active = false;
         }
 
         public int UpdateItem(T item)

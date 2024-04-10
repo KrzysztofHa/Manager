@@ -27,24 +27,24 @@ namespace Manager.App.Concrete
         {
             var menuCountry = new Country();
 
-            AddItem(new MenuAction(1, "Players", "Main"));
-            AddItem(new MenuAction(2, "Ranking Not implemented ", "Main"));
-            AddItem(new MenuAction(3, "Sparing Not implemented", "Main"));
-            AddItem(new MenuAction(4, "Tournaments Not implemented", "Main"));
+            AddItem(new MenuAction(1000, "Players", "Main"));
+            AddItem(new MenuAction(2000, "Global Ranking Not implemented ", "Main"));
+            AddItem(new MenuAction(3000, "Sparing Not implemented", "Main"));
+            AddItem(new MenuAction(4000, "Tournaments Not implemented", "Main"));
+            AddItem(new MenuAction(5000, "Settings Not implemented", "Main"));
 
-            AddItem(new MenuAction(5, "List Of Player", "Players"));
-            AddItem(new MenuAction(6, "Search Player NOt implemented", "Players"));
-            AddItem(new MenuAction(7, "Add Player", "Players"));
-            AddItem(new MenuAction(8, "Update Player", "Players"));
-            AddItem(new MenuAction(9, "Remove Player", "Players"));
+            AddItem(new MenuAction(1100, "List Of Player", "Players"));
+            AddItem(new MenuAction(1200, "Search Player Not implemented", "Players"));
+            AddItem(new MenuAction(1300, "Add Player", "Players"));
+            AddItem(new MenuAction(1400, "Update Player", "Players"));
+            AddItem(new MenuAction(1500, "Remove Player", "Players"));
 
-            AddItem(new MenuAction(10, "League Not implemented", "Tournaments"));
-            AddItem(new MenuAction(11, "One day Not implemented", "Tournaments"));
+            AddItem(new MenuAction(4100, "League Not implemented", "Tournaments"));
+            AddItem(new MenuAction(4200, "One day Not implemented", "Tournaments"));
 
-            AddItem(new MenuAction(12, "Players Not implemented", "League"));
-            AddItem(new MenuAction(13, "Ranking Not implemented", "League"));
+            AddItem(new MenuAction(4110, "Players Not implemented", "League"));
+            AddItem(new MenuAction(4120, "Tournament Ranking Not implemented", "League"));
 
-            AddItem(new MenuAction(14, " Not implemented", "League"));
             AddItem(new MenuAction(15, " Not implemented", "OneDey"));
 
             for (int i = 0; i <= menuCountry.CountryList.Count - 1; i++)

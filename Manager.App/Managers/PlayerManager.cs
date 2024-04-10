@@ -111,6 +111,7 @@ namespace Manager.App.Managers
                                 newplayer.Name += playerName.Substring(1);
                                 newplayer.Country = countryplayer.CountryList[numberCountry - 1];
                                 newplayer.Id = _playerService.GetNextId();
+                                newplayer.Active = true;
                                 _playerService.AddItem(newplayer);
                                 return newplayer.Id;
                             }

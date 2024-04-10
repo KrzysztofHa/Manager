@@ -1,6 +1,5 @@
 ﻿using Manager.App;
 using Manager.App.Abstract;
-using Manager.App.Common;
 using Manager.App.Concrete;
 using Manager.App.Managers;
 using Manager.Domain.Entity;
@@ -34,7 +33,7 @@ internal class Program
 
             for (int i = 0; i < mainMenu.Count; i++)
             {
-                Console.WriteLine($"{mainMenu[i].Id}. {mainMenu[i].Name}");
+                Console.WriteLine($"{i + 1}. {mainMenu[i].Name}");
             }
 
             Console.WriteLine("\n\n\n\n       Press Esc to Exit");
@@ -43,17 +42,14 @@ internal class Program
             switch (operation.KeyChar)
             {
                 case '1':
-                    playerManager.PlayerOptionView();                    
+                    playerManager.PlayerOptionView();
                     break;
                 case '2':
-                    playerManager.ListOfPlayers();
                     Console.ReadKey();
                     break;
-                case '3':
-                    var removeId = playerManager.RemovePlayer();
+                case '3':                    
                     break;
-                case '4':
-                    var updateId = playerManager.UpdatePlayer();
+                case '4':                    
                     break;
                 case '5':
                     break;

@@ -3,5 +3,6 @@
     public class BaseEntity : AuditableModel
     {
         public int Id { get; set; }
+        public bool Active { get; set; }
     }
 }
