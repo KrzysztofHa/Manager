@@ -1,15 +1,21 @@
 ﻿using Manager.App.Abstract;
 using Manager.Domain.Common;
+using Manager.Domain.Entity;
+using Manager.Infrastructure.Abstract;
+using Manager.Infrastructure.Common;
 
 namespace Manager.App.Common
 {
     public class BaseService<T> : IService<T> where T : BaseEntity
     {
+        private readonly IBaseService<T> _baseOperationService = new BaseOperationService<T>();
         public List<T> Items { get; set; }
 
-        public BaseService()
+        public BaseService(IBaseService<T> baseOperationService)
         {
             Items = new List<T>();
+            baseOperationService = _baseOperationService;
+            Items = baseOperationService.LoadListInBase(typeof(T).Name);
         }
         public int AddItem(T item)
         {

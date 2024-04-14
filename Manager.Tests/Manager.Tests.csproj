@@ -18,6 +18,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Manager.App\Manager.App.csproj" />
+    <ProjectReference Include="..\Manager.Domain\Manager.Domain.csproj" />
+    <ProjectReference Include="..\Manager.Infrastructure\Manager.Infrastructure.csproj" />
+    <ProjectReference Include="..\Manager\Manager.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Using Include="Xunit" />
   </ItemGroup>
 
