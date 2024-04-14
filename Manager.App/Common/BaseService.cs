@@ -10,22 +10,7 @@ namespace Manager.App.Common
         public BaseService()
         {
             Items = new List<T>();
-            //_SaveItem = SaveItem;
-            //Items = _fileSaveItem.Load("Player");
         }
-
-        public int GetNextId()
-        {
-            if (Items.Any())
-            {
-                return Items.Count() + 1;
-            }
-            else
-            {
-                return 1;
-            }
-        }
-
         public int AddItem(T item)
         {
             Items.Add(item);

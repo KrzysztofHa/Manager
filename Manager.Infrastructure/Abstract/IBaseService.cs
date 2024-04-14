@@ -1,12 +1,10 @@
-﻿using Manager.Infrastructure.Common;
-
-namespace Manager.Infrastructure.Abstract
+﻿namespace Manager.Infrastructure.Abstract
 {
     public interface IBaseService<T>
     {
-        List<BasePaths> Paths { get; set; }
-        bool Save(string PathName, List<T> listToFile);
-        List<T> Load(string fileName);
-        List<BasePaths> BasePathsList();
+        bool SaveListToBase(string PathName, List<T> listToSave);
+        bool SaveOneRecordToBase(string PathName, T oneRecord);
+        List<T> LoadListInBase(string PathName);
+        void GetListInBaseOfPathNameView(string PathName);
     }
 }

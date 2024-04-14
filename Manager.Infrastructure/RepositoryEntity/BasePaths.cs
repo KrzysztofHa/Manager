@@ -1,7 +1,8 @@
-﻿namespace Manager.Infrastructure.Concrete
+﻿namespace Manager.Infrastructure.Entity
 {
-    public class BasePath
+    public class BasePaths
     {
+        public int Id { get; set; }
         public string PathName { get; set; }
         public string FileName { get; set; }
 

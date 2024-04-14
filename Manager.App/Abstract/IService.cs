@@ -6,7 +6,6 @@
         List<T> GetAllItem();
         int AddItem(T item);
         int UpdateItem(T item);
-        void RemoveItem(T item);
-        int GetNextId();
+        void RemoveItem(T item);       
     }
 }

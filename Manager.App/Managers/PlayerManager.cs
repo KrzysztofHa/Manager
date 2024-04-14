@@ -9,7 +9,7 @@ namespace Manager.App.Managers
     public class PlayerManager
     {
         private readonly MenuActionService _actionService;
-        private IService<Player> _playerService;
+        private readonly IService<Player> _playerService;
 
         public PlayerManager(MenuActionService actionService, IService<Player> playerService)
         {
@@ -85,10 +85,11 @@ namespace Manager.App.Managers
                 {
                     if (operation.Key != ConsoleKey.Q)
                     {
-                        var newplayer = new Player();
-                        var countryplayer = new Country();
-                        Console.Clear();
+                        var newPlayer = new Player();
+                        var countryPlayer = new Country();
+                        newPlayer.Country = countryPlayer.CountryList[numberCountry - 1];
 
+                        Console.Clear();
                         while (true)
                         {
                             Console.Clear();
@@ -97,25 +98,50 @@ namespace Manager.App.Managers
                             var playerName = Console.ReadLine();
                             if (!string.IsNullOrWhiteSpace(playerName))
                             {
-                                playerName = playerName.ToString().Trim();
-                                playerName = playerName.ToLower();
-                                for (int i = 0; i <= playerName.Length - 1; i++)
-                                {
-                                    if (char.IsWhiteSpace(playerName[i]))
-                                    {
-                                        playerName = playerName.Remove(i);
-                                        break;
-                                    }
-                                }
-                                newplayer.Name = playerName[0].ToString().ToUpper();
-                                newplayer.Name += playerName.Substring(1);
-                                newplayer.Country = countryplayer.CountryList[numberCountry - 1];
-                                newplayer.Id = _playerService.GetNextId();
-                                newplayer.Active = true;
-                                _playerService.AddItem(newplayer);
-                                return newplayer.Id;
+                                playerName = playerName.Trim();
+                                playerName.Replace(playerName.First(), playerName.ToUpper().First());
+                                newPlayer.Name = playerName;
+                                break;
                             }
                         }
+                        while (true)
+                        {
+                            Console.Clear();
+                            Console.Write("Enter player last name:");
+                            var playerLastName = Console.ReadLine();
+                            if (!string.IsNullOrWhiteSpace(playerLastName))
+                            {
+                                playerLastName.Trim();
+                                playerLastName.Replace(playerLastName.First(), playerLastName.ToUpper().First());
+                                newPlayer.LastName = playerLastName;
+                                break;
+                            }
+                        }
+                        while (true)
+                        {
+                            Console.Clear();
+                            Console.Write("Enter player City:");
+                            var playerCity = Console.ReadLine();
+                            if (!string.IsNullOrWhiteSpace(playerCity))
+
+                            {
+                                playerCity.Trim();
+                                playerCity.Replace(playerCity.First(), playerCity.ToUpper().First());
+                                newPlayer.City = playerCity;
+                                break;
+                            }
+                        }
+                        if (_playerService.Items.Any())
+                        {
+                            newPlayer.Id = _playerService.GetAllItem().Last().Id + 1;
+                        }
+                        else
+                        {
+                            newPlayer.Id = 1;
+                        }
+                        newPlayer.Active = true;
+                        return _playerService.AddItem(newPlayer);
+
                     }
                     else
                     {
@@ -206,16 +232,8 @@ namespace Manager.App.Managers
                                         var playerName = Console.ReadLine();
                                         if (!string.IsNullOrWhiteSpace(playerName))
                                         {
-                                            playerName = playerName.ToString().Trim();
-                                            playerName = playerName.ToLower();
-                                            for (int i = 0; i <= playerName.Length - 1; i++)
-                                            {
-                                                if (char.IsWhiteSpace(playerName[i]))
-                                                {
-                                                    playerName = playerName.Remove(i);
-                                                    break;
-                                                }
-                                            }
+                                            playerName = playerName.Trim();
+                                            playerName.Replace(playerName.First(), playerName.ToUpper().First());                                            
                                             playerToUpdate.Name = playerName[0].ToString().ToUpper();
                                             playerToUpdate.Name += playerName.Substring(1);
                                             _playerService.UpdateItem(playerToUpdate);
