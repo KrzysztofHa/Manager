@@ -1,7 +1,11 @@
 ﻿using Manager.App.Abstract;
+using Manager.App.Common;
 using Manager.App.Concrete;
 using Manager.App.Concrete.Helpers;
 using Manager.Domain.Entity;
+using Manager.Infrastructure.Abstract;
+using Manager.Infrastructure.Common;
+using System.Numerics;
 
 
 namespace Manager.App.Managers
@@ -10,46 +14,63 @@ namespace Manager.App.Managers
     {
         private readonly MenuActionService _actionService;
         private readonly IService<Player> _playerService;
-
+        private readonly IBaseService<Player> _baseService = new BaseOperationService<Player>();
         public PlayerManager(MenuActionService actionService, IService<Player> playerService)
         {
             _actionService = actionService;
             _playerService = playerService;
+            _playerService.Items = _baseService.ListOfElements;
         }
 
         public void PlayerOptionView()
         {
             var optionPlayerMenu = _actionService.GetMenuActionsByName("Players");
-            Console.Clear();
-            for (int i = 0; i < optionPlayerMenu.Count; i++)
+            while (true)
             {
-                Console.WriteLine($"{i + 1}. {optionPlayerMenu[i].Name}");
-            }
-            Console.WriteLine("Enter Option");
-            var option = Console.ReadKey();
-            if (int.TryParse(option.KeyChar.ToString(), out int operation))
-            {
-                switch (operation)
+                Console.Clear();
+                for (int i = 0; i < optionPlayerMenu.Count; i++)
                 {
-                    case 1:
-                        ListOfPlayers();
-                        Console.ReadKey();
-                        break;
-                    case 2:
+                    Console.WriteLine($"{i + 1}. {optionPlayerMenu[i].Name}");
+                }
 
-                        break;
-                    case 3:
-                        AddNewPlayer();
-                        break;
-                    case 4:
-                        UpdatePlayer();
-                        break;
-                    case 5:
-                        RemovePlayer();
-                        break;
-                    default:
-                        break;
+                Console.WriteLine("\n\n    Back To Main Menu  Press Esc or Q ");
+                Console.WriteLine("     Enter Option");
 
+
+
+                var option = Console.ReadKey();
+
+                if (int.TryParse(option.KeyChar.ToString(), out int operation))
+                {
+                    switch (operation)
+                    {
+                        case 1:
+                            ListOfPlayersView();
+                            Console.ReadKey();
+                            break;
+                        case 2:
+                            break;
+                        case 3:
+                            AddNewPlayer();
+                            break;
+                        case 4:
+                            UpdatePlayer();
+                            break;
+                        case 5:
+                            RemovePlayer();
+                            break;
+                        case 6:
+                            break;
+                        default:
+
+                            break;
+                    }
+                }
+
+                if (option.Key == ConsoleKey.Q || option.Key == ConsoleKey.Escape)
+                {
+                    _baseService.SaveListToBase();
+                    break;
                 }
             }
         }
@@ -107,7 +128,7 @@ namespace Manager.App.Managers
                         while (true)
                         {
                             Console.Clear();
-                            Console.Write("Enter player last name:");
+                            Console.Write("Enter player last name:\n");
                             var playerLastName = Console.ReadLine();
                             if (!string.IsNullOrWhiteSpace(playerLastName))
                             {
@@ -120,7 +141,7 @@ namespace Manager.App.Managers
                         while (true)
                         {
                             Console.Clear();
-                            Console.Write("Enter player City:");
+                            Console.Write("Enter player City:\n");
                             var playerCity = Console.ReadLine();
                             if (!string.IsNullOrWhiteSpace(playerCity))
 
@@ -133,7 +154,7 @@ namespace Manager.App.Managers
                         }
                         if (_playerService.Items.Any())
                         {
-                            newPlayer.Id = _playerService.GetAllItem().Last().Id + 1;
+                            newPlayer.Id = _playerService.Items.Count + 1;
                         }
                         else
                         {
@@ -158,7 +179,7 @@ namespace Manager.App.Managers
 
         public int RemovePlayer()
         {
-            if (ListOfPlayers())
+            if (ListOfPlayersView())
             {
                 Console.WriteLine("\nPlease enter id for player you want remove");
                 var playerId = Console.ReadLine();
@@ -170,19 +191,19 @@ namespace Manager.App.Managers
                 }
                 else
                 {
-                    return 0;
+                    return -1;
                 }
                 return playerToRemove.Id;
             }
             else
             {
-                return 0;
+                return -1;
             }
         }
         public int UpdatePlayer()
         {
 
-            if (ListOfPlayers())
+            if (ListOfPlayersView())
             {
                 Console.WriteLine("\nPlease enter id for player you want update");
                 var playerId = Console.ReadLine();
@@ -233,10 +254,14 @@ namespace Manager.App.Managers
                                         if (!string.IsNullOrWhiteSpace(playerName))
                                         {
                                             playerName = playerName.Trim();
-                                            playerName.Replace(playerName.First(), playerName.ToUpper().First());                                            
+                                            playerName.Replace(playerName.First(), playerName.ToUpper().First());
                                             playerToUpdate.Name = playerName[0].ToString().ToUpper();
                                             playerToUpdate.Name += playerName.Substring(1);
                                             _playerService.UpdateItem(playerToUpdate);
+                                            return playerToUpdate.Id;
+                                        }
+                                        else
+                                        {
                                             return playerToUpdate.Id;
                                         }
                                         if (numberCountry != 0)
@@ -280,15 +305,17 @@ namespace Manager.App.Managers
 
 
 
-        public bool ListOfPlayers()
+        public bool ListOfPlayersView()
         {
             if (_playerService.Items.Any())
             {
+
                 Console.Clear();
                 Console.WriteLine("List Of players");
                 foreach (var player in _playerService.GetAllItem())
                 {
                     Console.WriteLine($"{player.Id}. {player.Name} Country: {player.Country}");
+
                 }
                 return true;
             }

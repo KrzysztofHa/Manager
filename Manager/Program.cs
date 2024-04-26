@@ -1,17 +1,20 @@
 ﻿using Manager.App;
 using Manager.App.Abstract;
+using Manager.App.Common;
 using Manager.App.Concrete;
 using Manager.App.Managers;
 using Manager.Domain.Entity;
 using Manager.Helpers;
 internal class Program
 {
-    private static void Main()
+    public static void Main()
     {
         new LogIn();
-        MenuActionService actionService = new();
+
         IService<Player> playerService = new PlayerService();
+        MenuActionService actionService = new();
         PlayerManager playerManager = new(actionService, playerService);
+
 
         var mainMenu = actionService.GetMenuActionsByName("Main");
         bool wrongOperation = false;
@@ -19,7 +22,7 @@ internal class Program
         while (true)
         {
             Console.Clear();
-            Console.WriteLine($"Hello User {LogIn.UserName}!\n\n");
+            Console.WriteLine($"\nHello User {LogIn.UserName}!\n\n");
 
             if (wrongOperation)
             {
@@ -47,9 +50,9 @@ internal class Program
                 case '2':
                     Console.ReadKey();
                     break;
-                case '3':                    
+                case '3':
                     break;
-                case '4':                    
+                case '4':
                     break;
                 case '5':
                     break;

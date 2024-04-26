@@ -7,18 +7,15 @@ using Manager.Infrastructure.Common;
 namespace Manager.App.Common
 {
     public class BaseService<T> : IService<T> where T : BaseEntity
-    {
-        private readonly IBaseService<T> _baseOperationService = new BaseOperationService<T>();
+    {       
         public List<T> Items { get; set; }
 
-        public BaseService(IBaseService<T> baseOperationService)
+        public BaseService()
         {
-            Items = new List<T>();
-            baseOperationService = _baseOperationService;
-            Items = baseOperationService.LoadListInBase(typeof(T).Name);
+            Items = new List<T>();           
         }
         public int AddItem(T item)
-        {
+        {           
             Items.Add(item);
             return item.Id;
         }
