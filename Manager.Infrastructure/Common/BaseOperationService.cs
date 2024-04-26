@@ -1,61 +1,31 @@
 ﻿using Manager.Infrastructure.Abstract;
-using Manager.Infrastructure.Concrete;
-using Newtonsoft.Json;
 
 namespace Manager.Infrastructure.Common
 {
     public class BaseOperationService<T> : IBaseService<T>
     {
-        public List<T> ListOfElements { get; set; }
-        public BaseOperationService()
+        public void GetListInBaseOfPathNameView(string PathName)
         {
-            ListOfElements = new List<T>();
-            LoadListInBase();
+            throw new NotImplementedException();
         }
 
-        private static readonly string PathName = typeof(T).Name;
-        public static string PathToFile = LoadPathToFile();
-
-        private static string LoadPathToFile()
+        public List<T> LoadListInBase(string PathName)
         {
-            BasePathsService _basePathsService = new BasePathsService();
-            PathToFile = _basePathsService.GetPathToFileOfTypeName(PathName);
-            return PathToFile;
+            throw new NotImplementedException();
         }
-        public List<T> LoadListInBase()
+
+        public bool SaveListToBase(string PathName, List<T> listToSave)
         {
-            if (File.Exists(PathToFile))
-            {
-                using StreamReader sr = new StreamReader(PathToFile);
-                using JsonReader jsonReader = new JsonTextReader(sr);
-
-                JsonSerializer serializer = new JsonSerializer();
-                var jsonOutput = serializer.Deserialize<string>(jsonReader);
-                ListOfElements = JsonConvert.DeserializeObject<List<T>>(jsonOutput);
-            }
-
-            return ListOfElements;
+            throw new NotImplementedException();
         }
-        public bool SaveListToBase()
+
+        public bool SaveOneRecordToBase(string PathName, T oneRecord)
         {
-            try
-            {
-                var jsonOutput = JsonConvert.SerializeObject(ListOfElements);
-                using StreamWriter sw = new StreamWriter(PathToFile);
-                using JsonWriter jsonWriter = new JsonTextWriter(sw);
-
-                JsonSerializer jsonSerializer = new JsonSerializer();
-                jsonSerializer.Serialize(jsonWriter, jsonOutput);
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-
-            return true;
+            throw new NotImplementedException();
         }
 
     }
 
 }
+
 
