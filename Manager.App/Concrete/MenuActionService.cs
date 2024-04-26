@@ -38,6 +38,7 @@ namespace Manager.App.Concrete
             AddItem(new MenuAction(1300, "Add Player", "Players"));
             AddItem(new MenuAction(1400, "Update Player", "Players"));
             AddItem(new MenuAction(1500, "Remove Player", "Players"));
+            
 
             AddItem(new MenuAction(4100, "League Not implemented", "Tournaments"));
             AddItem(new MenuAction(4200, "One day Not implemented", "Tournaments"));
