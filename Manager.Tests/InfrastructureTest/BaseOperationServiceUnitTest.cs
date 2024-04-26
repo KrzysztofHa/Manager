@@ -17,10 +17,7 @@ namespace Manager.Tests.Infrastructure
         [Fact]
         public void CanSaveListToBase()
         {
-            //Arrange
-           
-
-            
+            //Arrange                       
             List<Player> playerList = new List<Player>();
             for (int i = 1; i <= 10; i++)
             {
@@ -36,8 +33,7 @@ namespace Manager.Tests.Infrastructure
             //Act
             var resultiBaseService = iBaseService.SaveListToBase();
 
-            //Assert
-            resultiBaseService.Should().BeTrue();
+            //Assert            
             Assert.True(resultiBaseService);
         }
 

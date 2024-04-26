@@ -12,10 +12,6 @@ namespace Manager.App
         public PlayerService()
         {
             Players = new List<Player>();
-        }
-      public void SaveList(Player player)
-        {
-
-        }
+        }     
     }
 }

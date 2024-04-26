@@ -18,7 +18,7 @@ namespace Manager.Infrastructure.Common
 
         private static string LoadPathToFile()
         {
-            BasePathsService _basePathsService = new BasePathsService();
+            BasePathsService _basePathsService = new();
             PathToFile = _basePathsService.GetPathToFileOfTypeName(PathName);
             return PathToFile;
         }

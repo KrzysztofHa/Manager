@@ -6,6 +6,7 @@ using Manager.Domain.Entity;
 using Manager.Infrastructure.Abstract;
 using Manager.Infrastructure.Common;
 using System.Numerics;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 
 namespace Manager.App.Managers
@@ -187,12 +188,9 @@ namespace Manager.App.Managers
                 var playerToRemove = _playerService.Items.FirstOrDefault(p => p.Id == id);
                 if (playerToRemove != null)
                 {
-                    _playerService.RemoveItem(playerToRemove);
-                }
-                else
-                {
-                    return -1;
-                }
+                    playerToRemove.Active = false;                    
+                }       
+                
                 return playerToRemove.Id;
             }
             else
@@ -257,16 +255,16 @@ namespace Manager.App.Managers
                                             playerName.Replace(playerName.First(), playerName.ToUpper().First());
                                             playerToUpdate.Name = playerName[0].ToString().ToUpper();
                                             playerToUpdate.Name += playerName.Substring(1);
-                                            _playerService.UpdateItem(playerToUpdate);
-                                            return playerToUpdate.Id;
+                                            
+                                            
                                         }
-                                        else
-                                        {
-                                            return playerToUpdate.Id;
-                                        }
+                                       
+
                                         if (numberCountry != 0)
                                         {
                                             playerToUpdate.Country = countryplayer.CountryList[numberCountry - 1];
+                                            _playerService.UpdateItem(playerToUpdate);
+                                            return playerToUpdate.Id;
                                         }
                                     }
                                     else
@@ -302,9 +300,6 @@ namespace Manager.App.Managers
                 return 0;
             }
         }
-
-
-
         public bool ListOfPlayersView()
         {
             if (_playerService.Items.Any())
@@ -312,9 +307,12 @@ namespace Manager.App.Managers
 
                 Console.Clear();
                 Console.WriteLine("List Of players");
+                var activePlayer = _playerService.Items.Any(p => p.Active == true);
+                var ordinalNumber = 0;
                 foreach (var player in _playerService.GetAllItem())
                 {
-                    Console.WriteLine($"{player.Id}. {player.Name} Country: {player.Country}");
+                    
+                    Console.WriteLine($"{ordinalNumber++}. {player.Name} Country: {player.Country}");
 
                 }
                 return true;
