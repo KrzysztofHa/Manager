@@ -46,7 +46,7 @@ namespace Manager.App.Concrete
             AddItem(new MenuAction(4110, "Players Not implemented", "League"));
             AddItem(new MenuAction(4120, "Tournament Ranking Not implemented", "League"));
 
-            AddItem(new MenuAction(15, " Not implemented", "OneDey"));
+           
 
             for (int i = 0; i <= menuCountry.CountryList.Count - 1; i++)
             {

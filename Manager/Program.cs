@@ -22,7 +22,8 @@ internal class Program
         while (true)
         {
             Console.Clear();
-            Console.WriteLine($"\nHello User {LogIn.UserName}!\n\n");
+            Console.WriteLine($"\r\n");
+            Console.WriteLine($"     Hello User {LogIn.UserName}!\n");
 
             if (wrongOperation)
             {
@@ -39,7 +40,7 @@ internal class Program
                 Console.WriteLine($"{i + 1}. {mainMenu[i].Name}");
             }
 
-            Console.WriteLine("\n\n\n\n       Press Esc to Exit");
+            Console.WriteLine("\n\n   Press Esc to Exit");
             var operation = Console.ReadKey(true);
 
             switch (operation.KeyChar)
@@ -48,7 +49,7 @@ internal class Program
                     playerManager.PlayerOptionView();
                     break;
                 case '2':
-                    Console.ReadKey();
+                    
                     break;
                 case '3':
                     break;
