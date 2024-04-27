@@ -1,17 +1,25 @@
 using FluentAssertions;
 using Manager.Domain.Entity;
 using Manager.Infrastructure.Common;
-using Moq;
-using Newtonsoft.Json;
-using System.Reflection;
-using System.Runtime.Serialization.Json;
-using System.Xml;
-using Xunit.Abstractions;
 
 namespace Manager.Tests.Infrastructure
 {
     public class BaseOperationServiceUnitTest
     {
+        [Fact]
+        public void CanLoadListINBase()
+        {
+            //Arrange
+            Directory.SetCurrentDirectory(@"c:\temp\");
+            BaseOperationService<Player> iBaseService = new BaseOperationService<Player>();
+
+            //Act
+            var resultiBaseService = iBaseService.LoadListInBase();
+
+            //Assert            
+            resultiBaseService.Should().BeEmpty();
+
+        }
 
 
         [Fact]
@@ -24,9 +32,7 @@ namespace Manager.Tests.Infrastructure
                 playerList.Add(new Player { Id = i + 1, Active = true, Name = "Player" + i + 1, Country = "Poland" });
             }
 
-            Directory.SetCurrentDirectory(@"c:temp");
-
-            var mockBaseOperationService = new Mock<BaseOperationService<Player>>();
+            Directory.SetCurrentDirectory(@"c:\temp\");
             BaseOperationService<Player> iBaseService = new BaseOperationService<Player>();
             iBaseService.ListOfElements = playerList;
 
