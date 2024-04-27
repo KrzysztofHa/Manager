@@ -11,13 +11,11 @@ namespace Manager.App.Managers
     public class PlayerManager
     {
         private readonly MenuActionService _actionService;
-        private readonly IService<Player> _playerService;
-        private readonly IBaseService<Player> _baseService = new BaseOperationService<Player>();
+        private readonly IService<Player> _playerService;       
         public PlayerManager(MenuActionService actionService, IService<Player> playerService)
         {
             _actionService = actionService;
-            _playerService = playerService;
-            _playerService.Items = _baseService.ListOfElements;
+            _playerService = playerService;            
         }
 
         public void PlayerOptionView()
@@ -67,7 +65,7 @@ namespace Manager.App.Managers
 
                 if (option.Key == ConsoleKey.Q || option.Key == ConsoleKey.Escape)
                 {
-                    _baseService.SaveListToBase();
+                    _playerService.SaveList();
                     break;
                 }
             }

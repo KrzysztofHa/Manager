@@ -1,21 +1,22 @@
 ﻿using Manager.App.Abstract;
 using Manager.Domain.Common;
-using Manager.Domain.Entity;
 using Manager.Infrastructure.Abstract;
 using Manager.Infrastructure.Common;
 
 namespace Manager.App.Common
 {
     public class BaseService<T> : IService<T> where T : BaseEntity
-    {       
+    {
+        private readonly IBaseService<T> _baseService = new BaseOperationService<T>();
         public List<T> Items { get; set; }
 
         public BaseService()
         {
-            Items = new List<T>();           
+            Items = new List<T>();
+            Items = _baseService.ListOfElements;
         }
         public int AddItem(T item)
-        {           
+        {
             Items.Add(item);
             return item.Id;
         }
@@ -38,6 +39,11 @@ namespace Manager.App.Common
                 entity = item;
             }
             return entity.Id;
+        }
+
+        public void SaveList()
+        {
+            _baseService.SaveListToBase();
         }
     }
 }
