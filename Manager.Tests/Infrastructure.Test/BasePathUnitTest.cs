@@ -1,17 +1,11 @@
 ﻿using FluentAssertions;
 using Manager.Domain.Entity;
 using Manager.Infrastructure.Concrete;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Manager.Tests.InfrastructureTest
+namespace Manager.Tests.Infrastructure.Test
 {
     public class BasePathUnitTest
     {
-
         [Fact]
         public void CanAddNewEntryInPathsList()
         {

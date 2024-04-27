@@ -2,8 +2,6 @@
 using Manager.App.Concrete;
 using Manager.App.Concrete.Helpers;
 using Manager.Domain.Entity;
-using Manager.Infrastructure.Abstract;
-using Manager.Infrastructure.Common;
 
 
 namespace Manager.App.Managers
@@ -12,12 +10,10 @@ namespace Manager.App.Managers
     {
         private readonly MenuActionService _actionService;
         private readonly IService<Player> _playerService;
-        private readonly IBaseService<Player> _baseService = new BaseOperationService<Player>();
         public PlayerManager(MenuActionService actionService, IService<Player> playerService)
         {
             _actionService = actionService;
             _playerService = playerService;
-            _playerService.Items = _baseService.ListOfElements;
         }
 
         public void PlayerOptionView()
@@ -67,7 +63,7 @@ namespace Manager.App.Managers
 
                 if (option.Key == ConsoleKey.Q || option.Key == ConsoleKey.Escape)
                 {
-                    _baseService.SaveListToBase();
+                    _playerService.SaveList();
                     break;
                 }
             }
@@ -78,7 +74,7 @@ namespace Manager.App.Managers
             bool noCountry = false;
             while (true)
             {
-                Console.Clear();
+                //Console.Clear();
                 Console.WriteLine("  Add New player\n");
 
                 if (noCountry)
@@ -250,7 +246,7 @@ namespace Manager.App.Managers
                                     Console.WriteLine("Update player\n");
                                     Console.WriteLine($"Actual Name {playerToUpdate.Name}\n");
                                     Console.WriteLine("Enter player name:");
-                                    
+
                                     var playerName = Console.ReadLine();
                                     if (!string.IsNullOrWhiteSpace(playerName))
                                     {
@@ -261,13 +257,13 @@ namespace Manager.App.Managers
                                     Console.Clear();
                                     Console.WriteLine("  Update Player\n");
                                     Console.WriteLine($" Actual last name {playerToUpdate.LastName}\n");
-                                    Console.Write("Enter player last name:\n");                                    
+                                    Console.Write("Enter player last name:\n");
                                     var playerLastName = Console.ReadLine();
                                     if (!string.IsNullOrWhiteSpace(playerLastName))
                                     {
                                         playerLastName.Trim();
                                         playerLastName.Replace(playerLastName.First(), playerLastName.ToUpper().First());
-                                        playerToUpdate.LastName = playerLastName;                                        
+                                        playerToUpdate.LastName = playerLastName;
                                     }
                                     Console.Clear();
                                     Console.WriteLine("  Update Player\n");
@@ -278,12 +274,12 @@ namespace Manager.App.Managers
                                     {
                                         playerCity.Trim();
                                         playerCity.Replace(playerCity.First(), playerCity.ToUpper().First());
-                                        playerToUpdate.City = playerCity;                                        
+                                        playerToUpdate.City = playerCity;
                                     }
 
                                     _playerService.UpdateItem(playerToUpdate);
                                     return playerToUpdate.Id;
-                                                                     
+
                                 }
                                 noCountry = true;
                                 if (operation.Key == ConsoleKey.Q)
@@ -320,10 +316,10 @@ namespace Manager.App.Managers
             {
 
                 Console.Clear();
-                Console.WriteLine("List Of players");                
-                var activePlayer = _playerService.Items.Any(p => p.Active == true);                
+                Console.WriteLine("List Of players");
+                var activePlayer = _playerService.Items.Any(p => p.Active == true);
                 foreach (var player in _playerService.GetAllItem())
-                {                   
+                {
                     Console.WriteLine($"ID: {player.Id}. Name: {player.Name} Last Name: {player.LastName}   " +
                         $"Country: {player.Country} City: {player.City}");
                 }

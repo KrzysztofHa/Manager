@@ -2,7 +2,7 @@ using FluentAssertions;
 using Manager.Domain.Entity;
 using Manager.Infrastructure.Common;
 
-namespace Manager.Tests.Infrastructure
+namespace Manager.Tests.Infrastructure.Test
 {
     public class BaseOperationServiceUnitTest
     {
