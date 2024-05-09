@@ -3,7 +3,6 @@ using Manager.App.Concrete;
 using Manager.App.Concrete.Helpers;
 using Manager.Domain.Entity;
 
-
 namespace Manager.App.Managers
 {
     public class PlayerManager
@@ -43,6 +42,7 @@ namespace Manager.App.Managers
                             Console.ReadKey();
                             break;
                         case 2:
+
                             break;
                         case 3:
                             AddNewPlayer();
@@ -331,6 +331,12 @@ namespace Manager.App.Managers
                 Console.WriteLine("Empty List");
                 return false;
             }
+        }
+
+        public Player GetPlayerOfId(int id)
+        {
+            var FindPlayer = _playerService.Items.FirstOrDefault(p => p.Id == id);
+            return FindPlayer;
         }
     }
 }
