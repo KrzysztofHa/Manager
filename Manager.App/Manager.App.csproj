@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -12,14 +11,16 @@
     <PackageReference Include="xunit.abstractions" Version="2.0.3" />
     <PackageReference Include="xunit.analyzers" Version="1.12.0" />
     <PackageReference Include="xunit.assert" Version="2.7.1" />
-    <PackageReference Include="xunit.core" Version="2.7.1" />
     <PackageReference Include="xunit.extensibility.core" Version="2.7.1" />
-    <PackageReference Include="xunit.extensibility.execution" Version="2.7.1" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.8">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Manager.App\Manager.App.csproj" />
     <ProjectReference Include="..\Manager.Domain\Manager.Domain.csproj" />
+    <ProjectReference Include="..\Manager.Infrastructure\Manager.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

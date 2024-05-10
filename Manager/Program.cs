@@ -1,25 +1,33 @@
-﻿
-using Manager;
+﻿using Manager.App;
+using Manager.App.Abstract;
+using Manager.App.Common;
+using Manager.App.Concrete;
+using Manager.App.Managers;
+using Manager.Domain.Entity;
 using Manager.Helpers;
 internal class Program
 {
-    private static void Main(string[] args)
+    public static void Main()
     {
         new LogIn();
-        PleyerService pleyerService = new PleyerService();
-        MenuActionService actionService = new MenuActionService();
-        Initialize(actionService);
+
+        IService<Player> playerService = new PlayerService();
+        MenuActionService actionService = new();
+        PlayerManager playerManager = new(actionService, playerService);
+
+
         var mainMenu = actionService.GetMenuActionsByName("Main");
-        bool noOption = false;
+        bool wrongOperation = false;
 
         while (true)
         {
             Console.Clear();
-            Console.WriteLine($"Hello User {LogIn.UserName}!\n\n");
+            Console.WriteLine($"\r\n");
+            Console.WriteLine($"     Hello User {LogIn.UserName}!\n");
 
-            if (noOption)
+            if (wrongOperation)
             {
-                noOption = false;
+                wrongOperation = false;
                 Console.WriteLine("Action You entered does not exist\n");
             }
             else
@@ -29,20 +37,19 @@ internal class Program
 
             for (int i = 0; i < mainMenu.Count; i++)
             {
-                Console.WriteLine($"{mainMenu[i].Id}. {mainMenu[i].Name}");
+                Console.WriteLine($"{i + 1}. {mainMenu[i].Name}");
             }
 
-            Console.WriteLine("\n\n\n\n       Press Esc to Exit");
+            Console.WriteLine("\n\n   Press Esc to Exit");
             var operation = Console.ReadKey(true);
 
             switch (operation.KeyChar)
             {
                 case '1':
-                    ConsoleKeyInfo country = pleyerService.AddNewPleyerView(actionService);
-                    pleyerService.AddNewPleyer(country);
+                    playerManager.PlayerOptionView();
                     break;
                 case '2':
-                    pleyerService.ListOfPleyersView();
+                    
                     break;
                 case '3':
                     break;
@@ -54,7 +61,7 @@ internal class Program
                     break;
                 default:
 
-                    noOption = true;
+                    wrongOperation = true;
                     break;
             }
 
@@ -63,22 +70,5 @@ internal class Program
                 break;
             }
         }
-    }
-
-    private static MenuActionService Initialize(MenuActionService actionService)
-    {
-        var menuCountry = new Country();
-        actionService.AddNewAction(1, "Add Pleyer", "Main");
-        actionService.AddNewAction(2, "Pleyers", "Main");
-        actionService.AddNewAction(3, "Turnaments", "Main");
-        actionService.AddNewAction(4, "Sparing", "Main");
-        actionService.AddNewAction(5, "Edit Data", "Main");
-        actionService.AddNewAction(6, "Ranking", "Main");
-
-        for (int i = 0; i <= menuCountry.CountryList.Count - 1; i++)
-        {
-            actionService.AddNewAction(i + 1, menuCountry.CountryList[i], "Country");
-        }
-        return actionService;
     }
 }
