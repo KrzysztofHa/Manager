@@ -4,10 +4,11 @@ using Manager.App.Concrete;
 using Manager.App.Managers;
 using Manager.Domain.Entity;
 using Moq;
+using Xunit;
 using Xunit.Abstractions;
 
 
-namespace Manager.Tests.Infrastructure.Test
+namespace Manager.Tests.ManagerAppTest.PlayerManagerTest
 {
     public class PlayerManagerTest
     {
@@ -17,10 +18,10 @@ namespace Manager.Tests.Infrastructure.Test
         public PlayerManagerTest(ITestOutputHelper output)
         {
             this.output = output;
-            this.PlayerList = new List<Player>();
+            PlayerList = new List<Player>();
             for (int i = 1; i <= 10; i++)
             {
-                PlayerList.Add(new Player { Id = i, Active = true, Name = "Player" + i + 1, Country = "Poland" });
+                PlayerList.Add(new Player { Id = i, IsActive = true, Name = "Player" + i + 1, Country = "Poland" });
             }
         }
 
@@ -28,7 +29,7 @@ namespace Manager.Tests.Infrastructure.Test
         public void MyTest()
         {
             var temp = "my class!";
-            Console.WriteLine("This is output from {0}", temp);
+            output.WriteLine("This is output from {0}", temp);
         }
 
         [Fact]
@@ -38,7 +39,7 @@ namespace Manager.Tests.Infrastructure.Test
             var mockIService = new Mock<IService<Player>>();
             mockIService.Setup(p => p.AddItem(It.IsAny<Player>()));
             mockIService.Setup(p => p.SaveList());
-            mockIService.Setup(p => p.Items).Returns(PlayerList);
+            mockIService.Setup(p => p.GetAllItem()).Returns(PlayerList);
             var playerManager = new PlayerManager(new MenuActionService(), mockIService.Object);
 
 
@@ -48,21 +49,16 @@ namespace Manager.Tests.Infrastructure.Test
             Assert.NotNull(output);
         }
 
-        [Fact]
-        public void CantGetPlayerOfID()
-        {
-            //Arrange
-            var mockIService = new Mock<IService<Player>>();
-            mockIService.Setup(p => p.Items).Returns(PlayerList);
-            var playerManager = new PlayerManager(new MenuActionService(), mockIService.Object);
-
-            //Act
-            var playerOfId = playerManager.GetPlayerOfId(1);
-
-            //Assert
-            Assert.NotNull(playerOfId);
-            Assert.True(playerOfId is Player);
-            Assert.Equal("Player11", PlayerList[0].Name);
-        }
+        //[Fact]
+        //public void CantFindPlayer()
+        //{
+        //    //Arrange
+        //    var mockIService = new Mock<IService<Player>>();
+        //    var playerManager = new PlayerManager(new MenuActionService(), mockIService.Object);
+        //    //Act
+        //    var returnFindPlayer = playerManager.FindPlayer();
+        //    //Assert
+        //}
+       
     }
 }

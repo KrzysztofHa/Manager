@@ -2,7 +2,7 @@ using FluentAssertions;
 using Manager.Domain.Entity;
 using Manager.Infrastructure.Common;
 
-namespace Manager.Tests.Infrastructure.Test
+namespace Manager.Tests.InfrastructureTest
 {
     public class BaseOperationServiceUnitTest
     {
@@ -29,7 +29,7 @@ namespace Manager.Tests.Infrastructure.Test
             List<Player> playerList = new List<Player>();
             for (int i = 1; i <= 10; i++)
             {
-                playerList.Add(new Player { Id = i + 1, Active = true, Name = "Player" + i + 1, Country = "Poland" });
+                playerList.Add(new Player { Id = i + 1, IsActive = true, Name = "Player" + i + 1, Country = "Poland" });
             }
 
             Directory.SetCurrentDirectory(@"c:\temp\");

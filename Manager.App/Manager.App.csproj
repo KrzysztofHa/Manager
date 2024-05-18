@@ -19,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Manager.Consol\Manager.Consol.csproj" />
     <ProjectReference Include="..\Manager.Domain\Manager.Domain.csproj" />
     <ProjectReference Include="..\Manager.Infrastructure\Manager.Infrastructure.csproj" />
   </ItemGroup>

@@ -14,7 +14,7 @@ namespace Manager.App.Concrete
         public List<MenuAction> GetMenuActionsByName(string menuName)
         {
             List<MenuAction> result = new List<MenuAction>();
-            foreach (var menuAction in Items)
+            foreach (var menuAction in GetAllItem())
             {
                 if (menuAction.MenuName == menuName)
                     result.Add(menuAction);
@@ -27,7 +27,7 @@ namespace Manager.App.Concrete
         {
             var menuCountry = new Country();
 
-            AddItem(new MenuAction(1000, "Players", "Main"));
+            AddItem(new MenuAction(1000, "Manage Players", "Main"));
             AddItem(new MenuAction(2000, "Global Ranking Not implemented ", "Main"));
             AddItem(new MenuAction(3000, "Sparing Not implemented", "Main"));
             AddItem(new MenuAction(4000, "Tournaments Not implemented", "Main"));

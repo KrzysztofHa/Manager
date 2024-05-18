@@ -2,7 +2,7 @@
 using Manager.Domain.Entity;
 using Manager.Infrastructure.Concrete;
 
-namespace Manager.Tests.Infrastructure.Test
+namespace Manager.Tests.InfrastructureTest
 {
     public class BasePathUnitTest
     {

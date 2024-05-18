@@ -11,10 +11,9 @@ internal class Program
     {
         new LogIn();
 
-        IService<Player> playerService = new PlayerService();
+        IPlayerService playerService = new PlayerService();
         MenuActionService actionService = new();
-        PlayerManager playerManager = new(actionService, playerService);
-
+        PlayerManager playerManager = new(actionService, playerService);        
 
         var mainMenu = actionService.GetMenuActionsByName("Main");
         bool wrongOperation = false;
@@ -49,7 +48,7 @@ internal class Program
                     playerManager.PlayerOptionView();
                     break;
                 case '2':
-                    
+
                     break;
                 case '3':
                     break;
@@ -67,7 +66,7 @@ internal class Program
 
             if (operation.Key == ConsoleKey.Escape)
             {
-                break;
+                Environment.Exit(0);
             }
         }
     }

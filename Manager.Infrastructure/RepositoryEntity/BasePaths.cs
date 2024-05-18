@@ -5,7 +5,7 @@
         public int Id { get; set; }
         public string PathName { get; set; }
         public string PathToFile { get; set; }
-        public bool  Active { get; set; }
+        public bool  IsActive { get; set; }
 
     }
 }

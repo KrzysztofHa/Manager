@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Manager.Tests", "Manager.Te
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Manager.Infrastructure", "Manager.Infrastructure\Manager.Infrastructure.csproj", "{ADC6959F-30DB-475F-B66E-ABD8EE9E36A3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Manager.Consol", "Manager.Consol\Manager.Consol.csproj", "{8A71ACD3-21EF-4C77-9347-14903DE118B9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{ADC6959F-30DB-475F-B66E-ABD8EE9E36A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ADC6959F-30DB-475F-B66E-ABD8EE9E36A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ADC6959F-30DB-475F-B66E-ABD8EE9E36A3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A71ACD3-21EF-4C77-9347-14903DE118B9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A71ACD3-21EF-4C77-9347-14903DE118B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A71ACD3-21EF-4C77-9347-14903DE118B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A71ACD3-21EF-4C77-9347-14903DE118B9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,49 +1,66 @@
 ﻿using Manager.App.Abstract;
 using Manager.Domain.Common;
+using Manager.Domain.Entity;
 using Manager.Infrastructure.Abstract;
 using Manager.Infrastructure.Common;
 
-namespace Manager.App.Common
+namespace Manager.App.Common;
+
+public class BaseService<T> : IService<T> where T : BaseEntity
 {
-    public class BaseService<T> : IService<T> where T : BaseEntity
+    private readonly IBaseService<T> _baseService = new BaseOperationService<T>();
+    private List<T> Items { get; set; }
+
+    public BaseService()
     {
-        private readonly IBaseService<T> _baseService = new BaseOperationService<T>();
-        public List<T> Items { get; set; }
+        Items = new List<T>();
+        LoadList();
+    }
+    public int AddItem(T item)
+    {
+        if (Items.Any())
+        {
+            item.Id = Items.Count + 1;
+        }
+        else
+        {
+            item.Id = 1;
+        }
+        item.IsActive = true;
+        Items.Add(item);
+        return item.Id;
+    }
 
-        public BaseService()
-        {
-            Items = new List<T>();
-            Items = _baseService.ListOfElements;
-        }
-        public int AddItem(T item)
-        {
-            Items.Add(item);
-            return item.Id;
-        }
+    public List<T> GetAllItem()
+    {
+        return Items;
+    }
 
-        public List<T> GetAllItem()
-        {
-            return Items.FindAll(p => p.Active == true);
-        }
+    public void RemoveItem(T item)
+    {
+        item.IsActive = false;
+    }
 
-        public void RemoveItem(T item)
+    public int UpdateItem(T item)
+    {
+        var entity = Items.FirstOrDefault(p => p.Id == item.Id);
+        if (entity != null)
         {
-            item.Active = false;
+            entity = item;
         }
-
-        public int UpdateItem(T item)
-        {
-            var entity = Items.FirstOrDefault(p => p.Id == item.Id);
-            if (entity != null)
-            {
-                entity = item;
-            }
-            return entity.Id;
-        }
-
-        public void SaveList()
-        {
-            _baseService.SaveListToBase();
-        }
+        return entity.Id;
+    }
+    public T GetItemOfId(int id)
+    {
+        var findItem = Items.FirstOrDefault(p => p.Id == id);
+        return findItem;
+    }
+    public void LoadList() 
+    {
+        Items = _baseService.LoadListInBase();       
+    }
+    public void SaveList()
+    {
+        _baseService.SaveListToBase();
     }
 }
