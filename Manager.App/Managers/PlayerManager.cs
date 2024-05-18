@@ -47,6 +47,7 @@ namespace Manager.App.Managers
                             break;
                         case 3:
                             AddNewPlayer();
+
                             break;
                         case 4:
                             UpdatePlayer();
@@ -63,8 +64,7 @@ namespace Manager.App.Managers
                 }
 
                 if (option.Key == ConsoleKey.Q || option.Key == ConsoleKey.Escape)
-                {
-                    _playerService.SaveList();
+                {                    
                     break;
                 }
             }
@@ -90,14 +90,14 @@ namespace Manager.App.Managers
 
                 for (int i = 0; i < countryList.Count; i++)
                 {
-                    Console.WriteLine($"{i}. {countryList[i].Name}");
+                    Console.WriteLine($"{i + 1}. {countryList[i].Name}");
                 }
 
                 Console.WriteLine("\n\n     Press q to back in Main menu");
                 var operation = Console.ReadKey();
                 int.TryParse(operation.KeyChar.ToString(), out int numberCountry);
 
-                if (numberCountry <= countryList.Count && numberCountry >= 0)
+                if (numberCountry <= countryList.Count && numberCountry >= 0)                
                 {
                     if (operation.Key != ConsoleKey.Q)
                     {
@@ -107,11 +107,11 @@ namespace Manager.App.Managers
 
                         Console.Clear();
                         while (true)
-                        {
-                            Console.Clear();
-                            Console.WriteLine("Add New player\n");
-                            Console.WriteLine("Enter player name:");
-                            var tt = _consoleService.GetStringFromUser("Enter player name:");
+                        {                            
+                            _consoleService.WriteTitle("Add New player\n");
+                            _consoleService.WriteMesage("Enter player name");
+                            var tt = _consoleService.GetStringFromUser("Enter player name");
+                            Environment.Exit(0);
                             var playerName = Console.ReadLine();
                             if (!string.IsNullOrWhiteSpace(playerName))
                             {
@@ -150,6 +150,7 @@ namespace Manager.App.Managers
                                 break;
                             }
                         }
+                        _playerService.SaveList();
                         return _playerService.AddItem(newPlayer);
 
                     }

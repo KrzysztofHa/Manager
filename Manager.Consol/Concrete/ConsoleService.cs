@@ -9,31 +9,49 @@ namespace Manager.Consol.Concrete;
 
 public class ConsoleService : IConsoleService
 {
-    public int GetIntNumberFromUser(string message)
+    public int? GetIntNumberFromUser(string message)
     {
+        if(int.TryParse(GetStringFromUser(message), out int inputUserInt))
+        { return inputUserInt; }
 
-        throw new NotImplementedException();
+        return null;        
     }
 
     public string GetStringFromUser(string message)
     {
-        ConsoleKeyInfo cki;
-
+        ConsoleKeyInfo inputKey;
+        var inputString = new StringBuilder();
+        Console.CursorVisible = false;
         do
         {
-            Console.WriteLine("\nPress a key to display; press the 'x' key to quit.");
+            Console.Clear();
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine($"{message}:\n");
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine(inputString.ToString());
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine("\nExit Press Escape (Esc) or Enter");
+            inputKey = Console.ReadKey(true);
 
-            // Your code could perform some useful task in the following loop. However,
-            // for the sake of this example we'll merely pause for a quarter second.
+            if (char.IsLetterOrDigit(inputKey.KeyChar))
+            {
+                inputString.Append(inputKey.KeyChar);                
+            }
+            else if (inputKey.Key == ConsoleKey.Backspace && inputString.Length > 0)
+            {
+                inputString.Remove(inputString.Length - 1, 1);                
+            }
 
-            while (Console.KeyAvailable == false)
-                Thread.Sleep(250); // Loop until input is entered.
+            if (inputKey.Key == ConsoleKey.Escape)
+            {
+                Console.CursorVisible = true;
+                return string.Empty;
+            }
+        }
+        while (inputKey.Key != ConsoleKey.Enter);
 
-            cki = Console.ReadKey(true);
-            Console.WriteLine("You pressed the '{0}' key.", cki.Key);
-        } while (cki.Key != ConsoleKey.X);
-
-        throw new NotImplementedException();
+        Console.CursorVisible = true;
+        return inputString.ToString();
     }
 
     public void WriteErrorMesage(string errorMessage)
@@ -53,7 +71,7 @@ public class ConsoleService : IConsoleService
     {
         Console.Clear();
         Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine("      " + title);
+        Console.WriteLine($"{title.PadRight(20)}\n");
         Console.ForegroundColor = ConsoleColor.White;
     }
 }

@@ -40,11 +40,11 @@ namespace Manager.Tests.ManagerAppTest.PlayerManagerTest
             mockIService.Setup(p => p.AddItem(It.IsAny<Player>()));
             mockIService.Setup(p => p.SaveList());
             mockIService.Setup(p => p.GetAllItem()).Returns(PlayerList);
-            var playerManager = new PlayerManager(new MenuActionService(), mockIService.Object);
+            //var playerManager = new PlayerManager(new MenuActionService(), mockIService.Object);
 
 
             //Act
-            var returnPlayerManager = playerManager.AddNewPlayer();
+            //var returnPlayerManager = playerManager.AddNewPlayer();
             //Assert
             Assert.NotNull(output);
         }

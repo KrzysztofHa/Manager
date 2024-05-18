@@ -12,5 +12,5 @@ public interface IConsoleService
     void WriteErrorMesage(string errorMessage);
     void WriteTitle(string title);   
     string GetStringFromUser(string message);
-    int GetIntNumberFromUser(string message);
+    int? GetIntNumberFromUser(string message);
 }

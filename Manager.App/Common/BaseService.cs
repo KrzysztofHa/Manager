@@ -27,7 +27,7 @@ public class BaseService<T> : IService<T> where T : BaseEntity
             item.Id = 1;
         }
         item.IsActive = true;
-        Items.Add(item);
+        Items.Add(item);        
         return item.Id;
     }
 
