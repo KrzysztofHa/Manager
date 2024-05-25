@@ -26,7 +26,8 @@ namespace Manager.Infrastructure.Concrete
                 Id = ListOfElements.Count,
                 PathName = pathName,
                 PathToFile = PathToBaseCurrent + pathName + FileExtensions,
-                IsActive = true
+                IsActive = true,
+                UserName = Environment.UserName
             });
             SaveListToBase();
             var getEntryFromPathsList = ListOfElements.First(p => p.PathName == pathName).PathToFile;
