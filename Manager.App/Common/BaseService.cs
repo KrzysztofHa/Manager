@@ -1,4 +1,5 @@
 ﻿using Manager.App.Abstract;
+using Manager.App.Concrete;
 using Manager.Domain.Common;
 using Manager.Domain.Entity;
 using Manager.Infrastructure.Abstract;
@@ -16,6 +17,7 @@ public class BaseService<T> : IService<T> where T : BaseEntity
         Items = new List<T>();
         LoadList();
     }
+
     public int AddItem(T item)
     {
         if (Items.Any())
@@ -27,6 +29,8 @@ public class BaseService<T> : IService<T> where T : BaseEntity
             item.Id = 1;
         }
         item.IsActive = true;
+        item.CreatedDateTime = DateTime.Now;
+        item.CreatedById = 1;
         Items.Add(item);        
         return item.Id;
     }
@@ -55,9 +59,9 @@ public class BaseService<T> : IService<T> where T : BaseEntity
         var findItem = Items.FirstOrDefault(p => p.Id == id);
         return findItem;
     }
-    public void LoadList() 
+    public void LoadList()
     {
-        Items = _baseService.LoadListInBase();       
+        Items = _baseService.LoadListInBase();
     }
     public void SaveList()
     {

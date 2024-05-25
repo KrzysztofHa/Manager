@@ -14,12 +14,8 @@ namespace Manager.App.Concrete
         public List<MenuAction> GetMenuActionsByName(string menuName)
         {
             List<MenuAction> result = new List<MenuAction>();
-            foreach (var menuAction in GetAllItem())
-            {
-                if (menuAction.MenuName == menuName)
-                    result.Add(menuAction);
-            }
-
+            result = GetAllItem().FindAll(p => p.MenuName == menuName);
+            result.Add(new MenuAction(0, "Exit", menuName));
             return result;
         }
 
@@ -41,12 +37,11 @@ namespace Manager.App.Concrete
             
 
             AddItem(new MenuAction(4100, "League Not implemented", "Tournaments"));
-            AddItem(new MenuAction(4200, "One day Not implemented", "Tournaments"));
+            AddItem(new MenuAction(4200, "One Day Not implemented", "Tournaments"));
 
             AddItem(new MenuAction(4110, "Players Not implemented", "League"));
             AddItem(new MenuAction(4120, "Tournament Ranking Not implemented", "League"));
-
-           
+            AddItem(new MenuAction(4120, "Change Display Name", "Settings"));           
 
             for (int i = 0; i <= menuCountry.CountryList.Count - 1; i++)
             {

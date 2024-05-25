@@ -3,17 +3,29 @@ using Manager.App.Abstract;
 using Manager.App.Common;
 using Manager.App.Concrete;
 using Manager.App.Managers;
+using Manager.Consol.Abstract;
+using Manager.Consol.Concrete;
 using Manager.Domain.Entity;
 using Manager.Helpers;
 internal class Program
 {
     public static void Main()
     {
-        new LogIn();
+        
 
+        
         IPlayerService playerService = new PlayerService();
+        IConsoleService consoleService = new ConsoleService();
+        IUserService userService = new UserService();
+
+        if (string.IsNullOrEmpty(userService.GetDisplayUserName()) )
+        {
+            new InitializeUser(userService, consoleService);
+        }
+        var settings = new Settings();
+        
         MenuActionService actionService = new();
-        PlayerManager playerManager = new(actionService, playerService);        
+        PlayerManager playerManager = new(actionService, playerService, consoleService);
 
         var mainMenu = actionService.GetMenuActionsByName("Main");
         bool wrongOperation = false;
@@ -22,7 +34,7 @@ internal class Program
         {
             Console.Clear();
             Console.WriteLine($"\r\n");
-            Console.WriteLine($"     Hello User {LogIn.UserName}!\n");
+            Console.WriteLine($"     Hello User {userService.GetDisplayUserName}!\n");
 
             if (wrongOperation)
             {
@@ -48,15 +60,19 @@ internal class Program
                     playerManager.PlayerOptionView();
                     break;
                 case '2':
-
+                    //Global Ranking
                     break;
                 case '3':
+                    //Sparing
                     break;
                 case '4':
+                    //Tournaments
                     break;
                 case '5':
+                    settings.ChangeSettings();
                     break;
                 case '6':
+                    Environment.Exit(0);
                     break;
                 default:
 

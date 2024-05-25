@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -11,67 +12,137 @@ public class ConsoleService : IConsoleService
 {
     public int? GetIntNumberFromUser(string message)
     {
-        if(int.TryParse(GetStringFromUser(message), out int inputUserInt))
-        { return inputUserInt; }
-         
-        return null;        
+        var startCursorPosition = Console.GetCursorPosition();
+        if (int.TryParse(GetStringFromUser(message), out int inputUserInt))
+        {
+            return inputUserInt;
+        }
+        return null;
     }
 
     public string GetStringFromUser(string message)
     {
         ConsoleKeyInfo inputKey;
         var inputString = new StringBuilder();
-        Console.CursorVisible = false;
+        Console.WriteLine($"{message}\n");
+        int customCursorLeft = Console.CursorLeft;
+        int customCursorTop = Console.CursorTop;
+
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine("\nExit Press Escape (Esc)\r\nand the entered data will not be saved.");
+        var endBuferPosition = Console.GetCursorPosition();
+        Console.ForegroundColor = ConsoleColor.Yellow;
+
         do
         {
-            Console.Clear();
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine($"{message}:\n");
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine(inputString.ToString());
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine("\nExit Press Escape (Esc) or Enter");
-            inputKey = Console.ReadKey(true);
+            Console.SetCursorPosition(customCursorLeft, customCursorTop);
+            Console.Write(inputString.ToString());
 
+            inputKey = Console.ReadKey(true);
             if (char.IsLetterOrDigit(inputKey.KeyChar))
             {
-                inputString.Append(inputKey.KeyChar);                
+                inputString.Append(inputKey.KeyChar);
             }
             else if (inputKey.Key == ConsoleKey.Backspace && inputString.Length > 0)
             {
-                inputString.Remove(inputString.Length - 1, 1);                
+                inputString.Remove(inputString.Length - 1, 1);
+                Console.SetCursorPosition(customCursorLeft, customCursorTop);
+                Console.Write(inputString.ToString().PadRight(Console.BufferWidth));
+
             }
 
             if (inputKey.Key == ConsoleKey.Escape)
             {
-                Console.CursorVisible = true;
-                return string.Empty;
+                Console.SetCursorPosition(endBuferPosition.Left, endBuferPosition.Top);
+                Console.ForegroundColor = ConsoleColor.White;
+                return null;
             }
         }
         while (inputKey.Key != ConsoleKey.Enter);
 
-        Console.CursorVisible = true;
+        Console.SetCursorPosition(endBuferPosition.Left, endBuferPosition.Top);        
+        Console.ForegroundColor = ConsoleColor.White;
         return inputString.ToString();
     }
 
-    public void WriteErrorMesage(string errorMessage)
+    public void WriteLineErrorMessage(string errorMessage)
     {
-        Console.Clear();
+        var startCursorPosition = Console.GetCursorPosition();
         Console.ForegroundColor = ConsoleColor.Red;
         Console.WriteLine(errorMessage);
         Console.ForegroundColor = ConsoleColor.White;
+        Console.CursorVisible = false;
+        Thread.Sleep(1000);
+        Console.SetCursorPosition(startCursorPosition.Left, startCursorPosition.Top);
+        Console.Write(string.Empty.PadLeft(Console.BufferWidth));        
+        Console.CursorVisible = true;
     }
 
-    public void WriteMesage(string message)
+    public void WriteLineMessage(string message)
     {
         Console.WriteLine(message);
+    }
+
+    public bool AnswerYesOrNo(string message)
+    {
+        var startCursorTop = Console.CursorTop;
+        var startCursorLeft = Console.CursorLeft;
+        WriteLineMessage(message);
+        WriteLineMessage("press Y to YES or N to NO");
+        var endCursorTop = Console.CursorTop;
+
+        do
+        {
+            var inputKey = Console.ReadKey();
+            if (inputKey.Key == ConsoleKey.Y)
+            {
+                Console.SetCursorPosition(startCursorLeft, startCursorTop);
+                for (int i = startCursorTop; i <= endCursorTop; i++)
+                    Console.WriteLine("{0}", string.Empty.PadRight(Console.BufferWidth));
+                Console.SetCursorPosition(startCursorLeft, startCursorTop);
+
+                return true;
+            }
+            else if (inputKey.Key == ConsoleKey.N)
+            {
+                Console.SetCursorPosition(startCursorLeft, startCursorTop);
+                for (int i = startCursorTop; i <= endCursorTop; i++)
+                    Console.WriteLine("{0}", string.Empty.PadRight(Console.BufferWidth));
+
+                Console.SetCursorPosition(startCursorLeft, startCursorTop);
+                return false;
+            }
+        } while (true);
     }
 
     public void WriteTitle(string title)
     {
         Console.Clear();
         Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine($"{title.PadRight(20)}\n");
+        Console.WriteLine($"{title}\n");
         Console.ForegroundColor = ConsoleColor.White;
+    }
+
+    public string GetRequiredStringFromUser(string message)
+    {
+        var startCursorPosition = Console.GetCursorPosition();
+        do
+        {
+            var inputRequiredString = GetStringFromUser(message);
+            if (inputRequiredString == string.Empty)
+            {
+                WriteLineErrorMessage("This field is required");
+                if (AnswerYesOrNo("You want to exit? \r\nThe entered data will not be saved"))
+                {                    
+                    return null;
+                }
+            }
+            else
+            {                
+                return inputRequiredString;
+            }
+            Console.SetCursorPosition(startCursorPosition.Left, startCursorPosition.Top);
+
+        } while (true);        
     }
 }
