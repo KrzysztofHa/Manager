@@ -11,5 +11,5 @@ public class User: BaseEntity
 {
     public string UserName { get; set; }
     public int PlayerId {  get; set; }
-    public string DisplayName { get; set; }    
+    public string DisplayName { get; set; }
 }
