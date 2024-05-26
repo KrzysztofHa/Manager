@@ -27,7 +27,7 @@ public class InitializeUser
         string welcome = "When you run the application for the first time,\r\n" +
             "    You can set a name that will be displayed for you.\r\n" +
             "    You can change the Display Name at any time in the application settings.";
-        _consoleService.WriteTitle($"Hello {UserName}");
+        _consoleService.WriteTitle($"Hello {UserName}!");
         _consoleService.WriteLineMessage(welcome);
         if (_consoleService.AnswerYesOrNo("Want to change your display name now?"))
         {
@@ -41,6 +41,10 @@ public class InitializeUser
             {
                 _userService.SetDisplayUserName(displayName);
             }
+        }
+        else
+        {
+            _userService.SetDisplayUserName(UserName);
         }
     }
 }

@@ -34,7 +34,7 @@ internal class Program
         {
             Console.Clear();
             Console.WriteLine($"\r\n");
-            Console.WriteLine($"     Hello User {userService.GetDisplayUserName}!\n");
+            Console.WriteLine($"     Hello User {userService.GetDisplayUserName()}!\n");
 
             if (wrongOperation)
             {

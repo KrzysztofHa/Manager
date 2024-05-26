@@ -17,32 +17,37 @@ namespace Manager.App.Concrete
         public UserService()
         {
             UserName = Environment.UserName;
-            LoadList();
+            
             if (GetAllItem().Any())
             {
-                var activeUser = GetAllItem().FirstOrDefault(p => p.UserName == this.UserName);
-                if (activeUser != null)
+                var activeUser = GetAllItem().FirstOrDefault(p => p.UserName == UserName);
+                if (activeUser == null)
                 {
-                    User newUser = new User() { UserName = this.UserName };
+                    User newUser = new User() { UserName = UserName };
                     AddItem(newUser);
-                }
+                    SaveList();
+                }                
             }
             else
             {
-                User newUser = new User() { UserName = this.UserName };
+                User newUser = new User() { UserName = UserName };
                 AddItem(newUser);
                 SaveList();
             }
         }
         public int GetIdActiveUser()
         {
-
-            return 1;//activeUser.Id;
+             var activeUser = GetAllItem().FirstOrDefault(p => p.UserName == UserName);
+                if (activeUser == null)
+                {
+                    return 0;
+                }
+            return activeUser.Id;
         }
 
         public string GetDisplayUserName()
         {            
-            var activeUser = GetAllItem().FirstOrDefault(p => p.UserName == this.UserName);            
+            var activeUser = GetAllItem().First(p => p.UserName == UserName);            
             return activeUser.DisplayName;
         }
 
@@ -52,9 +57,19 @@ namespace Manager.App.Concrete
             throw new NotImplementedException();
         }
 
-        public void SetDisplayUserName(string displayName)
+        public string SetDisplayUserName(string displayName)
         {
-            throw new NotImplementedException();
+            var activeUser = GetAllItem().FirstOrDefault(p => p.UserName == UserName);
+            if (!string.IsNullOrEmpty(displayName) && activeUser != null)
+            {
+                activeUser.DisplayName = displayName;               
+            }
+            else
+            {
+                activeUser.DisplayName = string.Empty;
+            }
+            SaveList ();
+            return activeUser.DisplayName;
         }        
     }
 }

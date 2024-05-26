@@ -52,7 +52,7 @@ namespace Manager.Helpers
                         break;
 
                     case 6:
-                       
+
                         break;
                     default:
                         if (operation != null)
@@ -65,22 +65,23 @@ namespace Manager.Helpers
 
                 if (operation == null)
                 {
-                    Console.Clear();
                     break;
                 }
             }
         }
         private void ChangeDisplayName(ConsoleService consoleService, UserService userService)
         {
-            var displayName = consoleService.GetStringFromUser("Enter Display Name");
+            consoleService.WriteTitle($"Display Name: {userService.GetDisplayUserName()}");
+            var displayName = consoleService.GetStringFromUser("Enter New Display Name:");
             if (string.IsNullOrEmpty(displayName))
             {
                 consoleService.WriteLineErrorMessage("The display name has not been changed.");
                 userService.SetDisplayUserName(UserName);
             }
             else
-            {
-                userService.SetDisplayUserName(displayName);
+            {                
+                consoleService.WriteLineMessage($"Changed Display Name: {userService.SetDisplayUserName(displayName)}");
+                consoleService.WriteLineErrorMessage("");                
             }
         }
     }

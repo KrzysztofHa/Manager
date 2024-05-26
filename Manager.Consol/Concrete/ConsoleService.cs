@@ -72,7 +72,7 @@ public class ConsoleService : IConsoleService
         Console.WriteLine(errorMessage);
         Console.ForegroundColor = ConsoleColor.White;
         Console.CursorVisible = false;
-        Thread.Sleep(1000);
+        Thread.Sleep(1500);
         Console.SetCursorPosition(startCursorPosition.Left, startCursorPosition.Top);
         Console.Write(string.Empty.PadLeft(Console.BufferWidth));        
         Console.CursorVisible = true;
@@ -87,6 +87,7 @@ public class ConsoleService : IConsoleService
     {
         var startCursorTop = Console.CursorTop;
         var startCursorLeft = Console.CursorLeft;
+        Console.ForegroundColor = ConsoleColor.DarkGreen;
         WriteLineMessage(message);
         WriteLineMessage("press Y to YES or N to NO");
         var endCursorTop = Console.CursorTop;
@@ -100,7 +101,7 @@ public class ConsoleService : IConsoleService
                 for (int i = startCursorTop; i <= endCursorTop; i++)
                     Console.WriteLine("{0}", string.Empty.PadRight(Console.BufferWidth));
                 Console.SetCursorPosition(startCursorLeft, startCursorTop);
-
+                Console.ForegroundColor = ConsoleColor.White;
                 return true;
             }
             else if (inputKey.Key == ConsoleKey.N)
@@ -108,7 +109,7 @@ public class ConsoleService : IConsoleService
                 Console.SetCursorPosition(startCursorLeft, startCursorTop);
                 for (int i = startCursorTop; i <= endCursorTop; i++)
                     Console.WriteLine("{0}", string.Empty.PadRight(Console.BufferWidth));
-
+                Console.ForegroundColor = ConsoleColor.White;
                 Console.SetCursorPosition(startCursorLeft, startCursorTop);
                 return false;
             }

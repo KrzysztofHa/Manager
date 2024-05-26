@@ -22,7 +22,7 @@ namespace Manager.Tests.ManagerAppTest.BaseServiceTest
             SomListOfElements = new List<Player>();
             for (int i = 1; i <= 10; i++)
             {
-                SomListOfElements.Add(new Player { Id = i, IsActive = true, Name = "Player" + i + 1, Country = "Poland" });
+                SomListOfElements.Add(new Player { Id = i, IsActive = true, FirstName = "Player" + i + 1, Country = "Poland" });
             }
         }
         [Fact]
@@ -38,7 +38,7 @@ namespace Manager.Tests.ManagerAppTest.BaseServiceTest
             //Assert
             Assert.NotNull(elementOfId);
             Assert.True(elementOfId is Player);
-            Assert.Equal("Player11", SomListOfElements[0].Name);
+            Assert.Equal("Player11", SomListOfElements[0].FirstName);
         }
     }
 }

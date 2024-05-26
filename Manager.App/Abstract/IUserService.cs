@@ -12,6 +12,6 @@ namespace Manager.App.Abstract
         public int GetIdActiveUser();
         public string GetDisplayUserName();        
         public string GetUserName();
-        public void SetDisplayUserName(string displayName);
+        public string SetDisplayUserName(string displayName);
     }    
 }

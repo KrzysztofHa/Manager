@@ -67,8 +67,7 @@ public class PlayerManager
 
 
             if (operation == null)
-            {
-                Console.Clear();
+            {                
                 break;
             }
         }

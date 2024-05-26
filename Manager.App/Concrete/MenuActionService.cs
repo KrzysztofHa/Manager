@@ -27,7 +27,7 @@ namespace Manager.App.Concrete
             AddItem(new MenuAction(2000, "Global Ranking Not implemented ", "Main"));
             AddItem(new MenuAction(3000, "Sparing Not implemented", "Main"));
             AddItem(new MenuAction(4000, "Tournaments Not implemented", "Main"));
-            AddItem(new MenuAction(5000, "Settings Not implemented", "Main"));
+            AddItem(new MenuAction(5000, "Settings", "Main"));
 
             AddItem(new MenuAction(1100, "List Of Player", "Players"));
             AddItem(new MenuAction(1200, "Search Player Not implemented", "Players"));
@@ -41,7 +41,8 @@ namespace Manager.App.Concrete
 
             AddItem(new MenuAction(4110, "Players Not implemented", "League"));
             AddItem(new MenuAction(4120, "Tournament Ranking Not implemented", "League"));
-            AddItem(new MenuAction(4120, "Change Display Name", "Settings"));           
+
+            AddItem(new MenuAction(5100, "Change Display Name", "Settings"));           
 
             for (int i = 0; i <= menuCountry.CountryList.Count - 1; i++)
             {
