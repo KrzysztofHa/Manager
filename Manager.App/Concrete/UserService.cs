@@ -54,7 +54,7 @@ namespace Manager.App.Concrete
         public string GetUserName()
         {
             
-            throw new NotImplementedException();
+            return UserName;
         }
 
         public string SetDisplayUserName(string displayName)

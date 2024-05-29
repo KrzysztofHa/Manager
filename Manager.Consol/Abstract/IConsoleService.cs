@@ -14,5 +14,6 @@ public interface IConsoleService
     void WriteTitle(string title);   
     string GetStringFromUser(string message);
     int? GetIntNumberFromUser(string message);
-    bool AnswerYesOrNo(string message); 
+    bool AnswerYesOrNo(string message);
+    void WriteLineMessageActionSuccess(string message);
 }

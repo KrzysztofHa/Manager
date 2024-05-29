@@ -29,8 +29,7 @@ public class BaseService<T> : IService<T> where T : BaseEntity
             item.Id = 1;
         }
         item.IsActive = true;
-        item.CreatedDateTime = DateTime.Now;
-        item.CreatedById = 1;
+        item.CreatedDateTime = DateTime.Now;        
         Items.Add(item);        
         return item.Id;
     }

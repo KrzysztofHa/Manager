@@ -1,88 +1,70 @@
 ﻿using Manager.App;
 using Manager.App.Abstract;
-using Manager.App.Common;
 using Manager.App.Concrete;
 using Manager.App.Managers;
 using Manager.Consol.Abstract;
 using Manager.Consol.Concrete;
-using Manager.Domain.Entity;
 using Manager.Helpers;
 internal class Program
 {
     public static void Main()
     {
-        
-
-        
         IPlayerService playerService = new PlayerService();
         IConsoleService consoleService = new ConsoleService();
         IUserService userService = new UserService();
 
-        if (string.IsNullOrEmpty(userService.GetDisplayUserName()) )
+        if (string.IsNullOrEmpty(userService.GetDisplayUserName()))
         {
             new InitializeUser(userService, consoleService);
         }
         var settings = new Settings();
-        
         MenuActionService actionService = new();
-        PlayerManager playerManager = new(actionService, playerService, consoleService);
+        PlayerManager playerManager = new(actionService, playerService, consoleService, userService);
 
         var mainMenu = actionService.GetMenuActionsByName("Main");
-        bool wrongOperation = false;
 
         while (true)
         {
-            Console.Clear();
-            Console.WriteLine($"\r\n");
-            Console.WriteLine($"     Hello User {userService.GetDisplayUserName()}!\n");
-
-            if (wrongOperation)
-            {
-                wrongOperation = false;
-                Console.WriteLine("Action You entered does not exist\n");
-            }
-            else
-            {
-                Console.WriteLine($"Press number key in Main menu options\n");
-            }
-
+            consoleService.WriteTitle($"Hello User {userService.GetDisplayUserName()}!");
             for (int i = 0; i < mainMenu.Count; i++)
             {
                 Console.WriteLine($"{i + 1}. {mainMenu[i].Name}");
             }
-
-            Console.WriteLine("\n\n   Press Esc to Exit");
-            var operation = Console.ReadKey(true);
-
-            switch (operation.KeyChar)
+            var operation = consoleService.GetIntNumberFromUser("Enter Option");
+            switch (operation)
             {
-                case '1':
+                case 1:
                     playerManager.PlayerOptionView();
                     break;
-                case '2':
+                case 2:
                     //Global Ranking
                     break;
-                case '3':
+                case 3:
                     //Sparing
                     break;
-                case '4':
+                case 4:
                     //Tournaments
                     break;
-                case '5':
+                case 5:
                     settings.ChangeSettings();
                     break;
-                case '6':
-                    Environment.Exit(0);
+                case 6:
+                    operation = null;
                     break;
                 default:
-
-                    wrongOperation = true;
+                    if (operation != null)
+                    {
+                        consoleService.WriteLineErrorMessage("Enter a valid operation ID");
+                    }
                     break;
             }
 
-            if (operation.Key == ConsoleKey.Escape)
+            if (operation == null)
             {
-                Environment.Exit(0);
+                if (consoleService.AnswerYesOrNo("Are you sure you want to Exit?"))
+                {
+                    Environment.Exit(0);
+                }
             }
         }
     }

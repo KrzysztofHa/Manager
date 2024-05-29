@@ -1,11 +1,7 @@
 ﻿using Manager.App.Abstract;
 using Manager.App.Concrete;
-using Manager.App.Concrete.Helpers;
 using Manager.Consol.Abstract;
-using Manager.Consol.Concrete;
 using Manager.Domain.Entity;
-using System.Collections.Immutable;
-using System.Globalization;
 using System.Reflection;
 
 namespace Manager.App.Managers;
@@ -15,12 +11,14 @@ public class PlayerManager
     private readonly MenuActionService _actionService;
     private readonly IPlayerService _playerService;
     private readonly IConsoleService _consoleService;
+    private readonly IUserService _userService;
 
-    public PlayerManager(MenuActionService actionService, IPlayerService playerService, IConsoleService consoleService)
+    public PlayerManager(MenuActionService actionService, IPlayerService playerService, IConsoleService consoleService, IUserService userService)
     {
         _actionService = actionService;
         _playerService = playerService;
         _consoleService = consoleService;
+        _userService = userService;
     }
 
     public void PlayerOptionView()
@@ -39,7 +37,7 @@ public class PlayerManager
             {
                 case 1:
                     ListOfActivePlayersView();
-                    Console.ReadKey();
+                    _consoleService.WriteLineMessageActionSuccess("Press Any Key");
                     break;
                 case 2:
 
@@ -65,52 +63,65 @@ public class PlayerManager
                     break;
             }
 
-
             if (operation == null)
-            {                
+            {
                 break;
             }
         }
     }
     public int AddNewPlayer()
     {
-        _consoleService.WriteTitle("Add Player");
         TypeInfo infoPlayer = typeof(Player).GetTypeInfo();
         IEnumerable<PropertyInfo> propertyListPlayer = infoPlayer.DeclaredProperties;
         Player newPlayer = new Player();
         foreach (PropertyInfo property in propertyListPlayer)
         {
-            if (property.Name != "Country")
+            _consoleService.WriteTitle("Add Player");
+            var stringQuery = from p in property.Name
+                              where Char.IsUpper(p)
+                              select p;
+
+            string namePropertyToView = string.Empty;
+
+            foreach (char findUpperLeterr in stringQuery)
             {
-                _consoleService.WriteTitle("Add Player " + property.Name);
-                var inputString = _consoleService.GetRequiredStringFromUser("Enter " + property.Name);
-
-                if (inputString == null)
+                if (property.Name.IndexOf(findUpperLeterr) != 0)
                 {
-                    return 0;
+                    namePropertyToView = property.Name.Insert(property.Name.IndexOf(findUpperLeterr), " ").ToString();
                 }
-
-                if (property.Name == "Name")
+                else
                 {
-                    newPlayer.FirstName = inputString;
-                }
-                else if (property.Name == "LastName")
-                {
-                    newPlayer.LastName = inputString;
-                }
-                else if (property.Name == "City")
-                {
-                    newPlayer.City = inputString;
+                    namePropertyToView = property.Name;
                 }
             }
-            else
+            var inputString = _consoleService.GetRequiredStringFromUser($"Enter {namePropertyToView}");
+
+            if (inputString == null)
+            {
+                return 0;
+            }
+
+            if (property.Name == "FirstName")
+            {
+                newPlayer.FirstName = inputString;
+            }
+            else if (property.Name == "LastName")
+            {
+                newPlayer.LastName = inputString;
+            }
+            else if (property.Name == "City")
+            {
+                newPlayer.City = inputString;
+            }
+            else if (property.Name == "Country")
             {
                 var countryListMenu = _actionService.GetMenuActionsByName(property.Name);
                 do
                 {
+                    _consoleService.WriteTitle("Add Player");
                     for (int i = 0; i < countryListMenu.Count; i++)
                     {
-                        Console.WriteLine($"{i + 1}. {countryListMenu[i].Name}");
+                        _consoleService.WriteLineMessage($"{i + 1}. {countryListMenu[i].Name}");
                     }
 
                     var inputInt = _consoleService.GetIntNumberFromUser("Country");
@@ -123,7 +134,7 @@ public class PlayerManager
                         }
                         else if (countryName.Name.Contains("Exit"))
                         {
-                            return 0;
+                            return -1;
                         }
                     }
                     else
@@ -135,22 +146,25 @@ public class PlayerManager
             }
         }
 
+        newPlayer.CreatedById = _userService.GetIdActiveUser();
         _playerService.AddItem(newPlayer);
         _playerService.SaveList();
+        _consoleService.WriteLineMessage($"ID: {newPlayer.Id}. Name: {newPlayer.FirstName} Last Name: {newPlayer.LastName}   " +
+                      $"Country: {newPlayer.Country} City: {newPlayer.City}");
+        _consoleService.WriteLineMessageActionSuccess("New player has been added");
         return newPlayer.Id;
     }
-    
     public int RemovePlayerView()
     {
         if (ListOfActivePlayersView())
         {
-            Console.WriteLine("\nPlease enter id for player you want remove");
-            var playerId = Console.ReadLine();
-            int.TryParse(playerId, out int id);
-            var playerToRemove = _playerService.GetAllItem().FirstOrDefault(p => p.Id == id);
-            if (playerToRemove != null)
+            var playerId = _consoleService.GetIntNumberFromUser("\nPlease enter ID for player you want remove");
+            var playerToRemove = _playerService.GetAllItem().FirstOrDefault(p => p.Id == playerId);
+            if (playerToRemove != null && playerId != null)
             {
                 _playerService.RemoveItem(playerToRemove);
+                _consoleService.WriteLineMessageActionSuccess($"Remove Player {playerToRemove.FirstName} Success");
+                _playerService.SaveList();
             }
 
             return playerToRemove.Id;
@@ -164,117 +178,137 @@ public class PlayerManager
     {
         if (ListOfActivePlayersView())
         {
-            Console.WriteLine("\nPlease enter id for player you want update");
-            var playerId = Console.ReadLine();
-            if (int.TryParse(playerId, out int id))
+            var idPlayerToUpdate = _consoleService.GetIntNumberFromUser("Please enter id for player you want update");
+            Player playerToUpdate = new Player();
+            if (idPlayerToUpdate != null)
             {
-                var playerToUpdate = _playerService.GetAllItem().FirstOrDefault(p => p.Id == id);
-                if (playerToUpdate != null)
+                playerToUpdate = _playerService.GetAllItem().FirstOrDefault(p => p.Id == idPlayerToUpdate);
+            }
+            else
+            {
+                _consoleService.WriteLineMessage("Entered Player ID not exist");
+                return -1;
+            }
+
+            TypeInfo infoPlayer = typeof(Player).GetTypeInfo();
+            IEnumerable<PropertyInfo> propertyListPlayer = infoPlayer.DeclaredProperties;
+            _consoleService.WriteTitle("Update Player");
+            var valueToChang = string.Empty;
+            foreach (PropertyInfo property in propertyListPlayer)
+            {
+                if (property.Name == "FirstName")
                 {
-                    while (true)
+                    valueToChang = playerToUpdate.FirstName;
+                }
+                else if (property.Name == "LastName")
+                {
+                    valueToChang = playerToUpdate.LastName;
+                }
+                else if (property.Name == "City")
+                {
+                    valueToChang = playerToUpdate.City;
+                }
+                else if (property.Name == "Country")
+                {
+                    valueToChang = playerToUpdate.Country;
+                }
+
+                var stringQuery = from p in property.Name
+                                  where Char.IsUpper(p)
+
+                                  select p;
+
+                var namePropertyToView = string.Empty;
+
+                foreach (char findUpperLeterr in stringQuery)
+                {
+                    if (property.Name.IndexOf(findUpperLeterr) != 0)
                     {
-                        var countryList = _actionService.GetMenuActionsByName("Country");
-                        bool noCountry = false;
-                        while (true)
+                        namePropertyToView = property.Name.Insert(property.Name.IndexOf(findUpperLeterr), " ").ToString();
+                    }
+                    else
+                    {
+                        namePropertyToView = property.Name;
+                    }
+                }
+
+                _consoleService.WriteLineMessage($"{propertyListPlayer.ToList().IndexOf(property) + 1} {namePropertyToView}: {valueToChang}");
+            }
+
+            var option = _consoleService.GetIntNumberFromUser("Select option");
+            if (option != null)
+            {
+                var namePropertyToUpdate = propertyListPlayer.FirstOrDefault(p => p.Name.IndexOf(p.Name) + 1 == option).Name;
+
+                if (namePropertyToUpdate != null)
+                {
+                    var updateString = _consoleService.GetRequiredStringFromUser($"{namePropertyToUpdate}:");
+                    if (updateString == null)
+                    {
+                        return 0;
+                    }
+                    foreach (PropertyInfo property in propertyListPlayer)
+                    {
+                        if (property.Name == "FirstName")
                         {
-                            Console.Clear();
-                            Console.WriteLine("  Update Player\n");
-                            Console.WriteLine($"Actual Country {playerToUpdate.Country}\n");
-
-                            if (noCountry)
+                            playerToUpdate.FirstName = updateString;
+                        }
+                        else if (property.Name == "LastName")
+                        {
+                            playerToUpdate.LastName = updateString;
+                        }
+                        else if (property.Name == "City")
+                        {
+                            playerToUpdate.City = updateString;
+                        }
+                        else if (property.Name != "Country")
+                        {
+                            var countryListMenu = _actionService.GetMenuActionsByName(property.Name);
+                            do
                             {
-                                noCountry = false;
-                                Console.WriteLine("Action You entered does not exist\n");
-                            }
-                            else
-                            {
-                                Console.WriteLine($"\n    Enter Country\n\n\nPress number key in menu options\n");
-                            }
-
-                            Console.WriteLine($"0. Skip changing country");
-                            for (int i = 0; i < countryList.Count; i++)
-                            {
-                                Console.WriteLine($"{countryList[i].Id}. {countryList[i].Name}");
-                            }
-
-                            Console.WriteLine("\n\n\n\n       Press Q to back in Main menu");
-                            var operation = Console.ReadKey();
-                            int.TryParse(operation.KeyChar.ToString(), out int numberCountry);
-
-                            if (numberCountry <= countryList.Count && numberCountry >= 0)
-                            {
-                                if (numberCountry != 0)
+                                _consoleService.WriteTitle("Add Player");
+                                for (int i = 0; i < countryListMenu.Count; i++)
                                 {
-                                    var countryplayer = new Country();
-                                    playerToUpdate.Country = countryplayer.CountryList[numberCountry - 1];
+                                    _consoleService.WriteLineMessage($"{i + 1}. {countryListMenu[i].Name}");
                                 }
 
-                                Console.Clear();
-                                Console.WriteLine("Update player\n");
-                                Console.WriteLine($"Actual Name {playerToUpdate.FirstName}\n");
-                                Console.WriteLine("Enter player name:");
-
-                                var playerName = Console.ReadLine();
-                                if (!string.IsNullOrWhiteSpace(playerName))
+                                var inputInt = _consoleService.GetIntNumberFromUser("Country");
+                                if (inputInt <= countryListMenu.Count)
                                 {
-                                    playerName = playerName.Trim();
-                                    playerName.Replace(playerName.First(), playerName.ToUpper().First());
-                                    playerToUpdate.FirstName = playerName;
+                                    var countryName = countryListMenu.FirstOrDefault(p => p.Name == countryListMenu[(int)inputInt - 1].Name);
+                                    if (countryName != null && inputInt != null && !countryName.Name.Contains("Exit"))
+                                    {
+                                        playerToUpdate.Country = countryName.Name;
+                                    }
+                                    else if (countryName.Name.Contains("Exit"))
+                                    {
+                                        return 0;
+                                    }
                                 }
-                                Console.Clear();
-                                Console.WriteLine("  Update Player\n");
-                                Console.WriteLine($" Actual last name {playerToUpdate.LastName}\n");
-                                Console.Write("Enter player last name:\n");
-                                var playerLastName = Console.ReadLine();
-                                if (!string.IsNullOrWhiteSpace(playerLastName))
+                                else
                                 {
-                                    playerLastName.Trim();
-                                    playerLastName.Replace(playerLastName.First(), playerLastName.ToUpper().First());
-                                    playerToUpdate.LastName = playerLastName;
-                                }
-                                Console.Clear();
-                                Console.WriteLine("  Update Player\n");
-                                Console.WriteLine($" Actual City {playerToUpdate.City}\n");
-                                Console.Write("Enter player City:\n");
-                                var playerCity = Console.ReadLine();
-                                if (!string.IsNullOrWhiteSpace(playerCity))
-                                {
-                                    playerCity.Trim();
-                                    playerCity.Replace(playerCity.First(), playerCity.ToUpper().First());
-                                    playerToUpdate.City = playerCity;
+                                    _consoleService.WriteLineErrorMessage($"No option nr: " + inputInt);
                                 }
 
-                                _playerService.UpdateItem(playerToUpdate);
-                                return playerToUpdate.Id;
-                            }
-                            noCountry = true;
-                            if (operation.Key == ConsoleKey.Q)
-                            {
-                                return 0;
-                            }
+                            } while (playerToUpdate.Country == null);
                         }
                     }
                 }
-                else
-                {
-                    Console.Clear();
-                    Console.WriteLine("Player no found");
-                    Console.WriteLine("Press Any key");
-                    Console.ReadKey();
-                    return 0;
-                }
             }
+            else
+            {
+                return -1;
+            }
+            playerToUpdate.ModifiedById = _userService.GetIdActiveUser();
+            playerToUpdate.ModifiedDateTime = DateTime.Now;
+            _playerService.SaveList();
+            _consoleService.WriteLineMessage($"ID: {playerToUpdate.Id}. Name: {playerToUpdate.FirstName}  Last Name:  {playerToUpdate.LastName}   " +
+                      $"Country: {playerToUpdate.Country} City: {playerToUpdate.City}");
+            _consoleService.WriteLineMessageActionSuccess($"Data of player has been update");
+            return playerToUpdate.Id;
+        }
 
-            Console.Clear();
-            Console.WriteLine("Player no found");
-            Console.WriteLine("Press Any key");
-            Console.ReadKey();
-            return 0;
-        }
-        else
-        {
-            return 0;
-        }
+        return 0;
     }
     public bool ListOfActivePlayersView()
     {
