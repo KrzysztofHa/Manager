@@ -16,4 +16,10 @@ public class PlayerService: BaseService<Player>, IPlayerService, IService<Player
         return GetAllItem().FindAll(p => p.IsActive == true);
     }
 
+    public int SearchPlayer(string searchString)
+    {
+        
+            return 1;
+    }
+
 }

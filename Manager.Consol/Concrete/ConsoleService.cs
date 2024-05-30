@@ -1,4 +1,5 @@
 ﻿using Manager.Consol.Abstract;
+using Manager.Domain.Entity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Manager.Consol.Concrete;
 
-public class ConsoleService : IConsoleService
+public class ConsoleService<T> : IConsoleService<T>
 {
     public int? GetIntNumberFromUser(string message)
     {
@@ -170,9 +171,25 @@ public class ConsoleService : IConsoleService
         Console.WriteLine(errorMessage);
         Console.ForegroundColor = ConsoleColor.White;
         Console.CursorVisible = false;
-        Thread.Sleep(1500);
+        Thread.Sleep(500);
         Console.SetCursorPosition(startCursorPosition.Left, startCursorPosition.Top);
         Console.Write(string.Empty.PadLeft(Console.BufferWidth));
         Console.CursorVisible = true;
+    }
+
+    public ConsoleKeyInfo GetKeyFromUser()
+    {
+        var startCursorPosition = Console.GetCursorPosition();
+        Console.ForegroundColor = ConsoleColor.Blue;
+        Console.SetCursorPosition(startCursorPosition.Left, startCursorPosition.Top);
+        Console.Write(string.Empty.PadLeft(Console.BufferWidth));
+        return Console.ReadKey();
+    }
+
+    public List<T> ViewListAndGetSelectedElement(List<T> elementListToView)
+    {
+
+        Player
+        throw new NotImplementedException();
     }
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Manager.Consol.Abstract;
 
-public interface IConsoleService
+public interface IConsoleService<T>
 {
     void WriteLineMessage(string message);
     void WriteLineErrorMessage(string errorMessage);
@@ -16,4 +16,7 @@ public interface IConsoleService
     int? GetIntNumberFromUser(string message);
     bool AnswerYesOrNo(string message);
     void WriteLineMessageActionSuccess(string message);
+    ConsoleKeyInfo GetKeyFromUser();
+    List<T> ViewListAndGetSelectedElement(List<T> elementListToView);
+    
 }
