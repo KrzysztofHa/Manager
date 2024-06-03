@@ -1,15 +1,14 @@
 ﻿using Manager.Consol.Abstract;
+using Manager.Domain.Common;
 using Manager.Domain.Entity;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
+using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace Manager.Consol.Concrete;
 
-public class ConsoleService<T> : IConsoleService<T>
+public class ConsoleService : IConsoleService
 {
     public int? GetIntNumberFromUser(string message)
     {
@@ -63,7 +62,6 @@ public class ConsoleService<T> : IConsoleService<T>
         Console.ForegroundColor = ConsoleColor.White;
         return inputString.ToString();
     }
-
     public string GetRequiredStringFromUser(string message)
     {
         var startCursorPosition = Console.GetCursorPosition();
@@ -86,12 +84,10 @@ public class ConsoleService<T> : IConsoleService<T>
 
         } while (true);
     }
-
     public void WriteLineMessage(string message)
     {
         Console.WriteLine(message);
     }
-
     public bool AnswerYesOrNo(string message)
     {
         var startCursorTop = Console.CursorTop;
@@ -124,7 +120,6 @@ public class ConsoleService<T> : IConsoleService<T>
             }
         } while (true);
     }
-
     public void WriteTitle(string title)
     {
         Console.Clear();
@@ -132,9 +127,6 @@ public class ConsoleService<T> : IConsoleService<T>
         Console.WriteLine($"{title}\n");
         Console.ForegroundColor = ConsoleColor.White;
     }
-
-
-
     public void WriteLineMessageActionSuccess(string message)
     {
         var startCursorPosition = Console.GetCursorPosition();
@@ -157,39 +149,29 @@ public class ConsoleService<T> : IConsoleService<T>
         Console.Write(string.Empty.PadLeft(Console.BufferWidth));
         Console.CursorVisible = true;
     }
-
     public void WriteLineErrorMessage(string errorMessage)
     {
-        var startCursorPosition = Console.GetCursorPosition();
-        Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine(errorMessage);
-        Thread.Sleep(250);
-        Console.SetCursorPosition(startCursorPosition.Left, startCursorPosition.Top);
-        Console.Write(string.Empty.PadLeft(Console.BufferWidth));
-        Thread.Sleep(250);
-        Console.SetCursorPosition(startCursorPosition.Left, startCursorPosition.Top);
-        Console.WriteLine(errorMessage);
-        Console.ForegroundColor = ConsoleColor.White;
         Console.CursorVisible = false;
-        Thread.Sleep(500);
+        Console.ForegroundColor = ConsoleColor.Red;
+        var startCursorPosition = Console.GetCursorPosition();
+        Console.WriteLine(errorMessage);
+        Thread.Sleep(250);
         Console.SetCursorPosition(startCursorPosition.Left, startCursorPosition.Top);
-        Console.Write(string.Empty.PadLeft(Console.BufferWidth));
+        Console.WriteLine(string.Empty.PadLeft(Console.BufferWidth));
+        Thread.Sleep(250);
+        Console.SetCursorPosition(startCursorPosition.Left, startCursorPosition.Top);
+        Console.WriteLine(errorMessage);
+        Thread.Sleep(500);
+        Console.ForegroundColor = ConsoleColor.White;
+        Console.SetCursorPosition(startCursorPosition.Left, startCursorPosition.Top);
         Console.CursorVisible = true;
     }
-
     public ConsoleKeyInfo GetKeyFromUser()
     {
         var startCursorPosition = Console.GetCursorPosition();
         Console.ForegroundColor = ConsoleColor.Blue;
         Console.SetCursorPosition(startCursorPosition.Left, startCursorPosition.Top);
-        Console.Write(string.Empty.PadLeft(Console.BufferWidth));
-        return Console.ReadKey();
-    }
-
-    public List<T> ViewListAndGetSelectedElement(List<T> elementListToView)
-    {
-
-        Player
-        throw new NotImplementedException();
+        Console.WriteLine(string.Empty.PadLeft(Console.BufferWidth));
+        return Console.ReadKey(true);
     }
 }

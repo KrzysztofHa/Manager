@@ -29,8 +29,8 @@ public class BaseService<T> : IService<T> where T : BaseEntity
             item.Id = 1;
         }
         item.IsActive = true;
-        item.CreatedDateTime = DateTime.Now;        
-        Items.Add(item);        
+        item.CreatedDateTime = DateTime.Now;
+        Items.Add(item);
         return item.Id;
     }
 
@@ -53,7 +53,7 @@ public class BaseService<T> : IService<T> where T : BaseEntity
         }
         return entity.Id;
     }
-    public T GetItemOfId(int id)
+    public T GetItemById(int id)
     {
         var findItem = Items.FirstOrDefault(p => p.Id == id);
         return findItem;

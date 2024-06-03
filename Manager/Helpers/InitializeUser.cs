@@ -1,11 +1,6 @@
 ﻿using Manager.App.Abstract;
-using Manager.App.Concrete;
 using Manager.Consol.Abstract;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Manager.Domain.Entity;
 
 namespace Manager.Helpers;
 
@@ -23,7 +18,7 @@ public class InitializeUser
         SetActiveUser();
     }
     public void SetActiveUser()
-    {        
+    {
         string welcome = "When you run the application for the first time,\r\n" +
             "    You can set a name that will be displayed for you.\r\n" +
             "    You can change the Display Name at any time in the application settings.";

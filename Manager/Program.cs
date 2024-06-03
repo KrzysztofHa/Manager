@@ -4,6 +4,7 @@ using Manager.App.Concrete;
 using Manager.App.Managers;
 using Manager.Consol.Abstract;
 using Manager.Consol.Concrete;
+using Manager.Domain.Entity;
 using Manager.Helpers;
 internal class Program
 {

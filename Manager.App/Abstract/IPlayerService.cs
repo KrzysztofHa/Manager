@@ -10,5 +10,6 @@ namespace Manager.App.Abstract;
 public interface IPlayerService : IService<Player>
 {
     public List<Player> ListOfActivePlayers();
+    public List<Player> SearchPlayer(string searchString);
 
 }

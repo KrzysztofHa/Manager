@@ -30,11 +30,9 @@ namespace Manager.App.Concrete
             AddItem(new MenuAction(5000, "Settings", "Main"));
 
             AddItem(new MenuAction(1100, "List Of Player", "Players"));
-            AddItem(new MenuAction(1200, "Search Player Not implemented", "Players"));
-            AddItem(new MenuAction(1300, "Add Player", "Players"));
-            AddItem(new MenuAction(1400, "Update Player", "Players"));
-            AddItem(new MenuAction(1500, "Remove Player", "Players"));
-            
+            AddItem(new MenuAction(1200, "Search Player", "Players"));
+            AddItem(new MenuAction(1300, "Add Or Update Player", "Players"));
+            AddItem(new MenuAction(1400, "Remove Player", "Players"));
 
             AddItem(new MenuAction(4100, "League Not implemented", "Tournaments"));
             AddItem(new MenuAction(4200, "One Day Not implemented", "Tournaments"));
@@ -42,7 +40,7 @@ namespace Manager.App.Concrete
             AddItem(new MenuAction(4110, "Players Not implemented", "League"));
             AddItem(new MenuAction(4120, "Tournament Ranking Not implemented", "League"));
 
-            AddItem(new MenuAction(5100, "Change Display Name", "Settings"));           
+            AddItem(new MenuAction(5100, "Change Display Name", "Settings"));
 
             for (int i = 0; i <= menuCountry.CountryList.Count - 1; i++)
             {
