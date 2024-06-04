@@ -2,6 +2,7 @@
 using Manager.App.Abstract;
 using Manager.App.Concrete;
 using Manager.App.Managers;
+using Manager.Consol.Abstract;
 using Manager.Domain.Entity;
 using Moq;
 using Xunit;
@@ -21,44 +22,29 @@ namespace Manager.Tests.ManagerAppTest.PlayerManagerTest
             PlayerList = new List<Player>();
             for (int i = 1; i <= 10; i++)
             {
-                PlayerList.Add(new Player { Id = i, IsActive = true, Name = "Player" + i + 1, Country = "Poland" });
+                PlayerList.Add(new Player { Id = i, IsActive = true, FirstName = "Player" + i + 1, Country = "Poland" });
             }
-        }
-
-        [Fact]
-        public void MyTest()
-        {
-            var temp = "my class!";
-            output.WriteLine("This is output from {0}", temp);
         }
 
         [Fact]
         public void CanAddNewPlayer()
         {
             //Arrange
-            var mockIService = new Mock<IService<Player>>();
+            var mockIService = new Mock<IPlayerService>();
             mockIService.Setup(p => p.AddItem(It.IsAny<Player>()));
             mockIService.Setup(p => p.SaveList());
             mockIService.Setup(p => p.GetAllItem()).Returns(PlayerList);
-            //var playerManager = new PlayerManager(new MenuActionService(), mockIService.Object);
+            var mockIConsoleService = new Mock<IConsoleService>();
+            
+            var mockIUserService = new Mock<IUserService>();
+            var playerManager = new PlayerManager(new MenuActionService(), mockIService.Object, mockIConsoleService.Object, mockIUserService.Object);
 
 
             //Act
-            //var returnPlayerManager = playerManager.AddNewPlayer();
-            //Assert
+            var returnPlayerManager = playerManager.AddOrUpdatePlayer();
+
             Assert.NotNull(output);
         }
 
-        //[Fact]
-        //public void CantFindPlayer()
-        //{
-        //    //Arrange
-        //    var mockIService = new Mock<IService<Player>>();
-        //    var playerManager = new PlayerManager(new MenuActionService(), mockIService.Object);
-        //    //Act
-        //    var returnFindPlayer = playerManager.FindPlayer();
-        //    //Assert
-        //}
-       
     }
 }
