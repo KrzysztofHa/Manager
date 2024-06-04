@@ -9,48 +9,47 @@ using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
 
-namespace Manager.Tests.ManagerAppTest.PlayerServiceTest
+namespace Manager.Tests.ManagerAppTest.PlayerServiceTest;
+
+public class PlayerServiceTest
 {
-    public class PlayerServiceTest
+    public List<Player> PlayerList { get; set; }
+    public PlayerServiceTest()
     {
-        public List<Player> PlayerList { get; set; }
-        public PlayerServiceTest()
+        PlayerList = new List<Player>();
+        for (int i = 1; i <= 10; i++)
         {
-            PlayerList = new List<Player>();
-            for (int i = 1; i <= 10; i++)
-            {
-                PlayerList.Add(new Player { Id = i, IsActive = true, FirstName = "Player" + i + 1, Country = "Poland" });
-            }
-            
+            PlayerList.Add(new Player { Id = i, IsActive = true, FirstName = "Player" + i + 1, Country = "Poland" });
         }
-        [Fact]
-        public void CantGetListofActivePlayer()
-        {
-            //Arrange
-            IPlayerService playerService = new PlayerService();
-            PlayerList.ForEach(player => playerService.AddItem(player));
-            
-            //Act
-            var resulActivePlayertList = playerService.ListOfActivePlayers();
+        
+    }
+    [Fact]
+    public void CantGetListofActivePlayer()
+    {
+        //Arrange
+        IPlayerService playerService = new PlayerService();
+        PlayerList.ForEach(player => playerService.AddItem(player));
+        
+        //Act
+        var resulActivePlayertList = playerService.ListOfActivePlayers();
 
-            //Assert
-            resulActivePlayertList.Should().NotBeEmpty();
-            Assert.Equal(resulActivePlayertList[0], PlayerList[0]);
-        }
-        [Fact]
-        public void CantGetListPlayersOfStringInput()
-        {
-            //Arrang
-            IPlayerService playerService = new PlayerService();
-            PlayerList.ForEach(player => playerService.AddItem(player));
-            string testString = "1";
-            //Act
-            var resultListFindPlayer = playerService.SearchPlayer(testString);
+        //Assert
+        resulActivePlayertList.Should().NotBeEmpty();
+        Assert.Equal(resulActivePlayertList[0], PlayerList[0]);
+    }
+    [Fact]
+    public void CantGetListPlayersOfStringInput()
+    {
+        //Arrang
+        IPlayerService playerService = new PlayerService();
+        PlayerList.ForEach(player => playerService.AddItem(player));
+        string testString = "1";
+        //Act
+        var resultListFindPlayer = playerService.SearchPlayer(testString);
 
-            //Assert
-            resultListFindPlayer.Should().NotBeEmpty();
-            resultListFindPlayer[0].Id.Should().Be(10);
-            resultListFindPlayer.Count.Should().Be(10);
-        }
+        //Assert
+        resultListFindPlayer.Should().NotBeEmpty();
+        resultListFindPlayer[0].Id.Should().Be(10);
+        resultListFindPlayer.Count.Should().Be(10);
     }
 }

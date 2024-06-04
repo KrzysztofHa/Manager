@@ -1,12 +1,11 @@
-﻿namespace Manager.App.Concrete.Helpers
-{
-    public class Country
-    {
-        public List<string> CountryList { get; set; }
+﻿namespace Manager.App.Concrete.Helpers;
 
-        public Country()
-        {
-            CountryList = new List<string>() { "England", "Poland", "Deutchland" };
-        }
+public class Country
+{
+    public List<string> CountryList { get; set; }
+
+    public Country()
+    {
+        CountryList = new List<string>() { "England", "Poland", "Deutchland" };
     }
 }

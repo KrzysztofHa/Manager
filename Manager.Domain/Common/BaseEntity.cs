@@ -1,8 +1,7 @@
-﻿namespace Manager.Domain.Common
+﻿namespace Manager.Domain.Common;
+
+public class BaseEntity : AuditableModel
 {
-    public class BaseEntity : AuditableModel
-    {
-        public int Id { get; set; }
-        public bool IsActive { get; set; }
-    }
+    public int Id { get; set; }
+    public bool IsActive { get; set; }
 }

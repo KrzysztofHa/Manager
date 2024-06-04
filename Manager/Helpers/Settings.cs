@@ -9,80 +9,79 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Manager.Helpers
+namespace Manager.Helpers;
+
+public class Settings
 {
-    public class Settings
+    private string UserName;
+    public Settings()
     {
-        private string UserName;
-        public Settings()
+        UserName = Environment.UserName;
+    }
+
+    public void ChangeSettings()
+    {
+        var settingMenu = new MenuActionService().GetMenuActionsByName("Settings");
+        var consoleService = new ConsoleService();
+        var userService = new UserService();
+
+        for (int i = 0; i < settingMenu.Count; i++)
         {
-            UserName = Environment.UserName;
+            consoleService.WriteLineMessage($"{i + 1}. {settingMenu[i].Name}");
         }
 
-        public void ChangeSettings()
-        {
-            var settingMenu = new MenuActionService().GetMenuActionsByName("Settings");
-            var consoleService = new ConsoleService();
-            var userService = new UserService();
 
+        while (true)
+        {
+            consoleService.WriteTitle("Manage Players");
             for (int i = 0; i < settingMenu.Count; i++)
             {
                 consoleService.WriteLineMessage($"{i + 1}. {settingMenu[i].Name}");
             }
 
-
-            while (true)
+            var operation = consoleService.GetIntNumberFromUser("Enter Option");
+            switch (operation)
             {
-                consoleService.WriteTitle("Manage Players");
-                for (int i = 0; i < settingMenu.Count; i++)
-                {
-                    consoleService.WriteLineMessage($"{i + 1}. {settingMenu[i].Name}");
-                }
-
-                var operation = consoleService.GetIntNumberFromUser("Enter Option");
-                switch (operation)
-                {
-                    case 1:
-                        ChangeDisplayName(consoleService, userService);
-                        break;
-                    case 2:
-                        operation = null;
-                        break;
-                    case 3:
-                        break;
-
-                    case 6:
-
-                        break;
-                    default:
-                        if (operation != null)
-                        {
-                            consoleService.WriteLineErrorMessage("Enter a valid operation ID");
-                        }
-                        break;
-                }
-
-
-                if (operation == null)
-                {
+                case 1:
+                    ChangeDisplayName(consoleService, userService);
                     break;
-                }
+                case 2:
+                    operation = null;
+                    break;
+                case 3:
+                    break;
+
+                case 6:
+
+                    break;
+                default:
+                    if (operation != null)
+                    {
+                        consoleService.WriteLineErrorMessage("Enter a valid operation ID");
+                    }
+                    break;
+            }
+
+
+            if (operation == null)
+            {
+                break;
             }
         }
-        private void ChangeDisplayName(ConsoleService consoleService, UserService userService)
+    }
+    private void ChangeDisplayName(ConsoleService consoleService, UserService userService)
+    {
+        consoleService.WriteTitle($"Display Name: {userService.GetDisplayUserName()}");
+        var displayName = consoleService.GetStringFromUser("Enter New Display Name:");
+        if (string.IsNullOrEmpty(displayName))
         {
-            consoleService.WriteTitle($"Display Name: {userService.GetDisplayUserName()}");
-            var displayName = consoleService.GetStringFromUser("Enter New Display Name:");
-            if (string.IsNullOrEmpty(displayName))
-            {
-                consoleService.WriteLineErrorMessage("The display name has not been changed.");
-                userService.SetDisplayUserName(UserName);
-            }
-            else
-            {                
-                consoleService.WriteLineMessage($"Changed Display Name: {userService.SetDisplayUserName(displayName)}");
-                consoleService.WriteLineErrorMessage("");                
-            }
+            consoleService.WriteLineErrorMessage("The display name has not been changed.");
+            userService.SetDisplayUserName(UserName);
+        }
+        else
+        {                
+            consoleService.WriteLineMessage($"Changed Display Name: {userService.SetDisplayUserName(displayName)}");
+            consoleService.WriteLineErrorMessage("");                
         }
     }
 }

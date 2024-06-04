@@ -8,4 +8,5 @@ public class Player : BaseEntity
     public string LastName { get; set; } 
     public string Country { get; set; }
     public string City { get; set; }
+    public int IdTeamMembership { get; set; }
 }

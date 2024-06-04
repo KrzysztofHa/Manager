@@ -8,68 +8,67 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Manager.App.Concrete
+namespace Manager.App.Concrete;
+
+public class UserService : BaseService<User>, IUserService, IService<User>
 {
-    public class UserService : BaseService<User>, IUserService, IService<User>
+    public string UserName { get;}
+    public string DisplayUserName { get; set; }
+    public UserService()
     {
-        public string UserName { get;}
-        public string DisplayUserName { get; set; }
-        public UserService()
+        UserName = Environment.UserName;
+        
+        if (GetAllItem().Any())
         {
-            UserName = Environment.UserName;
-            
-            if (GetAllItem().Any())
-            {
-                var activeUser = GetAllItem().FirstOrDefault(p => p.UserName == UserName);
-                if (activeUser == null)
-                {
-                    User newUser = new User() { UserName = UserName };
-                    AddItem(newUser);
-                    SaveList();
-                }                
-            }
-            else
+            var activeUser = GetAllItem().FirstOrDefault(p => p.UserName == UserName);
+            if (activeUser == null)
             {
                 User newUser = new User() { UserName = UserName };
                 AddItem(newUser);
                 SaveList();
-            }
+            }                
         }
-        public int GetIdActiveUser()
+        else
         {
-             var activeUser = GetAllItem().FirstOrDefault(p => p.UserName == UserName);
-                if (activeUser == null)
-                {
-                    return 0;
-                }
-            return activeUser.Id;
+            User newUser = new User() { UserName = UserName };
+            AddItem(newUser);
+            SaveList();
         }
-
-        public string GetDisplayUserName()
-        {            
-            var activeUser = GetAllItem().First(p => p.UserName == UserName);            
-            return activeUser.DisplayName;
-        }
-
-        public string GetUserName()
-        {
-            
-            return UserName;
-        }
-
-        public string SetDisplayUserName(string displayName)
-        {
-            var activeUser = GetAllItem().FirstOrDefault(p => p.UserName == UserName);
-            if (!string.IsNullOrEmpty(displayName) && activeUser != null)
-            {
-                activeUser.DisplayName = displayName;               
-            }
-            else
-            {
-                activeUser.DisplayName = string.Empty;
-            }
-            SaveList ();
-            return activeUser.DisplayName;
-        }        
     }
+    public int GetIdActiveUser()
+    {
+         var activeUser = GetAllItem().FirstOrDefault(p => p.UserName == UserName);
+            if (activeUser == null)
+            {
+                return 0;
+            }
+        return activeUser.Id;
+    }
+
+    public string GetDisplayUserName()
+    {            
+        var activeUser = GetAllItem().First(p => p.UserName == UserName);            
+        return activeUser.DisplayName;
+    }
+
+    public string GetUserName()
+    {
+        
+        return UserName;
+    }
+
+    public string SetDisplayUserName(string displayName)
+    {
+        var activeUser = GetAllItem().FirstOrDefault(p => p.UserName == UserName);
+        if (!string.IsNullOrEmpty(displayName) && activeUser != null)
+        {
+            activeUser.DisplayName = displayName;               
+        }
+        else
+        {
+            activeUser.DisplayName = string.Empty;
+        }
+        SaveList ();
+        return activeUser.DisplayName;
+    }        
 }
