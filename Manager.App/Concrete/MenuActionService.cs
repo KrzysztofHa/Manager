@@ -25,7 +25,7 @@ namespace Manager.App.Concrete
 
             AddItem(new MenuAction(1000, "Manage Players", "Main"));
             AddItem(new MenuAction(2000, "Global Ranking Not implemented ", "Main"));
-            AddItem(new MenuAction(3000, "Sparing Not implemented", "Main"));
+            AddItem(new MenuAction(3000, "Sparring Not implemented", "Main"));
             AddItem(new MenuAction(4000, "Tournaments Not implemented", "Main"));
             AddItem(new MenuAction(5000, "Settings", "Main"));
 
