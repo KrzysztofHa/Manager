@@ -5,8 +5,7 @@ namespace Manager.Domain.Entity;
 public class Player : BaseEntity
 {
     public string FirstName { get; set; }
-    public string LastName { get; set; } 
-    public string Country { get; set; }
-    public string City { get; set; }
-    public int IdTeamMembership { get; set; }
+    public string LastName { get; set; }   
+    public int IdTeam { get; set; }
+    public int IdAddress {  get; set; }
 }

@@ -19,7 +19,7 @@ public class PlayerServiceTest
         PlayerList = new List<Player>();
         for (int i = 1; i <= 10; i++)
         {
-            PlayerList.Add(new Player { Id = i, IsActive = true, FirstName = "Player" + i + 1, Country = "Poland" });
+            PlayerList.Add(new Player { Id = i, IsActive = true, FirstName = "Player" + i + 1});
         }
         
     }

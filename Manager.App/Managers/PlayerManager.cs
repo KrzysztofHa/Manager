@@ -1,4 +1,5 @@
 ﻿using Manager.App.Abstract;
+using Manager.App.Common;
 using Manager.App.Concrete;
 using Manager.Consol.Abstract;
 using Manager.Domain.Entity;
@@ -66,33 +67,33 @@ public class PlayerManager
                 break;
             }
         }
-    }   
+    }
     public int RemovePlayerView()
     {
-        if (ListOfActivePlayersView())
+        var playerId = SearchPlayer($"Remove Player\r\n Search and Select Player To Remove");
+        if (playerId != -1)
         {
-            var playerId = _consoleService.GetIntNumberFromUser("\nPlease enter ID for player you want remove");
             var playerToRemove = _playerService.GetAllItem().FirstOrDefault(p => p.Id == playerId);
-            if (playerToRemove != null && playerId != null)
+            if (playerToRemove != null)
             {
+                playerToRemove.ModifiedById = _userService.GetIdActiveUser();
                 _playerService.RemoveItem(playerToRemove);
-                _consoleService.WriteLineMessageActionSuccess($"Remove Player {playerToRemove.FirstName} Success");
+                _consoleService.WriteLineMessageActionSuccess($"Remove PLayer {playerToRemove.Id} {playerToRemove.FirstName}" +
+                    $" {playerToRemove.FirstName} Success !!");
                 _playerService.SaveList();
+                return playerToRemove.Id;
             }
-
-            return playerToRemove.Id;
         }
-        else
-        {
-            return -1;
-        }
+        return -1;
     }
     public int AddOrUpdatePlayer()
     {
+
         bool isUpdatePlayer = false;
         Player updatePlayer = new Player();
+        Address playerAddress = new Address();
         string title = string.Empty;
-        _consoleService.WriteTitle("Add Update Player");
+        _consoleService.WriteTitle("Add Or Update Player\r\nSelect Option--------");
         if (_consoleService.AnswerYesOrNo("You want to edit player?"))
         {
             title = "Update Player";
@@ -144,7 +145,7 @@ public class PlayerManager
                     }
                     else if (propertyItem == "City")
                     {
-                        updatePlayer.City = updateString;
+                        playerAddress.City = updateString;
                     }
                 }
             }
@@ -153,7 +154,7 @@ public class PlayerManager
                 var countryListMenu = _actionService.GetMenuActionsByName("Country");
                 do
                 {
-                    _consoleService.WriteTitle("Update Player");
+                    _consoleService.WriteTitle(title);
                     for (int i = 0; i < countryListMenu.Count; i++)
                     {
                         _consoleService.WriteLineMessage($"{i + 1}. {countryListMenu[i].Name}");
@@ -163,9 +164,9 @@ public class PlayerManager
                     if (inputInt <= countryListMenu.Count)
                     {
                         var countryName = countryListMenu.FirstOrDefault(p => p.Name == countryListMenu[(int)inputInt - 1].Name);
-                        if (countryName != null && inputInt != null && !countryName.Name.Contains("Exit"))
+                        if (countryName != null && !countryName.Name.Contains("Exit"))
                         {
-                            updatePlayer.Country = countryName.Name;
+                            playerAddress.Country = countryName.Name;
                         }
                         else if (countryName.Name.Contains("Exit"))
                         {
@@ -174,28 +175,34 @@ public class PlayerManager
                     }
                     else
                     {
+                        if (inputInt == null && isUpdatePlayer)
+                        {
+                            if (_consoleService.AnswerYesOrNo("You want to exit? \r\nThe entered data will not be saved"))
+                            {
+                                return -1;
+                            }
+                        }
                         _consoleService.WriteLineErrorMessage($"No option nr: " + inputInt);
                     }
 
-                } while (updatePlayer.Country == null);
+                } while (playerAddress.Country == null);
             }
 
         }
         if (isUpdatePlayer)
         {
             updatePlayer.ModifiedById = _userService.GetIdActiveUser();
-            updatePlayer.ModifiedDateTime = DateTime.Now;
-            _playerService.SaveList();            
+            _playerService.UpdateItem(_playerService.AddPlayerAddress(updatePlayer, playerAddress));
+            _playerService.SaveList();
         }
         else
         {
             updatePlayer.CreatedById = _userService.GetIdActiveUser();
-            updatePlayer.CreatedDateTime = DateTime.Now;
-            _playerService.AddItem(updatePlayer);
+            ;
+            _playerService.AddItem(_playerService.AddPlayerAddress(updatePlayer, playerAddress));
             _playerService.SaveList();
         }
-        _consoleService.WriteLineMessage($"{updatePlayer.Id,-5}{updatePlayer.FirstName,-15}{updatePlayer.LastName,-15}" +
-                      $"{updatePlayer.City,-15}{updatePlayer.Country}");
+        _consoleService.WriteLineMessage(_playerService.GetPlayerDetailView(updatePlayer));
         _consoleService.WriteLineMessageActionSuccess($"Data of player has been update");
 
         return updatePlayer.Id;
@@ -205,11 +212,11 @@ public class PlayerManager
         var activePlayer = _playerService.ListOfActivePlayers();
         if (activePlayer.Any())
         {
-            _consoleService.WriteTitle($"{"ID",-5}{"First Name",-15}{"Last Name",-15}{"City",-15}{"Country",-15}");
+            _consoleService.WriteTitle($"{"ID|",-5}{"First Name|",+15}{"Last Name|",+15}" +
+                    $"{"Street|",+15}{"Number|",+10}{"City|",+15}{"Country|",+15}{"zip|",+10}");
             foreach (var player in activePlayer)
             {
-                _consoleService.WriteLineMessage($"{player.Id,-5}{player.FirstName,-15}{player.LastName,-15}" +
-                      $"{player.City,-15}{player.Country,-15}");
+                _consoleService.WriteLineMessage(_playerService.GetPlayerDetailView(player));
             }
             return true;
         }
@@ -219,30 +226,31 @@ public class PlayerManager
             return false;
         }
     }
-    public int SearchPlayer()
+    public int SearchPlayer(string title = "")
     {
         StringBuilder inputString = new StringBuilder();
         List<Player> findPlayer = _playerService.SearchPlayer("1");
+        List<Player> findPlayerTemp = new List<Player>();
+        var address = new Address();
         int IdSelectedPlayer = 0;
+        title = string.IsNullOrWhiteSpace(title) ? "Search Player" : title;
         do
         {
-            _consoleService.WriteTitle("Search Player");
+            _consoleService.WriteTitle(title);
 
             if (findPlayer.Any())
             {
-                _consoleService.WriteTitle($"{"ID",-5}{"First Name",-15}{"Last Name",-15}{"City",-15}{"Country",-15}");
+                _consoleService.WriteTitle(title + $"\r\n{"ID",-5}{"First Name",-10}{"Last Name",-10}{"City",-10}{"Country",-10}" +
+                    $"{"Street",-10}{"BuildingNumber",-5}{"City",-10}{"Country",-10}{"zip",-10}");
 
                 foreach (var player in findPlayer)
                 {
-                    var result = findPlayer.IndexOf(player) == IdSelectedPlayer ? "<= Select Press Enter" : string.Empty;
-                    _consoleService.WriteLineMessage($"{player.Id,-5}{player.FirstName,-15}{player.LastName,-15}" +
-                      $"{player.City,-15}{player.Country} {result}");
-
+                    var result = findPlayer.IndexOf(player) == IdSelectedPlayer ? $"<= Select Press Enter" : string.Empty;
+                    _consoleService.WriteLineMessage(_playerService.GetPlayerDetailView(player) + result);
                 }
             }
             else
             {
-                IdSelectedPlayer = 0;
                 _consoleService.WriteLineErrorMessage("Not Find Player");
             }
             _consoleService.WriteLineMessage("---------------\r\n" + inputString.ToString());
@@ -252,11 +260,35 @@ public class PlayerManager
 
             if (char.IsLetterOrDigit(keyFromUser.KeyChar))
             {
-                inputString.Append(keyFromUser.KeyChar);
+                if (findPlayer.Count == 1 && !string.IsNullOrEmpty(inputString.ToString()))
+                {
+                    inputString.Remove(inputString.Length - 1, 1);
+                    _consoleService.WriteLineErrorMessage("No entry found !!!");
+                }
+                else
+                {
+                    if (string.IsNullOrEmpty(inputString.ToString()))
+                    {
+                        findPlayerTemp = _playerService.SearchPlayer(keyFromUser.KeyChar.ToString());
+                    }
+                    
+                    inputString.Append(keyFromUser.KeyChar);
+                    findPlayer = [.. findPlayer.Where(p => $"{p.Id} {p.FirstName} {p.LastName}".ToLower()
+                    .Contains(inputString.ToString().ToLower())).OrderBy(i => i.FirstName)];
+                    IdSelectedPlayer = 0;
+                }
             }
             else if (keyFromUser.Key == ConsoleKey.Backspace && inputString.Length > 0)
             {
                 inputString.Remove(inputString.Length - 1, 1);
+
+                if (!string.IsNullOrEmpty(inputString.ToString()))
+                {
+                    findPlayer = [.. findPlayerTemp.Where(p => $"{p.Id} {p.FirstName} {p.LastName}".ToLower()
+                    .Contains(inputString.ToString().ToLower())).OrderBy(i => i.FirstName)];
+                }
+                
+
             }
             else if (keyFromUser.Key == ConsoleKey.DownArrow && IdSelectedPlayer < findPlayer.Count - 1)
             {
@@ -266,40 +298,35 @@ public class PlayerManager
             {
                 IdSelectedPlayer--;
             }
-
-            if (keyFromUser.Key == ConsoleKey.Enter && findPlayer.Any())
+            else if (keyFromUser.Key == ConsoleKey.Enter && findPlayer.Any())
             {
                 var findPlayerToSelect = findPlayer.First(p => findPlayer.IndexOf(p) == IdSelectedPlayer);
-                _consoleService.WriteLineMessage($"{"ID",-5}{"First Name",-15}{"Last Name",-15}{"City",-15}{"Country",-15}");
-                _consoleService.WriteLineMessage($"{findPlayerToSelect.Id,-5}{findPlayerToSelect.FirstName,-15}" +
-                    $"{findPlayerToSelect.LastName,-15}{findPlayerToSelect.City,-15}{findPlayerToSelect.Country,-15}");
+                _consoleService.WriteLineMessage(_playerService.GetPlayerDetailView(findPlayerToSelect));
 
                 if (_consoleService.AnswerYesOrNo("Selected Player"))
                 {
                     return findPlayerToSelect.Id;
                 }
             }
-
-            if (keyFromUser.Key == ConsoleKey.Escape)
+            else if (keyFromUser.Key == ConsoleKey.Escape)
             {
                 break;
             }
 
-            if (inputString.ToString() != string.Empty)
-            {
+            //findPlayerTemp = _playerService.SearchPlayer(inputString.ToString());
+            //if (findPlayerTemp.Any())
+            //{
+            //    findPlayer.Clear();
+            //    findPlayer.AddRange(findPlayerTemp);
+            //    IdSelectedPlayer = 0;
+            //}
+            //else
+            //{
+            //    IdSelectedPlayer = 0;
+            //    inputString.Remove(inputString.Length - 1, 1);
+            //    _consoleService.WriteLineErrorMessage("No entry found !!");
+            //}
 
-                var findPlayerTemp = _playerService.SearchPlayer(inputString.ToString());
-                if (findPlayerTemp.Any())
-                {
-                    findPlayer.Clear();
-                    findPlayer.AddRange(findPlayerTemp);
-                }
-                else
-                {
-                    inputString.Remove(inputString.Length - 1, 1);
-                    _consoleService.WriteLineErrorMessage("No entry found !!");
-                }
-            }
         } while (true);
 
         return -1;

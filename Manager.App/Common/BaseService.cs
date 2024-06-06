@@ -20,17 +20,20 @@ public class BaseService<T> : IService<T> where T : BaseEntity
 
     public int AddItem(T item)
     {
-        if (Items.Any())
+        if (!Items.Contains(item))
         {
-            item.Id = Items.Count + 1;
+            if (Items.Any())
+            {
+                item.Id = Items.Count + 1;
+            }
+            else
+            {
+                item.Id = 1;
+            }
+            item.IsActive = true;
+            item.CreatedDateTime = DateTime.Now;
+            Items.Add(item);
         }
-        else
-        {
-            item.Id = 1;
-        }
-        item.IsActive = true;
-        item.CreatedDateTime = DateTime.Now;
-        Items.Add(item);
         return item.Id;
     }
 
@@ -41,6 +44,7 @@ public class BaseService<T> : IService<T> where T : BaseEntity
 
     public void RemoveItem(T item)
     {
+        item.ModifiedDateTime = DateTime.Now;
         item.IsActive = false;
     }
 
@@ -50,6 +54,7 @@ public class BaseService<T> : IService<T> where T : BaseEntity
         if (entity != null)
         {
             entity = item;
+            entity.ModifiedDateTime = DateTime.Now;
         }
         return entity.Id;
     }

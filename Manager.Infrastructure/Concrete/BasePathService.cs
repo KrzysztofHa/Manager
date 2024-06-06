@@ -7,10 +7,10 @@ namespace Manager.Infrastructure.Concrete;
 public class BasePathsService : BaseOperationService<BasePaths>
 {
     public string PathToBaseCurrent = Directory.GetCurrentDirectory() + @"\base\";
-    public string FileExtensions = ".json.manager";
+    public string FileExtensions = ".manager.json";
     public BasePathsService()
     {
-        if (File.Exists(PathToBaseCurrent + nameof(BasePaths) + ".json.manager"))
+        if (File.Exists(PathToBaseCurrent + nameof(BasePaths) + FileExtensions))
         {
             ListOfElements = LoadListInBase();
         }

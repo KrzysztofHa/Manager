@@ -9,8 +9,11 @@ namespace Manager.Domain.Entity;
 
 public class PlayerMatch : BaseEntity
 {
-    public DateTime StartGame { get; set; }
-    public DateTime EndGame { get; set; }
+    public DateTime StartMatch { get; set; }
+    public DateTime EndMach { get; set; }
     public int IdClub { get; set; }
+    public int IdFirstTeam { get; set; }
+    public int IdSecondTeam { get; set;}
+
 
 }

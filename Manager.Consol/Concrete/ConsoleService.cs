@@ -164,14 +164,17 @@ public class ConsoleService : IConsoleService
         Thread.Sleep(500);
         Console.ForegroundColor = ConsoleColor.White;
         Console.SetCursorPosition(startCursorPosition.Left, startCursorPosition.Top);
+        Console.WriteLine(string.Empty.PadLeft(Console.BufferWidth));
         Console.CursorVisible = true;
     }
     public ConsoleKeyInfo GetKeyFromUser()
     {
         var startCursorPosition = Console.GetCursorPosition();
+        Console.CursorVisible = false;
         Console.ForegroundColor = ConsoleColor.Blue;
         Console.SetCursorPosition(startCursorPosition.Left, startCursorPosition.Top);
         Console.WriteLine(string.Empty.PadLeft(Console.BufferWidth));
+        Console.CursorVisible = false;
         return Console.ReadKey(true);
     }
 }
