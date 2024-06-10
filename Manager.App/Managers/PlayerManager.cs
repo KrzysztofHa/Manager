@@ -77,7 +77,7 @@ public class PlayerManager
             if (playerToRemove != null)
             {
                 playerToRemove.ModifiedById = _userService.GetIdActiveUser();
-                _playerService.RemoveItem(playerToRemove);
+                _playerService.DeletePlayer(playerToRemove);
                 _consoleService.WriteLineMessageActionSuccess($"Remove PLayer {playerToRemove.Id} {playerToRemove.FirstName}" +
                     $" {playerToRemove.FirstName} Success !!");
                 _playerService.SaveList();
@@ -108,12 +108,22 @@ public class PlayerManager
         {
             title = "Add New Player";
         }
-        string[] property = ["First Name", "Last Name", "City", "Country"];
+        string[] property = ["First Name", "Last Name", "Street", "Building Number", "City", "Country", "Zip"];
 
         string updateString;
         foreach (var propertyItem in property)
         {
-            _consoleService.WriteTitle(title);
+            var formatAddressToView = $" {playerAddress.Street,-10}".Remove(11) + $" {playerAddress.BuildingNumber,-10}".Remove(11) +
+                 $" {playerAddress.City,-10}".Remove(11) + $" {playerAddress.Country,-10}".Remove(11) +
+                    $" {playerAddress.Zip,-5}".Remove(6);
+            var formatPlayerDataToView = $"{updatePlayer.Id,-5}".Remove(5) + $" {updatePlayer.FirstName,-20}".Remove(21) +
+               $" {updatePlayer.LastName,-20}".Remove(21) + formatAddressToView;
+
+            _consoleService.WriteTitle($"{title}\r\n{"ID",-6}{"First Name",-21}{"Last Name",-21}" +
+                   $"{"Street",-11}{"Number",-11}{"City",-11}{"Country",-11}{"zip",-6}");
+
+            _consoleService.WriteLineMessage($"{formatPlayerDataToView,-92}");
+
             if (propertyItem != "Country")
             {
                 if (isUpdatePlayer)
@@ -129,9 +139,16 @@ public class PlayerManager
                     }
                 }
 
-                if (updateString == string.Empty)
+                if (string.IsNullOrEmpty(updateString))
                 {
-                    continue;
+                    if (updateString == null)
+                    {
+                        return -1;
+                    }
+                    else
+                    {
+                        continue;
+                    }
                 }
                 else
                 {
@@ -145,7 +162,19 @@ public class PlayerManager
                     }
                     else if (propertyItem == "City")
                     {
-                        playerAddress.City = updateString;
+                        playerAddress.City = updateString.ToLower();
+                    }
+                    else if (propertyItem == "Street")
+                    {
+                        playerAddress.Street = updateString.ToLower();
+                    }
+                    else if (propertyItem == "Zip")
+                    {
+                        playerAddress.Zip = updateString.ToLower();
+                    }
+                    else if (propertyItem == "Building Number")
+                    {
+                        playerAddress.BuildingNumber = updateString.ToLower();
                     }
                 }
             }
@@ -198,7 +227,6 @@ public class PlayerManager
         else
         {
             updatePlayer.CreatedById = _userService.GetIdActiveUser();
-            ;
             _playerService.AddItem(_playerService.AddPlayerAddress(updatePlayer, playerAddress));
             _playerService.SaveList();
         }
@@ -212,8 +240,8 @@ public class PlayerManager
         var activePlayer = _playerService.ListOfActivePlayers();
         if (activePlayer.Any())
         {
-            _consoleService.WriteTitle($"{"ID|",-5}{"First Name|",+15}{"Last Name|",+15}" +
-                    $"{"Street|",+15}{"Number|",+10}{"City|",+15}{"Country|",+15}{"zip|",+10}");
+            _consoleService.WriteTitle($"\r\n{"ID",-6}{"First Name",-21}{"Last Name",-21}" +
+                    $"{"Street",-11}{"Number",-11}{"City",-11}{"Country",-11}{"zip",-6}");
             foreach (var player in activePlayer)
             {
                 _consoleService.WriteLineMessage(_playerService.GetPlayerDetailView(player));
@@ -229,7 +257,7 @@ public class PlayerManager
     public int SearchPlayer(string title = "")
     {
         StringBuilder inputString = new StringBuilder();
-        List<Player> findPlayer = _playerService.SearchPlayer("1");
+        List<Player> findPlayer = _playerService.SearchPlayer(" ");
         List<Player> findPlayerTemp = new List<Player>();
         var address = new Address();
         int IdSelectedPlayer = 0;
@@ -240,13 +268,16 @@ public class PlayerManager
 
             if (findPlayer.Any())
             {
-                _consoleService.WriteTitle(title + $"\r\n{"ID",-5}{"First Name",-10}{"Last Name",-10}{"City",-10}{"Country",-10}" +
-                    $"{"Street",-10}{"BuildingNumber",-5}{"City",-10}{"Country",-10}{"zip",-10}");
+                _consoleService.WriteTitle(title + $"\r\n{"ID",-6}{"First Name",-21}{"Last Name",-21}" +
+                    $"{"Street",-11}{"Number",-11}{"City",-11}{"Country",-11}{"zip",-6}");
 
                 foreach (var player in findPlayer)
                 {
-                    var result = findPlayer.IndexOf(player) == IdSelectedPlayer ? $"<= Select Press Enter" : string.Empty;
-                    _consoleService.WriteLineMessage(_playerService.GetPlayerDetailView(player) + result);
+                    var formmatStringToView = findPlayer.IndexOf(player) == IdSelectedPlayer ?
+                        ">" + _playerService.GetPlayerDetailView(player) + " < Select Press Enter" :
+                        " " + _playerService.GetPlayerDetailView(player);
+
+                    _consoleService.WriteLineMessage(formmatStringToView);
                 }
             }
             else
@@ -254,7 +285,7 @@ public class PlayerManager
                 _consoleService.WriteLineErrorMessage("Not Find Player");
             }
             _consoleService.WriteLineMessage("---------------\r\n" + inputString.ToString());
-            _consoleService.WriteLineMessage("Enter string");
+            _consoleService.WriteLineMessage(@"Enter string move /\ or \/  and enter Select");
 
             var keyFromUser = _consoleService.GetKeyFromUser();
 
@@ -262,20 +293,39 @@ public class PlayerManager
             {
                 if (findPlayer.Count == 1 && !string.IsNullOrEmpty(inputString.ToString()))
                 {
-                    inputString.Remove(inputString.Length - 1, 1);
                     _consoleService.WriteLineErrorMessage("No entry found !!!");
                 }
                 else
                 {
-                    if (string.IsNullOrEmpty(inputString.ToString()))
-                    {
-                        findPlayerTemp = _playerService.SearchPlayer(keyFromUser.KeyChar.ToString());
-                    }
-                    
                     inputString.Append(keyFromUser.KeyChar);
-                    findPlayer = [.. findPlayer.Where(p => $"{p.Id} {p.FirstName} {p.LastName}".ToLower()
-                    .Contains(inputString.ToString().ToLower())).OrderBy(i => i.FirstName)];
-                    IdSelectedPlayer = 0;
+
+                    if (inputString.Length == 1)
+                    {
+                        findPlayerTemp = _playerService.SearchPlayer(inputString.ToString());
+                        if (findPlayerTemp.Any())
+                        {
+                            findPlayer.Clear();
+                            findPlayer.AddRange(findPlayerTemp);
+                            IdSelectedPlayer = 0;
+                        }
+                        else
+                        {
+                            inputString.Remove(inputString.Length - 1, 1);
+                        }
+                    }
+                    else
+                    {
+                        findPlayer = [.. findPlayer.Where(p => $"{p.Id} {p.FirstName} {p.LastName}".ToLower().
+                        Contains(inputString.ToString().ToLower())).OrderBy(i => i.FirstName)];
+                        if (!findPlayer.Any())
+                        {
+                            inputString.Remove(inputString.Length - 1, 1);
+                            findPlayer.AddRange([.. findPlayerTemp.Where(p => $"{p.Id} {p.FirstName} {p.LastName}".ToLower().
+                            Contains(inputString.ToString().ToLower())).OrderBy(i => i.FirstName)]);
+                            _consoleService.WriteLineErrorMessage("No entry found !!!");
+                        }
+                        IdSelectedPlayer = 0;
+                    }
                 }
             }
             else if (keyFromUser.Key == ConsoleKey.Backspace && inputString.Length > 0)
@@ -287,8 +337,6 @@ public class PlayerManager
                     findPlayer = [.. findPlayerTemp.Where(p => $"{p.Id} {p.FirstName} {p.LastName}".ToLower()
                     .Contains(inputString.ToString().ToLower())).OrderBy(i => i.FirstName)];
                 }
-                
-
             }
             else if (keyFromUser.Key == ConsoleKey.DownArrow && IdSelectedPlayer < findPlayer.Count - 1)
             {
@@ -312,20 +360,6 @@ public class PlayerManager
             {
                 break;
             }
-
-            //findPlayerTemp = _playerService.SearchPlayer(inputString.ToString());
-            //if (findPlayerTemp.Any())
-            //{
-            //    findPlayer.Clear();
-            //    findPlayer.AddRange(findPlayerTemp);
-            //    IdSelectedPlayer = 0;
-            //}
-            //else
-            //{
-            //    IdSelectedPlayer = 0;
-            //    inputString.Remove(inputString.Length - 1, 1);
-            //    _consoleService.WriteLineErrorMessage("No entry found !!");
-            //}
 
         } while (true);
 

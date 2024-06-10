@@ -18,8 +18,20 @@ public class PlayerService : BaseService<Player>, IPlayerService, IService<Playe
         if (address != null && player != null)
         {
             IService<Address> addressServis = new BaseService<Address>();
-            player.IdAddress = addressServis.AddItem(address);
-            addressServis.SaveList();
+
+            var findAddress = addressServis.GetAllItem().FirstOrDefault(a => a.Street == address.Street && a.BuildingNumber == address.BuildingNumber
+                && a.City == address.City && a.Country == address.Country && a.Zip == address.Zip);
+
+            if (findAddress != null)
+            {
+                findAddress.IsActive = true;
+                player.IdAddress = findAddress.Id;
+            }
+            else
+            {
+                player.IdAddress = addressServis.AddItem(address);
+                addressServis.SaveList();
+            }
         }
         return player;
     }
@@ -33,23 +45,25 @@ public class PlayerService : BaseService<Player>, IPlayerService, IService<Playe
     {
         if (player != null)
         {
-
             IService<Address> playerAddress = new BaseService<Address>();
             var playerAddressToView = playerAddress.GetAllItem().FirstOrDefault(p => p.Id == player.IdAddress);
-            var viewAddress = string.Empty;
+            var formatAddressToView = string.Empty;
             if (playerAddressToView != null)
             {
-                viewAddress = $"{playerAddressToView.Street,-1}{playerAddressToView.BuildingNumber,-5}" +
-                 $"{playerAddressToView.City,-10}{playerAddressToView.Country,-10}{playerAddressToView.zip,-10}";
+                formatAddressToView = $" {playerAddressToView.Street,-10}".Remove(11) + $" {playerAddressToView.BuildingNumber,-10}".Remove(11) +
+                 $" {playerAddressToView.City,-10}".Remove(11) + $" {playerAddressToView.Country,-10}".Remove(11) +
+                    $" {playerAddressToView.Zip,-5}".Remove(6);
             }
 
-            return $"{player.Id,-5}{player.FirstName,-10}{player.LastName,-10}" + viewAddress;
+            var formatPlayerDataToView = $"{player.Id,-5}".Remove(5) + $" {player.FirstName,-20}".Remove(21) +
+                $" {player.LastName,-20}".Remove(21) + formatAddressToView;
+            return $"{formatPlayerDataToView,-92}";
         }
 
         return string.Empty;
     }
 
-    public List<Player> SearchPlayer(string searchString)
+    public List<Player> SearchPlayer(string searchString = " ")
     {
         List<Player> findPlayerList = new List<Player>();
         if (!string.IsNullOrEmpty(searchString))
@@ -59,5 +73,21 @@ public class PlayerService : BaseService<Player>, IPlayerService, IService<Playe
             .Contains(searchString.ToLower())).OrderBy(i => i.FirstName).ToList();
         }
         return findPlayerList;
+    }
+
+    public void DeletePlayer(Player player)
+    {
+        IService<Address> addressServis = new BaseService<Address>();
+
+        var findPlayersWithTheSameIdAddress = GetAllItem().FindAll(p => p.IdAddress == player.IdAddress);
+
+        if (findPlayersWithTheSameIdAddress.Count == 1)
+        {
+            addressServis.RemoveItem(addressServis.GetItemById(player.IdAddress));
+            addressServis.SaveList();
+        }
+        RemoveItem(player);
+        SaveList();
+
     }
 }
