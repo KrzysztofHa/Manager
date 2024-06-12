@@ -1,19 +1,17 @@
 ﻿using Manager.App.Abstract;
-using Manager.Consol.Abstract;
-using Manager.Domain.Entity;
+using Manager.Consol.Concrete;
 
 namespace Manager.Helpers;
 
 public class InitializeUser
 {
     private readonly IUserService _userService;
-    private readonly IConsoleService _consoleService;
     public string UserName { get; }
 
-    public InitializeUser(IUserService userService, IConsoleService consoleService)
+    public InitializeUser(IUserService userService)
     {
+
         _userService = userService;
-        _consoleService = consoleService;
         UserName = Environment.UserName;
         SetActiveUser();
     }
@@ -22,14 +20,14 @@ public class InitializeUser
         string welcome = "When you run the application for the first time,\r\n" +
             "    You can set a name that will be displayed for you.\r\n" +
             "    You can change the Display Name at any time in the application settings.";
-        _consoleService.WriteTitle($"Hello {UserName}!");
-        _consoleService.WriteLineMessage(welcome);
-        if (_consoleService.AnswerYesOrNo("Want to change your display name now?"))
+        ConsoleService.WriteTitle($"Hello {UserName}!");
+        ConsoleService.WriteLineMessage(welcome);
+        if (ConsoleService.AnswerYesOrNo("Want to change your display name now?"))
         {
-            var displayName = _consoleService.GetStringFromUser("Enter Display Name");
+            var displayName = ConsoleService.GetStringFromUser("Enter Display Name");
             if (string.IsNullOrEmpty(displayName))
             {
-                _consoleService.WriteLineErrorMessage("The display name has not been changed.");
+                ConsoleService.WriteLineErrorMessage("The display name has not been changed.");
                 _userService.SetDisplayUserName(UserName);
             }
             else

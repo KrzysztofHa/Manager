@@ -25,7 +25,7 @@ public class MenuActionService : BaseService<MenuAction>
 
         AddItem(new MenuAction(1000, "Manage Players", "Main"));
         AddItem(new MenuAction(2000, "Global Ranking Not implemented ", "Main"));
-        AddItem(new MenuAction(3000, "Sparring Not implemented", "Main"));
+        AddItem(new MenuAction(3000, "Sparring", "Main"));
         AddItem(new MenuAction(4000, "Tournaments Not implemented", "Main"));
         AddItem(new MenuAction(5000, "Settings", "Main"));
 
@@ -34,8 +34,8 @@ public class MenuActionService : BaseService<MenuAction>
         AddItem(new MenuAction(1300, "Add Or Update Player", "Players"));
         AddItem(new MenuAction(1400, "Remove Player", "Players"));
 
-        AddItem(new MenuAction(3100, "Single Match", "Sparring"));
-        AddItem(new MenuAction(3200, "Team Match", "Sparring"));
+        AddItem(new MenuAction(3100, "Start New Sparring", "Sparring"));
+        AddItem(new MenuAction(3200, "All Sparring", "Sparring"));
 
         AddItem(new MenuAction(4100, "League Not implemented", "Tournaments"));
         AddItem(new MenuAction(4200, "One Day Not implemented", "Tournaments"));

@@ -2,36 +2,33 @@
 using Manager.App.Abstract;
 using Manager.App.Concrete;
 using Manager.App.Managers;
-using Manager.Consol.Abstract;
 using Manager.Consol.Concrete;
-using Manager.Domain.Entity;
 using Manager.Helpers;
 internal class Program
 {
     public static void Main()
     {
         IPlayerService playerService = new PlayerService();
-        IConsoleService consoleService = new ConsoleService();
         IUserService userService = new UserService();
 
         if (string.IsNullOrEmpty(userService.GetDisplayUserName()))
         {
-            new InitializeUser(userService, consoleService);
+            new InitializeUser(userService);
         }
         var settings = new Settings();
         MenuActionService actionService = new();
-        PlayerManager playerManager = new(actionService, playerService, consoleService, userService);
-
+        PlayerManager playerManager = new(actionService, playerService, userService);
+        SinglePlayerDuelManager sparringManager = new(actionService, playerManager, userService, playerService);
         var mainMenu = actionService.GetMenuActionsByName("Main");
 
         while (true)
         {
-            consoleService.WriteTitle($"Hello User {userService.GetDisplayUserName()}!");
+            ConsoleService.WriteTitle($"Hello User {userService.GetDisplayUserName()}!");
             for (int i = 0; i < mainMenu.Count; i++)
             {
-                Console.WriteLine($"{i + 1}. {mainMenu[i].Name}");
+                ConsoleService.WriteLineMessage($"{i + 1}. {mainMenu[i].Name}");
             }
-            var operation = consoleService.GetIntNumberFromUser("Enter Option");
+            var operation = ConsoleService.GetIntNumberFromUser("Enter Option");
             switch (operation)
             {
                 case 1:
@@ -41,7 +38,7 @@ internal class Program
                     //Global Ranking
                     break;
                 case 3:
-                    //Sparing
+                    sparringManager.SparringOptionView();
                     break;
                 case 4:
                     //Tournaments
@@ -55,14 +52,14 @@ internal class Program
                 default:
                     if (operation != null)
                     {
-                        consoleService.WriteLineErrorMessage("Enter a valid operation ID");
+                        ConsoleService.WriteLineErrorMessage("Enter a valid operation ID");
                     }
                     break;
             }
 
             if (operation == null)
             {
-                if (consoleService.AnswerYesOrNo("Are you sure you want to Exit?"))
+                if (ConsoleService.AnswerYesOrNo("Are you sure you want to Exit?"))
                 {
                     Environment.Exit(0);
                 }

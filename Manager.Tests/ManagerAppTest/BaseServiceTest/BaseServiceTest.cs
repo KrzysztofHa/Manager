@@ -22,7 +22,7 @@ public class BaseServiceTest
         SomListOfElements = new List<Player>();
         for (int i = 1; i <= 10; i++)
         {
-            SomListOfElements.Add(new Player { Id = i, IsActive = true, FirstName = "Player" + i + 1, Country = "Poland" });
+            SomListOfElements.Add(new Player { Id = i, IsActive = true, FirstName = "Player" + i + 1});
         }
         baseService.AddItem(SomListOfElements.First(p => p.IsActive = true));
     }

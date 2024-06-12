@@ -1,16 +1,10 @@
-﻿using Manager.Consol.Abstract;
-using Manager.Domain.Common;
-using Manager.Domain.Entity;
-using System.Linq.Expressions;
-using System.Reflection;
-using System.Text;
-using System.Xml.Linq;
+﻿using System.Text;
 
 namespace Manager.Consol.Concrete;
 
-public class ConsoleService : IConsoleService
+public static class ConsoleService
 {
-    public int? GetIntNumberFromUser(string message)
+    public static int? GetIntNumberFromUser(string message)
     {
         if (int.TryParse(GetStringFromUser(message), out int inputUserInt))
         {
@@ -18,7 +12,7 @@ public class ConsoleService : IConsoleService
         }
         return null;
     }
-    public string GetStringFromUser(string message)
+    public static string GetStringFromUser(string message)
     {
         ConsoleKeyInfo inputKey;
         var inputString = new StringBuilder();
@@ -37,9 +31,18 @@ public class ConsoleService : IConsoleService
             Console.Write(inputString.ToString());
 
             inputKey = Console.ReadKey(true);
+
             if (char.IsLetterOrDigit(inputKey.KeyChar))
             {
-                inputString.Append(inputKey.KeyChar);
+                if (string.IsNullOrEmpty(inputString.ToString()))
+                {
+                    var upperInputKey = inputKey.KeyChar.ToString().ToUpper();
+                    inputString.Append(upperInputKey);
+                }
+                else
+                {
+                    inputString.Append(inputKey.KeyChar);
+                }
             }
             else if (inputKey.Key == ConsoleKey.Backspace && inputString.Length > 0)
             {
@@ -62,7 +65,7 @@ public class ConsoleService : IConsoleService
         Console.ForegroundColor = ConsoleColor.White;
         return inputString.ToString();
     }
-    public string GetRequiredStringFromUser(string message)
+    public static string GetRequiredStringFromUser(string message)
     {
         var startCursorPosition = Console.GetCursorPosition();
         do
@@ -84,11 +87,11 @@ public class ConsoleService : IConsoleService
 
         } while (true);
     }
-    public void WriteLineMessage(string message)
+    public static void WriteLineMessage(string message)
     {
         Console.WriteLine(message);
     }
-    public bool AnswerYesOrNo(string message)
+    public static bool AnswerYesOrNo(string message)
     {
         var startCursorTop = Console.CursorTop;
         var startCursorLeft = Console.CursorLeft;
@@ -120,14 +123,14 @@ public class ConsoleService : IConsoleService
             }
         } while (true);
     }
-    public void WriteTitle(string title)
+    public static void WriteTitle(string title)
     {
         Console.Clear();
         Console.ForegroundColor = ConsoleColor.Green;
         Console.WriteLine($"{title}\n");
         Console.ForegroundColor = ConsoleColor.White;
     }
-    public void WriteLineMessageActionSuccess(string message)
+    public static void WriteLineMessageActionSuccess(string message)
     {
         var startCursorPosition = Console.GetCursorPosition();
         Console.CursorVisible = false;
@@ -149,7 +152,7 @@ public class ConsoleService : IConsoleService
         Console.Write(string.Empty.PadLeft(Console.BufferWidth));
         Console.CursorVisible = true;
     }
-    public void WriteLineErrorMessage(string errorMessage)
+    public static void WriteLineErrorMessage(string errorMessage)
     {
         Console.CursorVisible = false;
         Console.ForegroundColor = ConsoleColor.Red;
@@ -167,7 +170,7 @@ public class ConsoleService : IConsoleService
         Console.WriteLine(string.Empty.PadLeft(Console.BufferWidth));
         Console.CursorVisible = true;
     }
-    public ConsoleKeyInfo GetKeyFromUser()
+    public static ConsoleKeyInfo GetKeyFromUser()
     {
         var startCursorPosition = Console.GetCursorPosition();
         Console.CursorVisible = false;
