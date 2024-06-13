@@ -36,7 +36,7 @@ public class SinglePlayerDuelManager
             switch (operation)
             {
                 case 1:
-                    Sparring();
+                    StartNewSparring();
                     break;
                 case 2:
 
@@ -58,51 +58,119 @@ public class SinglePlayerDuelManager
             }
         }
     }
-    public void Sparring()
+    public void StartNewSparring()
     {
-        //ISinglePlayerDuelService playerDuelService = new SinglePlayerDuelService();
+        ISinglePlayerDuelService singlePlayerDuelService = new SinglePlayerDuelService();
         IService<Rack> rackService = new BaseService<Rack>();
         var players = new List<Player>();
-        SinglePlayerDuel singlePlayerDuel = new SinglePlayerDuel() { ModifiedById = _userService.GetIdActiveUser() };
-        Rack rack = new Rack() { ModifiedById = _userService.GetIdActiveUser() };
+        SinglePlayerDuel singlePlayerDuel = new SinglePlayerDuel() { CreatedById = _userService.GetIdActiveUser() };
+        Rack rack = new Rack() { CreatedById = _userService.GetIdActiveUser() };
+        rackService.AddItem(rack);
+        rackService.SaveList();
         if (!AddPlayersToSparring(singlePlayerDuel, players) || !AddSettingeRaceAndTypeGame(singlePlayerDuel))
         {
             return;
         }
-        var tinyFulNameFirstPlayer = players.Where(p => players.IndexOf(p) == 0)
-            .Select(p => ($"{p.FirstName.Remove(1)}.{p.LastName}")).First();
-        var tinyFulNameSecondPlayer = players.Where(p => players.IndexOf(p) == 1)
-            .Select(p => ($"{p.FirstName.Remove(1)}.{p.LastName}")).First();
-        
 
+        string[] tinyFulNamePlayers = {players.Where(p => players.IndexOf(p) == 0)
+            .Select(p => ($"{p.FirstName.Remove(1)}.{p.LastName}")).First(),
+        players.Where(p => players.IndexOf(p) == 1)
+            .Select(p => ($"{p.FirstName.Remove(1)}.{p.LastName}")).First()};
 
+        singlePlayerDuelService.StartSinglePlayerDuel(singlePlayerDuel);
 
-
-        //playerDuelService.StartSinglePlayerDuel(singlePlayerDuel);
-        for (int i = 1; i <= singlePlayerDuel.RaceTo; i++)
+        while (true)
         {
-            ConsoleService.WriteTitle($"{"Sparring", 24}");
-            var formatNamesPlayersToView = $"{tinyFulNameFirstPlayer, 15} ({singlePlayerDuel.ScoreFirstPlayer}" +
-                $" : {singlePlayerDuel.ScoreSecondPlayer}) {tinyFulNameSecondPlayer, -25}\r\n";
+            rack.IdSinglePlayerDuel = singlePlayerDuel.Id;
+            do
+            {
+                ConsoleService.WriteTitle($"{"Sparring",24}");
+                var formatNamesPlayersToView = $"{tinyFulNamePlayers[0],15} ({singlePlayerDuel.ScoreFirstPlayer}" +
+                    $" : {singlePlayerDuel.ScoreSecondPlayer}) {tinyFulNamePlayers[1],-25}\r\n";
 
-            ConsoleService.WriteLineMessage(formatNamesPlayersToView);
-            ConsoleService.WriteLineMessage($"{$"{singlePlayerDuel.TypeNameOfGame} Race {singlePlayerDuel.RaceTo}", 27}");
+                ConsoleService.WriteLineMessage(formatNamesPlayersToView);
+                ConsoleService.WriteLineMessage($"{$"{singlePlayerDuel.TypeNameOfGame} Race {singlePlayerDuel.RaceTo}",27}");
+                if (singlePlayerDuel.ScoreFirstPlayer == singlePlayerDuel.RaceTo)
+                {
+                    singlePlayerDuelService.EndSinglePlayerDuel(singlePlayerDuel);
+                    ConsoleService.WriteLineMessageActionSuccess($"{ $"Winner {players[0].FirstName + " " + players[0].LastName}", 30}");
+                    return;
+                }
+                else if (singlePlayerDuel.ScoreSecondPlayer == singlePlayerDuel.RaceTo)               
+                {
+                    singlePlayerDuelService.EndSinglePlayerDuel(singlePlayerDuel);
+                    ConsoleService.WriteLineMessageActionSuccess($"{$"Winner {players[1].FirstName + " " + players[1].LastName}", 30}");
+                    return;
+                }
+                ConsoleService.WriteLineMessage("Press Enter To Update Score");
 
+                var inputKey = ConsoleService.GetKeyFromUser();
+                if (inputKey.Key == ConsoleKey.Enter)
+                {
+                    var idSelsctedPlayer = 0;
+                    do
+                    {
+                        ConsoleService.WriteTitle($"{"Sparring",24}");
+                        ConsoleService.WriteLineMessage(formatNamesPlayersToView + "\r\nSelect Winner");
+                        foreach (var namePlayer in tinyFulNamePlayers)
+                        {
+                            var formatText = tinyFulNamePlayers[idSelsctedPlayer] == (namePlayer) ?
+                                $">" + $"{tinyFulNamePlayers[idSelsctedPlayer],-20}".Remove(20) + " <= Select Enter" :
+                                $" {namePlayer,-20}".Remove(20);
+                            ConsoleService.WriteLineMessage(formatText);
+                        }
 
-            StartRack(rackService, rack, singlePlayerDuel);
+                        ConsoleKeyInfo input = ConsoleService.GetKeyFromUser();
+                        if (input.Key == ConsoleKey.UpArrow && idSelsctedPlayer > 0)
+                        {
+                            idSelsctedPlayer--;
+                        }
+                        else if (input.Key == ConsoleKey.DownArrow && idSelsctedPlayer < tinyFulNamePlayers.Length - 1)
+                        {
+                            idSelsctedPlayer++;
+                        }
+                        else if (input.Key == ConsoleKey.Enter)
+                        {
+                            if (idSelsctedPlayer == 0)
+                            {
+                                singlePlayerDuel.ScoreFirstPlayer++;
+                                rack.IdPlayerWinner = singlePlayerDuel.IdFirstPlayer;
+                            }
+                            else
+                            {
+                                singlePlayerDuel.ScoreSecondPlayer++;
+                                rack.IdPlayerWinner = singlePlayerDuel.IdSecondPlayer;
+                            }
+                            break;
+                        }
+                        else if (input.Key == ConsoleKey.Escape)
+                        {
+                            break;
+                        }
+                    } while (true);
+
+                    if (ConsoleService.AnswerYesOrNo("Break And Run Yes or No"))
+                    {
+                        rack.IsBreakAndRun = true;
+                    }
+                    rack.EndGame = DateTime.Now;
+                    rackService.UpdateItem(rack);
+                    rackService.SaveList();
+                    singlePlayerDuelService.UpdateSinglePlayerDuel(singlePlayerDuel);
+                }
+                else if (inputKey.Key == ConsoleKey.Escape)
+                {
+                    if (ConsoleService.AnswerYesOrNo("you want to leave the game?"))
+                    {
+                        return;
+                    }
+                    break;
+                }
+
+            } while (rack.IdPlayerWinner == 0);
+            rack = new Rack() { CreatedById = _userService.GetIdActiveUser() };
+            rackService.AddItem(rack);
         }
-
-    }
-
-    private void StartRack(IService<Rack> rackService, Rack rack, SinglePlayerDuel singlePlayerDuel)
-    {
-        
-
-
-
-
-
-        throw new NotImplementedException();
     }
 
     private bool AddPlayersToSparring(SinglePlayerDuel singlePlayerDuel, List<Player> players)

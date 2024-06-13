@@ -8,23 +8,22 @@ public class SinglePlayerDuelService : BaseService<SinglePlayerDuel>, ISinglePla
 {
     public bool StartSinglePlayerDuel(SinglePlayerDuel singlePlayerDuel)
     {
-        singlePlayerDuel.StartGame = DateTime.Now;
         AddItem(singlePlayerDuel);
+        SaveList();
+        return true;
+    }
+    public bool EndSinglePlayerDuel(SinglePlayerDuel singlePlayerDuel)
+    {
+        singlePlayerDuel.EndGame = DateTime.Now;
+        UpdateItem(singlePlayerDuel);
+        SaveList();
         return true;
     }
 
-    public bool SaveRack(Rack rack)
+    public bool UpdateSinglePlayerDuel(SinglePlayerDuel singlePlayerDuel)
     {
-        throw new NotImplementedException();
-    }
-
-    public bool UpdateDuel(SinglePlayerDuel singlePlayerDuel)
-    {
-        throw new NotImplementedException();
-    }
-
-    public bool EndSinglePlayerDuel(SinglePlayerDuel singlePlayerDuel)
-    {
-        throw new NotImplementedException();
+        UpdateItem(singlePlayerDuel);
+        SaveList();
+        return true;
     }
 }
