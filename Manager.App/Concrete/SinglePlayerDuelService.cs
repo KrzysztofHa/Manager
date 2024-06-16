@@ -6,25 +6,22 @@ namespace Manager.App.Concrete;
 
 public class SinglePlayerDuelService : BaseService<SinglePlayerDuel>, ISinglePlayerDuelService
 {
-    public bool StartSinglePlayerDuel(SinglePlayerDuel singlePlayerDuel)
+    public void StartSinglePlayerDuel(SinglePlayerDuel singlePlayerDuel)
     {
         AddItem(singlePlayerDuel);
         SaveList();
-        return true;
     }
-    public bool EndSinglePlayerDuel(SinglePlayerDuel singlePlayerDuel)
+    public void EndSinglePlayerDuel(SinglePlayerDuel singlePlayerDuel)
     {
         singlePlayerDuel.EndGame = DateTime.Now;
         UpdateItem(singlePlayerDuel);
         SaveList();
-        return true;
     }
 
-    public bool UpdateSinglePlayerDuel(SinglePlayerDuel singlePlayerDuel)
+    public void UpdateSinglePlayerDuel(SinglePlayerDuel singlePlayerDuel)
     {
         UpdateItem(singlePlayerDuel);
         SaveList();
-        return true;
     }
 
     public List<SinglePlayerDuel> GetAllSinglePlayerDuel()

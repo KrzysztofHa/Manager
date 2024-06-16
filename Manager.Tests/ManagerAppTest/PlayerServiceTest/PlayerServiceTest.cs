@@ -1,13 +1,7 @@
-﻿using Manager.App;
+﻿using FluentAssertions;
+using Manager.App;
 using Manager.App.Abstract;
-using Manager.App.Common;
 using Manager.Domain.Entity;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using FluentAssertions;
 
 namespace Manager.Tests.ManagerAppTest.PlayerServiceTest;
 
@@ -19,9 +13,9 @@ public class PlayerServiceTest
         PlayerList = new List<Player>();
         for (int i = 1; i <= 10; i++)
         {
-            PlayerList.Add(new Player { Id = i, IsActive = true, FirstName = "Player" + i + 1});
+            PlayerList.Add(new Player { Id = i, IsActive = true, FirstName = "Player" + i + 1 });
         }
-        
+
     }
     [Fact]
     public void CantGetListofActivePlayer()
@@ -29,7 +23,7 @@ public class PlayerServiceTest
         //Arrange
         IPlayerService playerService = new PlayerService();
         PlayerList.ForEach(player => playerService.AddItem(player));
-        
+
         //Act
         var resulActivePlayertList = playerService.ListOfActivePlayers();
 

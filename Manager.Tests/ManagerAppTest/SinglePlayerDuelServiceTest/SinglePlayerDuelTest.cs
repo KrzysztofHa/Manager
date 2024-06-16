@@ -20,11 +20,42 @@ public class SinglePlayerDuelTest
 
 
         //Act
-        var resultStartGame = _singlePlayerDuelService.StartSinglePlayerDuel(duel);
+        _singlePlayerDuelService.StartSinglePlayerDuel(duel);
 
-        //Assert
-        resultStartGame.Should().BeTrue();
+        //Assert        
         duel.Id.Should().Be(1).Should().NotBeNull();
         duel.StartGame.Should().BeBefore(DateTime.Now);
+    }
+    [Fact]
+    public void CanUpdateSinglePlayerDuel()
+    {
+        //Arrange
+        CanStartSinglePlayerDuel();
+        //CanStartSinglePlayerDuel();
+        var duel = _singlePlayerDuelService.GetItemById(1);
+        duel.ScoreFirstPlayer = 4;
+
+        //Act
+        _singlePlayerDuelService.UpdateSinglePlayerDuel(duel);
+
+        //Assert        
+        _singlePlayerDuelService.GetItemById(1).ScoreFirstPlayer.Should().Be(4);
+    }
+
+
+    [Fact]
+    public void CanEndSinglePlayerDuel()
+    {
+        // Arrange
+        CanUpdateSinglePlayerDuel();
+        var duel = _singlePlayerDuelService.GetItemById(1);
+
+
+        //Act
+        _singlePlayerDuelService.EndSinglePlayerDuel(duel);
+
+        //Assert        
+        _singlePlayerDuelService.GetItemById(1).EndGame.Should().BeAfter(duel.StartGame);
+
     }
 }

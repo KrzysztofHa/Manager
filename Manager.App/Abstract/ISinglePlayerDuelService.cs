@@ -4,9 +4,9 @@ namespace Manager.App.Abstract;
 
 internal interface ISinglePlayerDuelService
 {
-    bool StartSinglePlayerDuel(SinglePlayerDuel singlePlayerDuel);
-    bool UpdateSinglePlayerDuel(SinglePlayerDuel singlePlayerDuel);
-    bool EndSinglePlayerDuel(SinglePlayerDuel singlePlayerDuel);
+    void StartSinglePlayerDuel(SinglePlayerDuel singlePlayerDuel);
+    void UpdateSinglePlayerDuel(SinglePlayerDuel singlePlayerDuel);
+    void EndSinglePlayerDuel(SinglePlayerDuel singlePlayerDuel);
     List<SinglePlayerDuel> GetAllSinglePlayerDuel();
 
 }
