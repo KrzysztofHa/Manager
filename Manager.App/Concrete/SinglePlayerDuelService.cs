@@ -26,4 +26,9 @@ public class SinglePlayerDuelService : BaseService<SinglePlayerDuel>, ISinglePla
         SaveList();
         return true;
     }
+
+    public List<SinglePlayerDuel> GetAllSinglePlayerDuel()
+    {
+        return GetAllItem();
+    }
 }

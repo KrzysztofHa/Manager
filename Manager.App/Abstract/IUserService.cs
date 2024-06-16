@@ -2,10 +2,10 @@
 
 public interface IUserService
 {
-    public int GetIdActiveUser();
-    public int GeIdPlayerOfActiveUser();
-    public string GetDisplayUserName();
-    public string GetUserName();
-    public string SetDisplayUserName(string displayName);
-    public int SetIdPlayerToActiveUser(int idPlayerOfActiveUser);
+    int GetIdActiveUser();
+    int GeIdPlayerOfActiveUser();
+    string GetDisplayUserName();
+    string GetUserName();
+    string SetDisplayUserName(string displayName);
+    int SetIdPlayerToActiveUser(int idPlayerOfActiveUser);
 }

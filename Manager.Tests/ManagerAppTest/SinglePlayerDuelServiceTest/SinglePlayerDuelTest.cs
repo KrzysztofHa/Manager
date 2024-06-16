@@ -1,15 +1,6 @@
 ﻿using FluentAssertions;
 using Manager.App.Concrete;
 using Manager.Domain.Entity;
-using Manager.Infrastructure.Abstract;
-using Manager.Infrastructure.Common;
-using Manager.Infrastructure.Entity;
-using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Manager.Tests.ManagerAppTest.SinglePlayerDuelTest;
 
