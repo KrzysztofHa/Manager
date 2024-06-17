@@ -66,9 +66,9 @@ public class PlayerManager
     public int RemovePlayerView()
     {
         var playerId = SearchPlayer($"Remove Player\r\n Search and Select Player To Remove");
-        if (playerId != -1)
+        if (playerId != null)
         {
-            var playerToRemove = _playerService.GetAllItem().FirstOrDefault(p => p.Id == playerId);
+            var playerToRemove = _playerService.GetAllItem().FirstOrDefault(p => p.Id == playerId.Id);
             if (playerToRemove != null)
             {
                 playerToRemove.ModifiedById = _userService.GetIdActiveUser();
@@ -81,15 +81,15 @@ public class PlayerManager
         }
         return -1;
     }
-    public int AddNewPlayer()
+    public Player AddNewPlayer()
     {
         return AddOrUpdatePlayer();
     }
-    public int UpdatePlayer()
+    public void UpdatePlayer()
     {
-        return AddOrUpdatePlayer(true);
+        AddOrUpdatePlayer(true);
     }
-    private int AddOrUpdatePlayer(bool isUpdatePlayer = false)
+    private Player AddOrUpdatePlayer(bool isUpdatePlayer = false)
     {
         Player updatePlayer = new Player();
         Address playerAddress = new Address();
@@ -99,10 +99,10 @@ public class PlayerManager
         {
             title = "Update Player";
             isUpdatePlayer = true;
-            updatePlayer = _playerService.GetItemById(SearchPlayer());
+            updatePlayer = _playerService.GetItemById(SearchPlayer().Id);
             if (updatePlayer == null)
             {
-                return -1;
+                return updatePlayer;
             }
         }
         else
@@ -136,7 +136,7 @@ public class PlayerManager
                     updateString = ConsoleService.GetRequiredStringFromUser(propertyItem);
                     if (string.IsNullOrEmpty(updateString))
                     {
-                        return -1;
+                        return null;
                     }
                 }
 
@@ -144,7 +144,7 @@ public class PlayerManager
                 {
                     if (updateString == null)
                     {
-                        return -1;
+                        return null;
                     }
                     else
                     {
@@ -200,7 +200,7 @@ public class PlayerManager
                         }
                         else if (countryName.Name.Contains("Exit"))
                         {
-                            return 0;
+                            return null;
                         }
                     }
                     else
@@ -209,7 +209,7 @@ public class PlayerManager
                         {
                             if (ConsoleService.AnswerYesOrNo("You want to exit? \r\nThe entered data will not be saved"))
                             {
-                                return -1;
+                                return null;
                             }
                         }
                         ConsoleService.WriteLineErrorMessage($"No option nr: " + inputInt);
@@ -234,7 +234,7 @@ public class PlayerManager
         ConsoleService.WriteLineMessage(_playerService.GetPlayerDetailView(updatePlayer));
         ConsoleService.WriteLineMessageActionSuccess($"Data of player has been update");
 
-        return updatePlayer.Id;
+        return updatePlayer;
     }
     public bool ListOfActivePlayersView()
     {
@@ -255,7 +255,7 @@ public class PlayerManager
             return false;
         }
     }
-    public int SearchPlayer(string title = "")
+    public Player SearchPlayer(string title = "")
     {
         StringBuilder inputString = new StringBuilder();
         List<Player> findPlayer = _playerService.SearchPlayer(" ");
@@ -354,7 +354,7 @@ public class PlayerManager
 
                 if (ConsoleService.AnswerYesOrNo("Selected Player"))
                 {
-                    return findPlayerToSelect.Id;
+                    return findPlayerToSelect;
                 }
             }
             else if (keyFromUser.Key == ConsoleKey.Escape)
@@ -364,6 +364,6 @@ public class PlayerManager
 
         } while (true);
 
-        return -1;
+        return null;
     }
 }

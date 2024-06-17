@@ -18,7 +18,8 @@ internal class Program
         var settings = new Settings();
         MenuActionService actionService = new();
         PlayerManager playerManager = new(actionService, playerService, userService);
-        SinglePlayerDuelManager sparringManager = new(actionService, playerManager, userService, playerService);
+        SparringManager sparringManager = new(actionService, playerManager, userService, playerService);
+
         var mainMenu = actionService.GetMenuActionsByName("Main");
 
         while (true)
