@@ -18,7 +18,11 @@ internal class Program
         var settings = new Settings();
         MenuActionService actionService = new();
         PlayerManager playerManager = new(actionService, playerService, userService);
-        SinglePlayerDuelManager sparringManager = new(actionService, playerManager, userService, playerService);
+        SparringManager sparringManager = new(actionService, playerManager, userService, playerService);        
+        TurnamentsManager turnamentsManager = new(actionService, playerManager, userService, playerService);
+        
+        
+
         var mainMenu = actionService.GetMenuActionsByName("Main");
 
         while (true)
@@ -41,7 +45,7 @@ internal class Program
                     sparringManager.SparringOptionView();
                     break;
                 case 4:
-                    //Tournaments
+                    turnamentsManager.SparringOptionView();
                     break;
                 case 5:
                     settings.ChangeSettings();

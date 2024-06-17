@@ -20,20 +20,18 @@ public class BaseService<T> : IService<T> where T : BaseEntity
 
     public int AddItem(T item)
     {
-        if (!Items.Contains(item))
+        if (Items.Any())
         {
-            if (Items.Any())
-            {
-                item.Id = Items.Count + 1;
-            }
-            else
-            {
-                item.Id = 1;
-            }
-            item.IsActive = true;
-            item.CreatedDateTime = DateTime.Now;
-            Items.Add(item);
+            item.Id = Items.Count + 1;
         }
+        else
+        {
+            item.Id = 1;
+        }
+        item.IsActive = true;
+        item.CreatedDateTime = DateTime.Now;
+        Items.Add(item);
+
         return item.Id;
     }
 

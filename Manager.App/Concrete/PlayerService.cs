@@ -28,7 +28,7 @@ public class PlayerService : BaseService<Player>, IPlayerService, IService<Playe
                 player.IdAddress = findAddress.Id;
             }
             else
-            {
+            {                
                 player.IdAddress = addressServis.AddItem(address);
                 addressServis.SaveList();
             }
@@ -68,7 +68,6 @@ public class PlayerService : BaseService<Player>, IPlayerService, IService<Playe
         List<Player> findPlayerList = new List<Player>();
         if (!string.IsNullOrEmpty(searchString))
         {
-            IService<Address> addressServis = new BaseService<Address>();
             findPlayerList = ListOfActivePlayers().Where(p => $"{p.Id} {p.FirstName} {p.LastName}".ToLower()
             .Contains(searchString.ToLower())).OrderBy(i => i.FirstName).ToList();
         }

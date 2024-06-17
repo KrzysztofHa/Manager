@@ -124,7 +124,7 @@ public static class ConsoleService
         } while (true);
     }
     public static void WriteTitle(string title)
-    {
+    {        
         Console.Clear();
         Console.ForegroundColor = ConsoleColor.Green;
         Console.WriteLine($"{title}\n");
@@ -164,7 +164,7 @@ public static class ConsoleService
         Thread.Sleep(250);
         Console.SetCursorPosition(startCursorPosition.Left, startCursorPosition.Top);
         Console.WriteLine(errorMessage);
-        Thread.Sleep(500);
+        Thread.Sleep(1500);
         Console.ForegroundColor = ConsoleColor.White;
         Console.SetCursorPosition(startCursorPosition.Left, startCursorPosition.Top);
         Console.WriteLine(string.Empty.PadLeft(Console.BufferWidth));

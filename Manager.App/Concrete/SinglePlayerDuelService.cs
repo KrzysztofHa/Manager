@@ -8,6 +8,7 @@ public class SinglePlayerDuelService : BaseService<SinglePlayerDuel>, ISinglePla
 {
     public void StartSinglePlayerDuel(SinglePlayerDuel singlePlayerDuel)
     {
+        singlePlayerDuel.StartGame = DateTime.Now;
         AddItem(singlePlayerDuel);
         SaveList();
     }
@@ -17,13 +18,16 @@ public class SinglePlayerDuelService : BaseService<SinglePlayerDuel>, ISinglePla
         UpdateItem(singlePlayerDuel);
         SaveList();
     }
-
     public void UpdateSinglePlayerDuel(SinglePlayerDuel singlePlayerDuel)
     {
         UpdateItem(singlePlayerDuel);
         SaveList();
     }
-
+    public void CreateTournamentSinglePlayerDue(SinglePlayerDuel singlePlayerDuel)
+    {
+        AddItem(singlePlayerDuel);
+        SaveList();
+    }
     public List<SinglePlayerDuel> GetAllSinglePlayerDuel()
     {
         return GetAllItem();
