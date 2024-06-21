@@ -28,14 +28,24 @@ public class PlayerService : BaseService<Player>, IPlayerService, IService<Playe
                 player.IdAddress = findAddress.Id;
             }
             else
-            {                
+            {
                 player.IdAddress = addressServis.AddItem(address);
                 addressServis.SaveList();
             }
         }
         return player;
     }
+    public Address GetPlayerAddress(Player player)
+    {
+        var address = new Address();
+        IService<Address> addressServis = new BaseService<Address>();
+        if (player != null)
+        {
+            address = addressServis.GetItemById(player.IdAddress);
+        }
 
+        return address;
+    }
     public List<Player> ListOfActivePlayers()
     {
         return GetAllItem().FindAll(p => p.IsActive == true);

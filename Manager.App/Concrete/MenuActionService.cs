@@ -7,7 +7,7 @@ namespace Manager.App.Concrete;
 public class MenuActionService : BaseService<MenuAction>
 {
     public MenuActionService()
-    {
+    {        
         Initialize();
     }
 
