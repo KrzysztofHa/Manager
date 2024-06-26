@@ -11,7 +11,8 @@ namespace Manager.App.Abstract
     {
         SinglePlayerDuel NewSingleDuel(int idFirstPlayer = 0, int idSecondPlayer = 0);
         SinglePlayerDuel NewTournamentSinglePlayerDue(SinglePlayerDuel duel, int idTournament, int idFirstPlayer = -1, int idSecondPlayer = -1);
-        List<SinglePlayerDuel> ListOfSinglePlayerDuelByTournamentOrSparring(string nameTournament = "Sparring", int idTournament = 0);
+        void VievSinglePlayerDuelsByTournamentsOrSparrings(int idTournament = 0);
+        List<SinglePlayerDuel>? GetSinglePlayerDuelsByTournamentsOrSparrings(int idTournament = 0);
         void StartSingleDuel(SinglePlayerDuel duel);
         void EndSinglePlayerDuel(SinglePlayerDuel duel);
         void UpdateSinglePlayerDuel(SinglePlayerDuel duel);

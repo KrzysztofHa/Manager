@@ -287,7 +287,7 @@ public class ClubManager : IClubManager
             _clubService.SaveList();
         }
         ConsoleService.WriteLineMessage(_clubService.GetClubDetailView(updateClub));
-        ConsoleService.WriteLineMessageActionSuccess($"Data of player has been update");
+        ConsoleService.WriteLineMessageActionSuccess($"Data of Club has been update");
 
         return updateClub;
     }

@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Manager.App.Managers;
 
-public class PlayerManager
+public class PlayerManager : IPlayerManager
 {
     private readonly MenuActionService _actionService;
     private readonly IPlayerService _playerService;
@@ -89,9 +89,9 @@ public class PlayerManager
     {
         Func<Player, bool> isPlayerExist = (player) =>
         {
-            var t = _playerService.GetAllItem().Any(p => p.FirstName.ToLower() == player.FirstName.ToLower() &&
+            var test = _playerService.GetAllItem().Any(p => p.FirstName.ToLower() == player.FirstName.ToLower() &&
              p.LastName.ToLower() == player.FirstName.ToLower() && p.IdAddress == player.IdAddress);
-            return t;
+            return test;
         };
         var player = new Player();
         if (GetDataFromUser(player) == null)
@@ -126,10 +126,10 @@ public class PlayerManager
     {
         Func<Player, bool> isPlayerExist = (player) =>
         {
-            var t = _playerService.GetAllItem().Any(p => p.FirstName.ToLower() == player.FirstName.ToLower() &&
+            var test = _playerService.GetAllItem().Any(p => p.FirstName.ToLower() == player.FirstName.ToLower() &&
              p.LastName.ToLower() == player.FirstName.ToLower() && p.IdAddress == player.IdAddress &&
              p.Id != player.Id);
-            return t;
+            return test;
         };
 
         var player = _playerService.GetItemById(SearchPlayer().Id);
@@ -158,7 +158,7 @@ public class PlayerManager
         {
             return null;
         }
-
+        player.CreatedById = _userService.GeIdPlayerOfActiveUser();
         _playerService.UpdateItem(player);
         _playerService.SaveList();
         ConsoleService.WriteTitle(_playerService.GetPlayerDetailView(player));
@@ -319,7 +319,7 @@ public class PlayerManager
             return false;
         }
     }
-    public Player SearchPlayer(string title = "")
+    public Player? SearchPlayer(string title = "")
     {
         StringBuilder inputString = new StringBuilder();
         List<Player> findPlayers = _playerService.SearchPlayer(" ");
@@ -431,6 +431,6 @@ public class PlayerManager
 
         } while (true);
 
-        return new Player();
+        return null;
     }
 }

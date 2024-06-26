@@ -9,5 +9,4 @@ internal interface ISinglePlayerDuelService
     void EndSinglePlayerDuel(SinglePlayerDuel singlePlayerDuel);
     void CreateTournamentSinglePlayerDue(SinglePlayerDuel singlePlayerDuel);
     List<SinglePlayerDuel> GetAllSinglePlayerDuel();
-
 }

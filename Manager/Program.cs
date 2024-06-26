@@ -17,11 +17,9 @@ internal class Program
         }
         var settings = new Settings();
         MenuActionService actionService = new();
-        PlayerManager playerManager = new(actionService, playerService, userService);
-        SparringManager sparringManager = new(actionService, playerManager, userService, playerService);        
+        IPlayerManager playerManager = new PlayerManager(actionService, playerService, userService);
+        SparringManager sparringManager = new(actionService, playerManager, userService, playerService);
         TurnamentsManager turnamentsManager = new(actionService, playerManager, userService, playerService);
-        
-        
 
         var mainMenu = actionService.GetMenuActionsByName("Main");
 
@@ -42,10 +40,10 @@ internal class Program
                     //Global Ranking
                     break;
                 case 3:
-                    sparringManager.SparringOptionView();
+                    sparringManager.SparringOptionsView();
                     break;
                 case 4:
-                    turnamentsManager.SparringOptionView();
+                    turnamentsManager.TournamentOptionsView();
                     break;
                 case 5:
                     settings.ChangeSettings();

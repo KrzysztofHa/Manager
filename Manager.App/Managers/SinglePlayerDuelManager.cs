@@ -14,18 +14,18 @@ namespace Manager.App.Managers;
 public class SinglePlayerDuelManager : ISinglePlayerDuelManager
 {
     private readonly ISinglePlayerDuelService _singlePlayerDuelService = new SinglePlayerDuelService();
-    private readonly PlayerManager _playerManager;
+    private readonly IPlayerManager _playerManager;
     private readonly IUserService _userService;
     private readonly IPlayerService _playerService;
 
-    public SinglePlayerDuelManager(PlayerManager playerManager, IUserService userService, IPlayerService playerService)
+    public SinglePlayerDuelManager(IPlayerManager playerManager, IUserService userService, IPlayerService playerService)
     {
         _playerManager = playerManager;
         _userService = userService;
         _playerService = playerService;
     }
 
-    public SinglePlayerDuel NewSingleDuel(int idFirstPlayer = 0, int idSecondPlayer = 0)
+    public SinglePlayerDuel? NewSingleDuel(int idFirstPlayer = 0, int idSecondPlayer = 0)
     {
         var duel = new SinglePlayerDuel();
         if (idFirstPlayer == 0 || idSecondPlayer == 0)
@@ -129,7 +129,7 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
     }
     private bool AddSettingsRaceAndTypeGame(SinglePlayerDuel singlePlayerDuel)
     {
-        string[] settings = { "Type Of Game", "Race To" };
+        string[] settings = ["Type Of Game", "Race To"];
 
         foreach (string setting in settings)
         {
@@ -201,21 +201,40 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
         duel.StartGame = DateTime.Now;
         _singlePlayerDuelService.StartSinglePlayerDuel(duel);
     }
-    public List<SinglePlayerDuel> ListOfSinglePlayerDuelByTournamentOrSparring(string nameTournament = "Sparring", int idTournament = 0)
+    public List<SinglePlayerDuel>? GetSinglePlayerDuelsByTournamentsOrSparrings(int idTournament = 0)
     {
-
         var listSinglesPlayerDuels = new List<SinglePlayerDuel>();
-        if (nameTournament == "Sparring")
-        {
+        if (idTournament == 0)
+        {            
             listSinglesPlayerDuels = _singlePlayerDuelService.GetAllSinglePlayerDuel()
                 .Where(s => s.IdPlayerTournament == null).ToList();
         }
-        else if (nameTournament == "ALL")
-        {
-            listSinglesPlayerDuels = _singlePlayerDuelService.GetAllSinglePlayerDuel();                
+        else
+        {            
+            listSinglesPlayerDuels = _singlePlayerDuelService.GetAllSinglePlayerDuel()
+             .Where(s => s.IdPlayerTournament == idTournament).ToList();
         }
+        if (listSinglesPlayerDuels.Count == 0)
+        {
+            ConsoleService.WriteLineErrorMessage("List Empty");
+            return null;
+        }
+
+        return listSinglesPlayerDuels;
+    }
+    public void VievSinglePlayerDuelsByTournamentsOrSparrings(int idTournament = 0)
+    {
+        var title = string.Empty;
+        var listSinglesPlayerDuels = new List<SinglePlayerDuel>();
+        if (idTournament == 0)
+        {
+            title = "Sparrings";
+            listSinglesPlayerDuels = _singlePlayerDuelService.GetAllSinglePlayerDuel()
+                .Where(s => s.IdPlayerTournament == null).ToList();
+        }       
         else
         {
+            title = "All Tournaments Duel";
             listSinglesPlayerDuels = _singlePlayerDuelService.GetAllSinglePlayerDuel()
              .Where(s => s.IdPlayerTournament == idTournament).ToList();
         }
@@ -224,7 +243,7 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
         if (!listSinglesPlayerDuels.Any())
         {
             ConsoleService.WriteLineErrorMessage("List Empty");
-            return null;
+            return;
         }
 
         var listPlayers = _playerService.ListOfActivePlayers();
@@ -244,17 +263,16 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
             duel.IdPlayerTournament,
         }).OrderBy(d => d.CreatedDateTime);
 
-        ConsoleService.WriteTitle($"{nameTournament}");
+        ConsoleService.WriteTitle($"{title}");
         foreach (var duelView in tally)
         {
-            var FormatToTextDuelsView = $"\r\n{nameTournament} - Type Game: {duelView.TypeNameOfGame}" +
+            var FormatToTextDuelsView = $"\r\nType Game: {duelView.TypeNameOfGame}" +
                 $" Race To: {duelView.RaceTo} Date: {duelView.CreatedDateTime,0:d} " +
                 $"\r\n    {duelView.FirstPlayer} {duelView.ScoreFirstPlayer} : " +
                 $"{duelView.ScoreSecondPlayer} {duelView.SecondPleyer}";
 
             ConsoleService.WriteLineMessage(FormatToTextDuelsView);
-        }
-        return listSinglesPlayerDuels;
+        }        
     }
     public void EndSinglePlayerDuel(SinglePlayerDuel duel)
     {

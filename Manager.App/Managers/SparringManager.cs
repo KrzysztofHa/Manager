@@ -10,11 +10,11 @@ namespace Manager.App.Managers;
 public class SparringManager
 {
     private readonly MenuActionService _actionService;
-    private readonly PlayerManager _playerManager;
+    private readonly IPlayerManager _playerManager;
     private readonly IUserService _userService;
     private readonly IPlayerService _playerService;
-    private SinglePlayerDuelManager _singlePlayerDuelManager;
-    public SparringManager(MenuActionService actionService, PlayerManager playerManager, IUserService userService, IPlayerService playerService)
+    private readonly SinglePlayerDuelManager _singlePlayerDuelManager;
+    public SparringManager(MenuActionService actionService, IPlayerManager playerManager, IUserService userService, IPlayerService playerService)
     {
         _playerService = playerService;
         _actionService = actionService;
@@ -22,7 +22,7 @@ public class SparringManager
         _userService = userService;
         _singlePlayerDuelManager = new SinglePlayerDuelManager(_playerManager, _userService, _playerService);
     }
-    public void SparringOptionView()
+    public void SparringOptionsView()
     {
         var optionPlayerMenu = _actionService.GetMenuActionsByName("Sparring");
         while (true)
@@ -62,7 +62,7 @@ public class SparringManager
 
     public void AllSparring()
     {
-        _singlePlayerDuelManager.ListOfSinglePlayerDuelByTournamentOrSparring();
+        _singlePlayerDuelManager.VievSinglePlayerDuelsByTournamentsOrSparrings();
         ConsoleService.WriteLineMessageActionSuccess("Press Any Key..");
     }
 
