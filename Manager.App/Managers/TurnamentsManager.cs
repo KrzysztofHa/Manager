@@ -47,13 +47,14 @@ public class TurnamentsManager
                     break;
                 case 2:
                     CreateNewTournament();
-                    if (ConsoleService.AnswerYesOrNo("Start Now Tournament"))
+                    if (ConsoleService.AnswerYesOrNo("Start Now Tournament ?"))
                     {
                         // StartTournament(SearchTournament());
                     }
                     break;
                 case 3:
                     _singlePlayerDuelManager.VievSinglePlayerDuelsByTournamentsOrSparrings(1);
+                    ConsoleService.WriteLineMessage("Press Any Key...");
                     ConsoleService.GetKeyFromUser();
                     break;
                 case 4:

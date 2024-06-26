@@ -2,8 +2,10 @@
 using Manager.App.Concrete;
 using Manager.Domain.Common;
 using Manager.Domain.Entity;
+using Manager.Helpers;
 using Manager.Infrastructure.Abstract;
 using Manager.Infrastructure.Common;
+
 
 namespace Manager.App.Common;
 
@@ -53,6 +55,7 @@ public class BaseService<T> : IService<T> where T : BaseEntity
         {
             entity = item;
             entity.ModifiedDateTime = DateTime.Now;
+            entity.ModifiedById = ActiveUserNameOrId.IdActiveUser;
         }
         return entity.Id;
     }

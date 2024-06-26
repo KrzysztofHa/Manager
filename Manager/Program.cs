@@ -10,12 +10,12 @@ internal class Program
     {
         IPlayerService playerService = new PlayerService();
         IUserService userService = new UserService();
-
+         
         if (string.IsNullOrEmpty(userService.GetDisplayUserName()))
         {
             new InitializeUser(userService);
         }
-        var settings = new Settings();
+        var settings = new Settings(userService);
         MenuActionService actionService = new();
         IPlayerManager playerManager = new PlayerManager(actionService, playerService, userService);
         SparringManager sparringManager = new(actionService, playerManager, userService, playerService);
@@ -25,7 +25,7 @@ internal class Program
 
         while (true)
         {
-            ConsoleService.WriteTitle($"Hello User {userService.GetDisplayUserName()}!");
+            ConsoleService.WriteTitle($"Hello User {userService.GetDisplayUserName()} !");
             for (int i = 0; i < mainMenu.Count; i++)
             {
                 ConsoleService.WriteLineMessage($"{i + 1}. {mainMenu[i].Name}");
