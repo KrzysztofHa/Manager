@@ -10,14 +10,11 @@ public class PlayerManager : IPlayerManager
 {
     private readonly MenuActionService _actionService;
     private readonly IPlayerService _playerService;
-    private readonly IUserService _userService;
 
-
-    public PlayerManager(MenuActionService actionService, IPlayerService playerService, IUserService userService)
+    public PlayerManager(MenuActionService actionService, IPlayerService playerService)
     {
         _actionService = actionService;
         _playerService = playerService;
-        _userService = userService;
     }
 
     public void PlayerOptionView()
@@ -75,7 +72,6 @@ public class PlayerManager : IPlayerManager
             var playerToRemove = _playerService.GetAllItem().FirstOrDefault(p => p.Id == playerId.Id);
             if (playerToRemove != null)
             {
-                playerToRemove.ModifiedById = _userService.GetIdActiveUser();
                 _playerService.DeletePlayer(playerToRemove);
                 ConsoleService.WriteLineMessageActionSuccess($"Remove PLayer {playerToRemove.Id} {playerToRemove.FirstName}" +
                     $" {playerToRemove.FirstName} Success !!");
@@ -87,17 +83,19 @@ public class PlayerManager : IPlayerManager
     }
     public Player AddNewPlayer()
     {
-        Func<Player, bool> isPlayerExist = (player) =>
-        {
-            var test = _playerService.GetAllItem().Any(p => p.FirstName.ToLower() == player.FirstName.ToLower() &&
-             p.LastName.ToLower() == player.FirstName.ToLower() && p.IdAddress == player.IdAddress);
-            return test;
-        };
         var player = new Player();
         if (GetDataFromUser(player) == null)
         {
             return null;
         }
+
+        Func<Player, bool> isPlayerExist = (player) =>
+        {
+            var test = _playerService.GetAllItem().Any(p => p.FirstName.ToLower() == player.FirstName.ToLower() &&
+             p.LastName.ToLower() == player.LastName.ToLower() && p.IdAddress == player.IdAddress);
+
+            return test;
+        };
 
         while (isPlayerExist(player))
         {
@@ -127,7 +125,7 @@ public class PlayerManager : IPlayerManager
         Func<Player, bool> isPlayerExist = (player) =>
         {
             var test = _playerService.GetAllItem().Any(p => p.FirstName.ToLower() == player.FirstName.ToLower() &&
-             p.LastName.ToLower() == player.FirstName.ToLower() && p.IdAddress == player.IdAddress &&
+             p.LastName.ToLower() == player.LastName.ToLower() && p.IdAddress == player.IdAddress &&
              p.Id != player.Id);
             return test;
         };
@@ -158,7 +156,6 @@ public class PlayerManager : IPlayerManager
         {
             return null;
         }
-        player.CreatedById = _userService.GeIdPlayerOfActiveUser();
         _playerService.UpdateItem(player);
         _playerService.SaveList();
         ConsoleService.WriteTitle(_playerService.GetPlayerDetailView(player));

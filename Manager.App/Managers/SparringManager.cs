@@ -4,23 +4,22 @@ using Manager.App.Concrete;
 using Manager.App.Concrete.Helpers;
 using Manager.Consol.Concrete;
 using Manager.Domain.Entity;
+using Manager.Helpers;
 
 namespace Manager.App.Managers;
 
 public class SparringManager
 {
     private readonly MenuActionService _actionService;
-    private readonly IPlayerManager _playerManager;
-    private readonly IUserService _userService;
+    private readonly IPlayerManager _playerManager;    
     private readonly IPlayerService _playerService;
     private readonly SinglePlayerDuelManager _singlePlayerDuelManager;
-    public SparringManager(MenuActionService actionService, IPlayerManager playerManager, IUserService userService, IPlayerService playerService)
+    public SparringManager(MenuActionService actionService, IPlayerManager playerManager, IPlayerService playerService)
     {
         _playerService = playerService;
         _actionService = actionService;
-        _playerManager = playerManager;
-        _userService = userService;
-        _singlePlayerDuelManager = new SinglePlayerDuelManager(_playerManager, _userService, _playerService);
+        _playerManager = playerManager;        
+        _singlePlayerDuelManager = new SinglePlayerDuelManager(_playerManager, _playerService);
     }
     public void SparringOptionsView()
     {
@@ -69,7 +68,7 @@ public class SparringManager
     public void StartNewSparring()
     {
         IService<Frame> frameService = new BaseService<Frame>();        
-        Frame frame = new Frame() { CreatedById = _userService.GetIdActiveUser() };
+        Frame frame = new Frame();
         frameService.AddItem(frame);
         frameService.SaveList();
         var singlePlayerDuel = _singlePlayerDuelManager.NewSingleDuel();
@@ -176,7 +175,7 @@ public class SparringManager
                 }
 
             } while (frame.IdPlayerWinner == 0);
-            frame = new Frame() { CreatedById = _userService.GetIdActiveUser() };
+            frame = new Frame();
             frameService.AddItem(frame);
         }
     }

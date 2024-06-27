@@ -16,17 +16,15 @@ public class TurnamentsManager
     private readonly MenuActionService _actionService;
     private readonly IPlayerManager _playerManager;
     private readonly ITournamentsService _tournamentsService = new TournamentsService();
-    private readonly IUserService _userService;
     private readonly IPlayerService _playerService;
     private readonly ISinglePlayerDuelManager _singlePlayerDuelManager;
 
-    public TurnamentsManager(MenuActionService actionService, IPlayerManager playerManager, IUserService userService, IPlayerService playerService)
+    public TurnamentsManager(MenuActionService actionService, IPlayerManager playerManager, IPlayerService playerService)
     {
         _actionService = actionService;
         _playerManager = playerManager;
-        _userService = userService;
         _playerService = playerService;
-        _singlePlayerDuelManager = new SinglePlayerDuelManager(_playerManager, _userService, _playerService);
+        _singlePlayerDuelManager = new SinglePlayerDuelManager(_playerManager, _playerService);
     }
     public void TournamentOptionsView()
     {
@@ -80,14 +78,11 @@ public class TurnamentsManager
 
 
     }
-
     private Tournament? CreateNewTournament()
     {
-        IClubManager clubManager = new ClubManager(_actionService, _userService);
+        IClubManager clubManager = new ClubManager(_actionService);
         Tournament tournament = new Tournament();
         SinglePlayerDuel duel = new SinglePlayerDuel();
-
-        tournament.CreatedById = _userService.GetIdActiveUser();
 
         do
         {

@@ -3,6 +3,7 @@ using Manager.App.Concrete;
 using Manager.App.Concrete.Helpers;
 using Manager.Consol.Concrete;
 using Manager.Domain.Entity;
+using Manager.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,14 +15,12 @@ namespace Manager.App.Managers;
 public class SinglePlayerDuelManager : ISinglePlayerDuelManager
 {
     private readonly ISinglePlayerDuelService _singlePlayerDuelService = new SinglePlayerDuelService();
-    private readonly IPlayerManager _playerManager;
-    private readonly IUserService _userService;
+    private readonly IPlayerManager _playerManager;    
     private readonly IPlayerService _playerService;
 
-    public SinglePlayerDuelManager(IPlayerManager playerManager, IUserService userService, IPlayerService playerService)
+    public SinglePlayerDuelManager(IPlayerManager playerManager, IPlayerService playerService)
     {
-        _playerManager = playerManager;
-        _userService = userService;
+        _playerManager = playerManager;        
         _playerService = playerService;
     }
 
@@ -54,15 +53,16 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
                 return null;
             }
         }
-        duel.CreatedById = _userService.GetIdActiveUser();
+        
         return duel;
     }
     private void AddPlayerToDuel(SinglePlayerDuel duel)
     {
+        IUserService userService = new UserService();
         ConsoleService.WriteTitle("Add Player");
         if (duel.IdFirstPlayer == 0 && ConsoleService.AnswerYesOrNo("User is the player?"))
         {
-            var idUserOfPlayer = _userService.GeIdPlayerOfActiveUser();
+            var idUserOfPlayer = ActiveUserNameOrId.IdActiveUser;
             if (idUserOfPlayer <= 0)
             {
                 var searchPlayer = _playerManager.SearchPlayer();
@@ -76,7 +76,7 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
                 }
                 idUserOfPlayer = searchPlayer.Id;
             }
-            _userService.SetIdPlayerToActiveUser(idUserOfPlayer);
+            userService.SetIdPlayerToActiveUser(idUserOfPlayer);
             duel.IdFirstPlayer = idUserOfPlayer;
         }
         else

@@ -13,15 +13,12 @@ namespace Manager.App.Managers;
 
 public class ClubManager : IClubManager
 {
-    private readonly IClubService _clubService = new ClubService();
-    private readonly IUserService _userService;
+    private readonly IClubService _clubService = new ClubService();    
     private readonly MenuActionService _actionService;
-    public ClubManager(MenuActionService actionService, IUserService userService)
+    public ClubManager(MenuActionService actionService)
     {
-        _actionService = actionService;
-        _userService = userService;
+        _actionService = actionService;        
     }
-
     public Club SearchClub(string title)
     {
         List<Club> findClubsList = _clubService.SearchClub(" ");
@@ -275,14 +272,12 @@ public class ClubManager : IClubManager
 
         }
         if (isUpdateClub)
-        {
-            updateClub.ModifiedById = _userService.GetIdActiveUser();
+        {           
             _clubService.UpdateItem(_clubService.AddClubAddress(updateClub, playerAddress));
             _clubService.SaveList();
         }
         else
-        {
-            updateClub.CreatedById = _userService.GetIdActiveUser();
+        {            
             _clubService.AddItem(_clubService.AddClubAddress(updateClub, playerAddress));
             _clubService.SaveList();
         }

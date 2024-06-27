@@ -30,6 +30,7 @@ public class BaseService<T> : IService<T> where T : BaseEntity
         {
             item.Id = 1;
         }
+        item.CreatedById = ActiveUserNameOrId.IdActiveUser;
         item.IsActive = true;
         item.CreatedDateTime = DateTime.Now;
         Items.Add(item);

@@ -21,6 +21,6 @@ public static class ActiveUserNameOrId
     private static int GetID()
     {
         IUserService userService = new UserService();
-        return userService.GeIdPlayerOfActiveUser();
+        return userService.GetIdActiveUser();
     }
 }

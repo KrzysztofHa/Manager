@@ -10,16 +10,16 @@ internal class Program
     {
         IPlayerService playerService = new PlayerService();
         IUserService userService = new UserService();
-         
+
         if (string.IsNullOrEmpty(userService.GetDisplayUserName()))
         {
             new InitializeUser(userService);
         }
         var settings = new Settings(userService);
         MenuActionService actionService = new();
-        IPlayerManager playerManager = new PlayerManager(actionService, playerService, userService);
-        SparringManager sparringManager = new(actionService, playerManager, userService, playerService);
-        TurnamentsManager turnamentsManager = new(actionService, playerManager, userService, playerService);
+        IPlayerManager playerManager = new PlayerManager(actionService, playerService);
+        SparringManager sparringManager = new(actionService, playerManager, playerService);
+        TurnamentsManager turnamentsManager = new(actionService, playerManager, playerService);
 
         var mainMenu = actionService.GetMenuActionsByName("Main");
 
