@@ -63,4 +63,8 @@ public class ClubService : BaseService<Club>, IClubService
 
         return string.Empty;
     }
+    public Club GetClubById(int idClub)
+    {
+        return GetItemById(idClub);
+    }
 }

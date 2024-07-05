@@ -320,37 +320,49 @@ public class PlayerManager : IPlayerManager
     {
         StringBuilder inputString = new StringBuilder();
         List<Player> findPlayers = _playerService.SearchPlayer(" ");
+        int maxEntriesToDisplay = 15;
         if (!findPlayers.Any())
         {
             ConsoleService.WriteLineErrorMessage("Empty List");
             return null;
         }
+        List<Player> findPlayersToView = new List<Player>();
+        if (findPlayers.Count >= maxEntriesToDisplay - 1)
+        {
+            findPlayersToView = findPlayers.GetRange(0, maxEntriesToDisplay);
+        }
+        else
+        {
+            findPlayersToView = findPlayers;
+        }
         List<Player> findPlayersTemp = new List<Player>();
         var address = new Address();
-        int IdSelectedPlayer = 0;
+        int indexSelectedPlayer = 0;
         title = string.IsNullOrWhiteSpace(title) ? "Search Player" : title;
+
+        var headTableToview = title + $"\r\n    {" LP",-5}{"ID",-6}{"First Name",-21}{"Last Name",-21}" +
+                    $"{"Street",-11}{"Number",-11}{"City",-11}{"Country",-11}{"zip",-6}";
         do
         {
-            if (findPlayers.Any())
+            if (findPlayersToView.Any())
             {
-                ConsoleService.WriteTitle(title + $"\r\n{"ID",-6}{"First Name",-21}{"Last Name",-21}" +
-                    $"{"Street",-11}{"Number",-11}{"City",-11}{"Country",-11}{"zip",-6}");
+                ConsoleService.WriteTitle(headTableToview);
 
-                foreach (var player in findPlayers)
+                foreach (var player in findPlayersToView)
                 {
-                    var formmatStringToView = findPlayers.IndexOf(player) == IdSelectedPlayer ?
-                        ">" + _playerService.GetPlayerDetailView(player) + " < Select Press Enter" :
-                        " " + _playerService.GetPlayerDetailView(player);
+                    var formmatStringToView = findPlayers.IndexOf(player) == indexSelectedPlayer ?
+                        "---> " + $"{findPlayers.IndexOf(player) + 1,-5}".Remove(5) + _playerService.GetPlayerDetailView(player) + $" <----\r\n" :
+                        "     " + $"{findPlayers.IndexOf(player) + 1,-5}".Remove(5) + _playerService.GetPlayerDetailView(player);
 
                     ConsoleService.WriteLineMessage(formmatStringToView);
                 }
             }
             else
             {
-                ConsoleService.WriteLineErrorMessage("Not Find Player");
+                ConsoleService.WriteLineErrorMessage("Not Found Player");
             }
-            ConsoleService.WriteLineMessage("---------------\r\n" + inputString.ToString());
-            ConsoleService.WriteLineMessage(@"Enter string move /\ or \/  and enter Select");
+            ConsoleService.WriteLineMessage($"\r\n------(Found {findPlayers.Count} Player)-------\r\n" + inputString.ToString());
+            ConsoleService.WriteLineMessage(@"Enter string move UP or Down  and  press enter to Select");
 
             var keyFromUser = ConsoleService.GetKeyFromUser();
 
@@ -358,7 +370,7 @@ public class PlayerManager : IPlayerManager
             {
                 if (findPlayers.Count == 1 && !string.IsNullOrEmpty(inputString.ToString()))
                 {
-                    ConsoleService.WriteLineErrorMessage("No entry found !!!");
+                    ConsoleService.WriteLineErrorMessage("No entries found !!!");
                 }
                 else
                 {
@@ -371,7 +383,16 @@ public class PlayerManager : IPlayerManager
                         {
                             findPlayers.Clear();
                             findPlayers.AddRange(findPlayersTemp);
-                            IdSelectedPlayer = 0;
+                            findPlayersToView.Clear();
+                            if (findPlayers.Count >= maxEntriesToDisplay - 1)
+                            {
+                                findPlayersToView = findPlayers.GetRange(0, maxEntriesToDisplay);
+                            }
+                            else
+                            {
+                                findPlayersToView = findPlayers;
+                            }
+                            indexSelectedPlayer = 0;
                         }
                         else
                         {
@@ -389,7 +410,16 @@ public class PlayerManager : IPlayerManager
                             Contains(inputString.ToString().ToLower())).OrderBy(i => i.FirstName)]);
                             ConsoleService.WriteLineErrorMessage("No entry found !!!");
                         }
-                        IdSelectedPlayer = 0;
+                        findPlayersToView.Clear();
+                        if (findPlayers.Count >= maxEntriesToDisplay - 1)
+                        {
+                            findPlayersToView = findPlayers.GetRange(0, maxEntriesToDisplay);
+                        }
+                        else
+                        {
+                            findPlayersToView = findPlayers;
+                        }
+                        indexSelectedPlayer = 0;
                     }
                 }
             }
@@ -403,18 +433,35 @@ public class PlayerManager : IPlayerManager
                     .Contains(inputString.ToString().ToLower())).OrderBy(i => i.FirstName)];
                 }
             }
-            else if (keyFromUser.Key == ConsoleKey.DownArrow && IdSelectedPlayer < findPlayers.Count - 1)
+            else if (keyFromUser.Key == ConsoleKey.DownArrow && indexSelectedPlayer <= findPlayers.Count - 2)
             {
-                IdSelectedPlayer++;
+                if (indexSelectedPlayer >= maxEntriesToDisplay - 1)
+                {
+                    if (findPlayers.IndexOf(findPlayersToView.First()) != findPlayers.Count - maxEntriesToDisplay)
+                    {
+                        var nextPlayer = findPlayersToView.ElementAt(1);
+                        var startIndex = findPlayers.IndexOf(nextPlayer);
+                        findPlayersToView.Clear();
+                        findPlayersToView = findPlayers.GetRange(startIndex, maxEntriesToDisplay);
+                    }
+                }
+                indexSelectedPlayer++;
             }
-            else if (keyFromUser.Key == ConsoleKey.UpArrow && IdSelectedPlayer > 0)
+            else if (keyFromUser.Key == ConsoleKey.UpArrow && indexSelectedPlayer > 0)
             {
-                IdSelectedPlayer--;
+                if (findPlayers.IndexOf(findPlayersToView.First()) != findPlayers.IndexOf(findPlayers.First()))
+                {
+                    var nextPlayer = findPlayersToView.First();
+                    findPlayersToView.Clear();
+                    findPlayersToView = findPlayers.GetRange(findPlayers.IndexOf(nextPlayer) - 1, maxEntriesToDisplay);
+                }
+                indexSelectedPlayer--;
             }
             else if (keyFromUser.Key == ConsoleKey.Enter && findPlayers.Any())
             {
-                var findPlayersToSelect = findPlayers.First(p => findPlayers.IndexOf(p) == IdSelectedPlayer);
-                ConsoleService.WriteLineMessage(_playerService.GetPlayerDetailView(findPlayersToSelect));
+                var findPlayersToSelect = findPlayers.First(p => findPlayers.IndexOf(p) == indexSelectedPlayer);
+                ConsoleService.WriteTitle(headTableToview);
+                ConsoleService.WriteLineMessage($"{_playerService.GetPlayerDetailView(findPlayersToSelect), 106}");
 
                 if (ConsoleService.AnswerYesOrNo("Selected Player"))
                 {

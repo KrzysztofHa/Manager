@@ -61,6 +61,7 @@ public class SparringManager
 
     public void AllSparring()
     {
+        _singlePlayerDuelManager.SearchDuel();
         _singlePlayerDuelManager.VievSinglePlayerDuelsByTournamentsOrSparrings();
         ConsoleService.WriteLineMessageActionSuccess("Press Any Key..");
     }

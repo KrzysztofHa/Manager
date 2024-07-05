@@ -1,6 +1,8 @@
 ﻿using Manager.App.Abstract;
 using Manager.App.Common;
+using Manager.Consol.Concrete;
 using Manager.Domain.Entity;
+using System.Numerics;
 
 namespace Manager.App.Concrete;
 
@@ -31,5 +33,83 @@ public class SinglePlayerDuelService : BaseService<SinglePlayerDuel>, ISinglePla
     public List<SinglePlayerDuel> GetAllSinglePlayerDuel()
     {
         return GetAllItem();
+    }
+    public string GetSinglePlayerDuelDetailView(SinglePlayerDuel duel)
+    {
+        if (duel != null)
+        {
+            IPlayerService playerservice = new PlayerService();
+            ITournamentsService tournamentServis = new TournamentsService();
+
+            var firstPlayer = playerservice.GetItemById(duel.IdFirstPlayer);
+            var secondPlayer = playerservice.GetItemById(duel.IdSecondPlayer);
+            var idTournament = duel.IdPlayerTournament == null ? 0 : (int)duel.IdPlayerTournament;
+            var tournament = tournamentServis.GetItemById(idTournament);
+
+            var tournamentName = tournament != null ? tournament.Name : "Sparring";
+            var endGameText = duel.StartGame.Equals(DateTime.MinValue) ? "----------" : "Interrupted";
+
+            var firstPlayerText = $"{firstPlayer.FirstName.Remove(1)}.{firstPlayer.LastName}";
+            var secondPlayerText = $"{secondPlayer.FirstName.Remove(1)}.{secondPlayer.LastName}";
+
+            var startGame = duel.StartGame.Equals(DateTime.MinValue) ? "Waiting" : duel.StartGame.ToShortDateString();
+            var endGame = duel.EndGame.Equals(DateTime.MinValue) ? endGameText : duel.EndGame.ToShortDateString();
+
+            var formatDuelDataToView = $"{duel.Id,-5}".Remove(5) + $" {tournamentName,-10}".Remove(11) +
+                $" {duel.TypeNameOfGame,-10}".Remove(11) + $" {duel.RaceTo,-5}".Remove(6) +
+                $" {firstPlayerText,-20}".Remove(21) + $" {secondPlayerText,-20}".Remove(21) +
+                $" {startGame,-11}".Remove(12) + $" {endGame,-11}".Remove(12);
+
+            return $"{formatDuelDataToView,-92}";
+        }
+        return string.Empty;
+    }
+    public List<SinglePlayerDuel> SearchSinglePlayerDuel(string searchString)
+    {
+        List<SinglePlayerDuel> findSinglePlayerDuels = new List<SinglePlayerDuel>();
+
+        findSinglePlayerDuels = GetAllItem().Where(d => $"{d.Id} {d.RaceTo} {d.TypeNameOfGame}".ToLower()
+               .Contains(searchString.ToLower()) && d.IsActive == true).ToList();
+
+        if (!string.IsNullOrEmpty(searchString) && searchString != " ")
+        {
+            IPlayerService playerservice = new PlayerService();
+            ITournamentsService tournamentservis = new TournamentsService();
+
+            var findPlayers = playerservice.SearchPlayer(searchString);
+            var findTournaments = tournamentservis.SearchTournament(searchString);
+            var allduel = GetAllItem().Where(d => d.IsActive == true);
+
+            if (findPlayers.Any())
+            {
+                var findDuelOfPlayer = findPlayers
+                    .GroupJoin(allduel,
+                    player => player.Id,
+                    duel => duel.IdFirstPlayer,
+                    (player, duels) => (player, duels)).ToList().SelectMany(p => p.duels).ToList();
+
+                findDuelOfPlayer.AddRange(findPlayers
+                    .GroupJoin(allduel,
+                    player => player.Id,
+                    duel => duel.IdSecondPlayer,
+                    (player, duels) => (player, duels)).ToList().SelectMany(p => p.duels).ToList());
+
+                findSinglePlayerDuels.AddRange(findDuelOfPlayer);
+            }
+
+            if (findTournaments.Any())
+            {
+                var findDuelOfTournament = findTournaments.GroupJoin(allduel,
+                    tournament => tournament.Id,
+                    duel => duel.IdPlayerTournament,
+                    (tournament, duel) => duel.ToList()).First();
+
+                findSinglePlayerDuels.AddRange(findDuelOfTournament);
+            }
+            var findDuel = findSinglePlayerDuels.Distinct().ToList();
+            findSinglePlayerDuels.Clear();
+            findSinglePlayerDuels = findDuel;
+        }
+        return findSinglePlayerDuels;
     }
 }

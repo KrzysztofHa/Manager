@@ -9,4 +9,6 @@ internal interface ISinglePlayerDuelService
     void EndSinglePlayerDuel(SinglePlayerDuel singlePlayerDuel);
     void CreateTournamentSinglePlayerDue(SinglePlayerDuel singlePlayerDuel);
     List<SinglePlayerDuel> GetAllSinglePlayerDuel();
+    List<SinglePlayerDuel> SearchSinglePlayerDuel(string searchString);
+    string GetSinglePlayerDuelDetailView(SinglePlayerDuel duel);
 }

@@ -12,5 +12,6 @@ namespace Manager.App.Abstract
         List<Club> SearchClub(string searchString);
         public Club AddClubAddress(Club club, Address address);
         public string GetClubDetailView(Club club);
+        Club GetClubById(int idClub);
     }
 }

@@ -12,5 +12,7 @@ namespace Manager.App.Abstract
         void AddNewTournament(Tournament tournament);
         void StartTournament(Tournament tournament);
         void EndTournament(Tournament tournament);
+        List<Tournament> SearchTournament(string searchString);
+        string GetTournamentDetailView(Tournament tournament);
     }
 }

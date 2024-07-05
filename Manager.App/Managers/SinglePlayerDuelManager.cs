@@ -15,12 +15,12 @@ namespace Manager.App.Managers;
 public class SinglePlayerDuelManager : ISinglePlayerDuelManager
 {
     private readonly ISinglePlayerDuelService _singlePlayerDuelService = new SinglePlayerDuelService();
-    private readonly IPlayerManager _playerManager;    
+    private readonly IPlayerManager _playerManager;
     private readonly IPlayerService _playerService;
 
     public SinglePlayerDuelManager(IPlayerManager playerManager, IPlayerService playerService)
     {
-        _playerManager = playerManager;        
+        _playerManager = playerManager;
         _playerService = playerService;
     }
 
@@ -53,7 +53,7 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
                 return null;
             }
         }
-        
+
         return duel;
     }
     private void AddPlayerToDuel(SinglePlayerDuel duel)
@@ -205,12 +205,12 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
     {
         var listSinglesPlayerDuels = new List<SinglePlayerDuel>();
         if (idTournament == 0)
-        {            
+        {
             listSinglesPlayerDuels = _singlePlayerDuelService.GetAllSinglePlayerDuel()
                 .Where(s => s.IdPlayerTournament == null).ToList();
         }
         else
-        {            
+        {
             listSinglesPlayerDuels = _singlePlayerDuelService.GetAllSinglePlayerDuel()
              .Where(s => s.IdPlayerTournament == idTournament).ToList();
         }
@@ -231,7 +231,7 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
             title = "Sparrings";
             listSinglesPlayerDuels = _singlePlayerDuelService.GetAllSinglePlayerDuel()
                 .Where(s => s.IdPlayerTournament == null).ToList();
-        }       
+        }
         else
         {
             title = "All Tournaments Duel";
@@ -250,7 +250,8 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
         var tally = listPlayers.Join(listSinglesPlayerDuels,
             player => player.Id,
             duel => duel.IdFirstPlayer,
-        (player, duel) => new
+        (player, duel) =>
+        new
         {
             FirstPlayer = $"{player.FirstName} {player.LastName}",
             SecondPleyer = listPlayers.Where(p => p.Id == duel.IdSecondPlayer)
@@ -261,18 +262,21 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
             duel.ScoreFirstPlayer,
             duel.ScoreSecondPlayer,
             duel.IdPlayerTournament,
+            StartGame = duel.StartGame.Equals(DateTime.MinValue) ? "Waiting" : duel.StartGame.ToShortTimeString(),
+            EndGame = duel.EndGame.Equals(DateTime.MinValue) ? "Interrupted" : duel.EndGame.ToShortTimeString(),
         }).OrderBy(d => d.CreatedDateTime);
 
         ConsoleService.WriteTitle($"{title}");
         foreach (var duelView in tally)
         {
             var FormatToTextDuelsView = $"\r\nType Game: {duelView.TypeNameOfGame}" +
-                $" Race To: {duelView.RaceTo} Date: {duelView.CreatedDateTime,0:d} " +
-                $"\r\n    {duelView.FirstPlayer} {duelView.ScoreFirstPlayer} : " +
-                $"{duelView.ScoreSecondPlayer} {duelView.SecondPleyer}";
+                $" Race To: {duelView.RaceTo} Create Date: {duelView.CreatedDateTime,0:d} " +
+                $"Start Game: {duelView.StartGame} End Game: {duelView.EndGame}" +
+                $"\r\n{duelView.FirstPlayer,45} : {duelView.ScoreFirstPlayer}" +
+                $"\r\n{duelView.SecondPleyer,45} : {duelView.ScoreSecondPlayer}";
 
             ConsoleService.WriteLineMessage(FormatToTextDuelsView);
-        }        
+        }
     }
     public void EndSinglePlayerDuel(SinglePlayerDuel duel)
     {
@@ -282,5 +286,164 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
     public void UpdateSinglePlayerDuel(SinglePlayerDuel duel)
     {
         _singlePlayerDuelService.UpdateSinglePlayerDuel(duel);
+    }
+
+    public SinglePlayerDuel? SearchDuel(string title = "")
+    {
+        StringBuilder inputString = new StringBuilder();
+        List<string> findDuelsString = new List<string>();
+        List<string> findDuelsStringTemp = new List<string>();
+        int maxEntriesToDisplay = 15;
+        List<string> findDuelsStringToView = new List<string>();
+        List<SinglePlayerDuel> findDuelsTemp = _singlePlayerDuelService.SearchSinglePlayerDuel(" ");
+        if (!findDuelsTemp.Any())
+        {
+            if (!findDuelsTemp.Any())
+            {
+                ConsoleService.WriteLineErrorMessage("Empty List Of Duels");
+                return null;
+            }
+        }
+        int indexSelectedDuel = 0;
+        title = string.IsNullOrWhiteSpace(title) ? "Search Duel" : title;
+
+        var headTableToview = title + $"\r\n    {" LP",-5}{"ID",-6}{"Tournament",-11}{"T.Game",-11}" +
+                    $"{"Race",-6}{"First Player",-21}{"Second Player",-21}{"Start",-16}{"End",-16}";
+        do
+        {
+            if (!findDuelsString.Any())
+            {
+                findDuelsStringToView.Clear();
+                findDuelsStringTemp.Clear();
+                foreach (var duel in findDuelsTemp)
+                {                    
+                    findDuelsStringTemp.Add(_singlePlayerDuelService.GetSinglePlayerDuelDetailView(duel));
+                }
+                findDuelsString.AddRange(findDuelsStringTemp);                
+                findDuelsStringToView = findDuelsString;
+            }
+
+            if (!findDuelsStringToView.Any())
+            {
+                ConsoleService.WriteLineErrorMessage("Not Found Duel");
+            }
+            else
+            {
+                ConsoleService.WriteTitle(headTableToview);
+
+                foreach (var duelString in findDuelsStringToView)
+                {
+                    var formmatStringToView = findDuelsString.IndexOf(duelString) == indexSelectedDuel ?
+                        "--> " + $"{findDuelsString.IndexOf(duelString) + 1,-5}".Remove(5) + duelString + $" <---\r\n" :
+                        "    " + $"{findDuelsString.IndexOf(duelString) + 1,-5}".Remove(5) + duelString;
+
+                    ConsoleService.WriteLineMessage(formmatStringToView);
+                }
+            }
+            ConsoleService.WriteLineMessage($"\r\n------(Found {findDuelsString.Count} Duel)-------\r\n" + inputString.ToString());
+            ConsoleService.WriteLineMessage(@"Enter string move UP or Down  and  press enter to Select");
+
+            var keyFromUser = ConsoleService.GetKeyFromUser();
+
+            if (char.IsLetterOrDigit(keyFromUser.KeyChar))
+            {
+                if (findDuelsString.Count == 1 && !string.IsNullOrEmpty(inputString.ToString()))
+                {
+                    ConsoleService.WriteLineErrorMessage("No entries found !!!");
+                }
+                else
+                {
+                    inputString.Append(keyFromUser.KeyChar);
+
+                    if (inputString.Length == 1)
+                    {
+                        findDuelsTemp = _singlePlayerDuelService.SearchSinglePlayerDuel(inputString.ToString());
+                        if (findDuelsTemp.Any())
+                        {
+                            findDuelsString.Clear();
+                        }
+                        else
+                        {
+                            inputString.Remove(inputString.Length - 1, 1);
+                        }
+                    }
+                    else
+                    {
+                        findDuelsString = [.. findDuelsString.Where(p => p.ToLower().
+                        Contains(inputString.ToString().ToLower())).OrderBy(i => i.Split(" ")[6])];
+                        if (!findDuelsString.Any())
+                        {
+                            inputString.Remove(inputString.Length - 1, 1);
+                            findDuelsString.AddRange([.. findDuelsStringTemp.Where(p => p.ToLower().
+                            Contains(inputString.ToString().ToLower())).OrderBy(i => i.Split(" ")[6])]);
+                            ConsoleService.WriteLineErrorMessage("No entry found !!!");
+                        }
+                        findDuelsStringToView.Clear();
+                        if (findDuelsString.Count >= maxEntriesToDisplay - 1)
+                        {
+                            findDuelsStringToView = findDuelsString.GetRange(0, maxEntriesToDisplay);
+                        }
+                        else
+                        {
+                            findDuelsStringToView = findDuelsString;
+                        }
+                        indexSelectedDuel = 0;
+                    }
+                }
+            }
+            else if (keyFromUser.Key == ConsoleKey.Backspace && inputString.Length > 0)
+            {
+                inputString.Remove(inputString.Length - 1, 1);
+
+                if (!string.IsNullOrEmpty(inputString.ToString()))
+                {
+                    findDuelsString = [.. findDuelsString.Where(p => p.ToLower().
+                        Contains(inputString.ToString().ToLower())).OrderBy(i => i.Split(" ")[6])];
+                }
+            }
+            else if (keyFromUser.Key == ConsoleKey.DownArrow && indexSelectedDuel <= findDuelsString.Count - 2)
+            {
+                if (indexSelectedDuel >= maxEntriesToDisplay - 1)
+                {
+                    if (findDuelsString.IndexOf(findDuelsStringToView.First()) != findDuelsString.Count - maxEntriesToDisplay)
+                    {
+                        var nextPlayer = findDuelsStringToView.ElementAt(1);
+                        var startIndex = findDuelsString.IndexOf(nextPlayer);
+                        findDuelsStringToView.Clear();
+                        findDuelsStringToView = findDuelsString.GetRange(startIndex, maxEntriesToDisplay);
+                    }
+                }
+                indexSelectedDuel++;
+            }
+            else if (keyFromUser.Key == ConsoleKey.UpArrow && indexSelectedDuel > 0)
+            {
+                if (findDuelsString.IndexOf(findDuelsStringToView.First()) != findDuelsString.IndexOf(findDuelsString.First()))
+                {
+                    var nextPlayer = findDuelsStringToView.First();
+                    findDuelsStringToView.Clear();
+                    findDuelsStringToView = findDuelsString.GetRange(findDuelsString.IndexOf(nextPlayer) - 1, maxEntriesToDisplay);
+                }
+                indexSelectedDuel--;
+            }
+            else if (keyFromUser.Key == ConsoleKey.Enter && findDuelsString.Any())
+            {
+                var findDuelString = findDuelsString.First(p => findDuelsString.IndexOf(p) == indexSelectedDuel);
+                var findDuelToSelect = findDuelsTemp.First(p => p.Id == int.Parse(findDuelString[0].ToString().Trim()));
+                ConsoleService.WriteTitle(headTableToview);
+                ConsoleService.WriteLineMessage($"{_singlePlayerDuelService.GetSinglePlayerDuelDetailView(findDuelToSelect),106}");
+
+                if (ConsoleService.AnswerYesOrNo("Selected Player"))
+                {
+                    return findDuelToSelect;
+                }
+            }
+            else if (keyFromUser.Key == ConsoleKey.Escape)
+            {
+                break;
+            }
+
+        } while (true);
+
+        return null;
     }
 }

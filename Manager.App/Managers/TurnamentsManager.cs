@@ -51,11 +51,14 @@ public class TurnamentsManager
                     }
                     break;
                 case 3:
+                    SearchTournament();
+                    break;
+                case 4:                  
                     _singlePlayerDuelManager.VievSinglePlayerDuelsByTournamentsOrSparrings(1);
                     ConsoleService.WriteLineMessage("Press Any Key...");
                     ConsoleService.GetKeyFromUser();
                     break;
-                case 4:
+                case 5:
                     operation = null;
                     break;
                 default:
@@ -224,5 +227,169 @@ public class TurnamentsManager
             }
         }
         return true;
+    }
+    public Tournament SearchTournament(string title = "")
+    {
+        StringBuilder inputString = new StringBuilder();
+        List<Tournament> findTournament = _tournamentsService.SearchTournament(" ");
+        int maxEntriesToDisplay = 15;
+        if (!findTournament.Any())
+        {
+            ConsoleService.WriteLineErrorMessage("Empty List");
+            return null;
+        }
+
+        List<Tournament> findTournamentToView = new List<Tournament>();
+
+        if (findTournament.Count >= maxEntriesToDisplay - 1)
+        {
+            findTournamentToView = findTournament.GetRange(0, maxEntriesToDisplay);
+        }
+        else
+        {
+            findTournamentToView = findTournament;
+        }
+
+        List<Tournament> findTournamentTemp = new List<Tournament>();
+        var address = new Address();
+        int indexSelectedPlayer = 0;
+        title = string.IsNullOrWhiteSpace(title) ? "Search Tournament" : title;
+
+        var headTableToview = title + $"\r\n    {" LP",-5}{"ID",-6}{"Name",-21}" +
+                    $"{"Game System",-16}{"Club Name",-21}{"Start",-15}{"End",-15}{"Players",-11}";
+        do
+        {
+            if (findTournamentToView.Any())
+            {
+                ConsoleService.WriteTitle(headTableToview);
+
+                foreach (var tournament in findTournamentToView)
+                {
+                    var formmatStringToView = findTournament.IndexOf(tournament) == indexSelectedPlayer ?
+                        "---> " + $"{findTournament.IndexOf(tournament) + 1,-5}".Remove(4) + _tournamentsService.GetTournamentDetailView(tournament) + $" <----\r\n" :
+                        "     " + $"{findTournament.IndexOf(tournament) + 1,-5}".Remove(4) + _tournamentsService.GetTournamentDetailView(tournament);
+
+                    ConsoleService.WriteLineMessage(formmatStringToView);
+                }
+            }
+            else
+            {
+                ConsoleService.WriteLineErrorMessage("Not Found Tournament");
+            }
+            ConsoleService.WriteLineMessage($"\r\n------(Found {findTournament.Count} Tournament)-------\r\n" + inputString.ToString());
+            ConsoleService.WriteLineMessage(@"Enter string move UP or Down  and  press enter to Select");
+
+            var keyFromUser = ConsoleService.GetKeyFromUser();
+
+            if (char.IsLetterOrDigit(keyFromUser.KeyChar))
+            {
+                if (findTournament.Count == 1 && !string.IsNullOrEmpty(inputString.ToString()))
+                {
+                    ConsoleService.WriteLineErrorMessage("No entries found !!!");
+                }
+                else
+                {
+                    inputString.Append(keyFromUser.KeyChar);
+
+                    if (inputString.Length == 1)
+                    {
+                        findTournamentTemp = _tournamentsService.SearchTournament(inputString.ToString());
+                        if (findTournamentTemp.Any())
+                        {
+                            findTournament.Clear();
+                            findTournament.AddRange(findTournamentTemp);
+                            findTournamentToView.Clear();
+                            if (findTournament.Count >= maxEntriesToDisplay - 1)
+                            {
+                                findTournamentToView = findTournament.GetRange(0, maxEntriesToDisplay);
+                            }
+                            else
+                            {
+                                findTournamentToView = findTournament;
+                            }
+                            indexSelectedPlayer = 0;
+                        }
+                        else
+                        {
+                            inputString.Remove(inputString.Length - 1, 1);
+                        }
+                    }
+                    else
+                    {
+                        findTournament = [.. findTournament.Where(p => $"{p.Id} {p.Name}".ToLower().
+                        Contains(inputString.ToString().ToLower())).OrderBy(i => i.Name)];
+                        if (!findTournament.Any())
+                        {
+                            inputString.Remove(inputString.Length - 1, 1);
+                            findTournament.AddRange([.. findTournamentTemp.Where(p => $"{p.Id} {p.Name}".ToLower().
+                            Contains(inputString.ToString().ToLower())).OrderBy(i => i.Name)]);
+                            ConsoleService.WriteLineErrorMessage("No entry found !!!");
+                        }
+                        findTournamentToView.Clear();
+                        if (findTournament.Count >= maxEntriesToDisplay - 1)
+                        {
+                            findTournamentToView = findTournament.GetRange(0, maxEntriesToDisplay);
+                        }
+                        else
+                        {
+                            findTournamentToView = findTournament;
+                        }
+                        indexSelectedPlayer = 0;
+                    }
+                }
+            }
+            else if (keyFromUser.Key == ConsoleKey.Backspace && inputString.Length > 0)
+            {
+                inputString.Remove(inputString.Length - 1, 1);
+
+                if (!string.IsNullOrEmpty(inputString.ToString()))
+                {
+                    findTournament = [.. findTournamentTemp.Where(p => $"{p.Id} {p.Name} ".ToLower()
+                    .Contains(inputString.ToString().ToLower())).OrderBy(i => i.Name)];
+                }
+            }
+            else if (keyFromUser.Key == ConsoleKey.DownArrow && indexSelectedPlayer <= findTournament.Count - 2)
+            {
+                if (indexSelectedPlayer >= maxEntriesToDisplay - 1)
+                {
+                    if (findTournament.IndexOf(findTournamentToView.First()) != findTournament.Count - maxEntriesToDisplay)
+                    {
+                        var nextPlayer = findTournamentToView.ElementAt(1);
+                        var startIndex = findTournament.IndexOf(nextPlayer);
+                        findTournamentToView.Clear();
+                        findTournamentToView = findTournament.GetRange(startIndex, maxEntriesToDisplay);
+                    }
+                }
+                indexSelectedPlayer++;
+            }
+            else if (keyFromUser.Key == ConsoleKey.UpArrow && indexSelectedPlayer > 0)
+            {
+                if (findTournament.IndexOf(findTournamentToView.First()) != findTournament.IndexOf(findTournament.First()))
+                {
+                    var nextPlayer = findTournamentToView.First();
+                    findTournamentToView.Clear();
+                    findTournamentToView = findTournament.GetRange(findTournament.IndexOf(nextPlayer) - 1, maxEntriesToDisplay);
+                }
+                indexSelectedPlayer--;
+            }
+            else if (keyFromUser.Key == ConsoleKey.Enter && findTournament.Any())
+            {
+                var findTournamentToSelect = findTournament.First(p => findTournament.IndexOf(p) == indexSelectedPlayer);
+                ConsoleService.WriteTitle(headTableToview);
+                ConsoleService.WriteLineMessage($"{_tournamentsService.GetTournamentDetailView(findTournamentToSelect),106}");
+
+                if (ConsoleService.AnswerYesOrNo("Selected Player"))
+                {
+                    return findTournamentToSelect;
+                }
+            }
+            else if (keyFromUser.Key == ConsoleKey.Escape)
+            {
+                break;
+            }
+
+        } while (true);
+
+        return null;
     }
 }
