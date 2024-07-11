@@ -13,11 +13,11 @@ namespace Manager.App.Managers;
 
 public class ClubManager : IClubManager
 {
-    private readonly IClubService _clubService = new ClubService();    
+    private readonly IClubService _clubService = new ClubService();
     private readonly MenuActionService _actionService;
     public ClubManager(MenuActionService actionService)
     {
-        _actionService = actionService;        
+        _actionService = actionService;
     }
     public Club SearchClub(string title)
     {
@@ -53,7 +53,7 @@ public class ClubManager : IClubManager
             }
             else
             {
-                ConsoleService.WriteLineErrorMessage("Not Find Club");
+                ConsoleService.WriteLineErrorMessage("Not Found Club");
             }
             ConsoleService.WriteLineMessage("---------------\r\n" + inputString.ToString());
             ConsoleService.WriteLineMessage(@"Enter string move /\ or \/  and enter Select");
@@ -62,43 +62,38 @@ public class ClubManager : IClubManager
 
             if (char.IsLetterOrDigit(keyFromUser.KeyChar))
             {
-                if (findClubsList.Count == 1 && !string.IsNullOrEmpty(inputString.ToString()))
-                {
-                    ConsoleService.WriteLineErrorMessage("No entry found !!!");
-                }
-                else
-                {
-                    inputString.Append(keyFromUser.KeyChar);
 
-                    if (inputString.Length == 1)
+                inputString.Append(keyFromUser.KeyChar);
+
+                if (inputString.Length == 1)
+                {
+                    findClubsTemp = _clubService.SearchClub(inputString.ToString());
+
+
+                    if (findClubsTemp.Any())
                     {
-                        findClubsTemp = findClubsList = _clubService.SearchClub(inputString.ToString());
-
-
-                        if (findClubsTemp.Any())
-                        {
-                            findClubsList.Clear();
-                            findClubsList.AddRange(findClubsTemp);
-                            IdSelectedCub = 0;
-                        }
-                        else
-                        {
-                            inputString.Remove(inputString.Length - 1, 1);
-                        }
+                        findClubsList.Clear();
+                        findClubsList.AddRange(findClubsTemp);
+                        IdSelectedCub = 0;
                     }
                     else
                     {
-                        findClubsList = [.. findClubsList.Where(c => $"{c.Id} {c.Name}".ToLower().
-                        Contains(inputString.ToString().ToLower())).OrderBy(i => i.Name)];
-                        if (!findClubsList.Any())
-                        {
-                            inputString.Remove(inputString.Length - 1, 1);
-                            findClubsList.AddRange([.. findClubsTemp.Where(c => $"{c.Id} {c.Name}".ToLower().
-                            Contains(inputString.ToString().ToLower())).OrderBy(i => i.Name)]);
-                            ConsoleService.WriteLineErrorMessage("No entry found !!!");
-                        }
-                        IdSelectedCub = 0;
+                        inputString.Remove(inputString.Length - 1, 1);
+                        ConsoleService.WriteLineErrorMessage("No entry found !!!");
                     }
+                }
+                else
+                {
+                    findClubsList = [.. findClubsList.Where(c => $"{c.Id} {c.Name}".ToLower().
+                        Contains(inputString.ToString().ToLower())).OrderBy(i => i.Name)];
+                    if (!findClubsList.Any())
+                    {
+                        inputString.Remove(inputString.Length - 1, 1);
+                        findClubsList.AddRange([.. findClubsTemp.Where(c => $"{c.Id} {c.Name}".ToLower().
+                            Contains(inputString.ToString().ToLower())).OrderBy(i => i.Name)]);
+                        ConsoleService.WriteLineErrorMessage("No entry found !!!");
+                    }
+                    IdSelectedCub = 0;
                 }
             }
             else if (keyFromUser.Key == ConsoleKey.Backspace && inputString.Length > 0)
@@ -272,12 +267,12 @@ public class ClubManager : IClubManager
 
         }
         if (isUpdateClub)
-        {           
+        {
             _clubService.UpdateItem(_clubService.AddClubAddress(updateClub, playerAddress));
             _clubService.SaveList();
         }
         else
-        {            
+        {
             _clubService.AddItem(_clubService.AddClubAddress(updateClub, playerAddress));
             _clubService.SaveList();
         }

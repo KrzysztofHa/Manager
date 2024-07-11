@@ -431,6 +431,7 @@ public class PlayerManager : IPlayerManager
                 {
                     findPlayers = [.. findPlayersTemp.Where(p => $"{p.Id} {p.FirstName} {p.LastName}".ToLower()
                     .Contains(inputString.ToString().ToLower())).OrderBy(i => i.FirstName)];
+                    indexSelectedPlayer = 0;
                 }
             }
             else if (keyFromUser.Key == ConsoleKey.DownArrow && indexSelectedPlayer <= findPlayers.Count - 2)

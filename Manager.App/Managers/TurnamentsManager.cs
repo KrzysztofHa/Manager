@@ -2,6 +2,7 @@
 using Manager.App.Common;
 using Manager.App.Concrete;
 using Manager.App.Concrete.Helpers;
+using Manager.App.Concrete.Helpers.GamePlaySystem;
 using Manager.App.Managers.Helpers;
 using Manager.Consol.Concrete;
 using Manager.Domain.Entity;
@@ -44,19 +45,20 @@ public class TurnamentsManager
                     //League
                     break;
                 case 2:
-                    CreateNewTournament();
-                    if (ConsoleService.AnswerYesOrNo("Start Now Tournament ?"))
+                    var tournament = CreateNewTournament();
+                    if (tournament != null)
                     {
-                        // StartTournament(SearchTournament());
+                        if (ConsoleService.AnswerYesOrNo("Start tournament now ?"))
+                        {
+                            StartTournament(tournament);
+                        }
                     }
                     break;
                 case 3:
-                    SearchTournament();
+                    StartTournament(SearchTournament());
                     break;
-                case 4:                  
-                    _singlePlayerDuelManager.VievSinglePlayerDuelsByTournamentsOrSparrings(1);
-                    ConsoleService.WriteLineMessage("Press Any Key...");
-                    ConsoleService.GetKeyFromUser();
+                case 4:
+                    AllTournamentsView();
                     break;
                 case 5:
                     operation = null;
@@ -98,7 +100,7 @@ public class TurnamentsManager
             }
             else if (_tournamentsService.GetAllItem().Any(t => t.Name.Equals(tournament.Name)))
             {
-                ConsoleService.WriteLineErrorMessage("The name is already use. Please enter a different name.");
+                ConsoleService.WriteLineErrorMessage("The entered name is already use. Please enter a different name.");
             }
             else
             {
@@ -130,6 +132,7 @@ public class TurnamentsManager
         {
             return null;
         }
+
         return tournament;
     }
     private void AddPlayerToTournaments(Tournament tournament, SinglePlayerDuel duel)
@@ -231,7 +234,8 @@ public class TurnamentsManager
     public Tournament SearchTournament(string title = "")
     {
         StringBuilder inputString = new StringBuilder();
-        List<Tournament> findTournament = _tournamentsService.SearchTournament(" ");
+        List<Tournament> findTournament = _tournamentsService.SearchTournament(" ")
+            .Where(t => t.End == DateTime.MinValue).ToList();
         int maxEntriesToDisplay = 15;
         if (!findTournament.Any())
         {
@@ -293,7 +297,8 @@ public class TurnamentsManager
 
                     if (inputString.Length == 1)
                     {
-                        findTournamentTemp = _tournamentsService.SearchTournament(inputString.ToString());
+                        findTournamentTemp = _tournamentsService.SearchTournament(inputString.ToString())
+                            .Where(t => t.End == DateTime.MinValue).ToList();
                         if (findTournamentTemp.Any())
                         {
                             findTournament.Clear();
@@ -346,6 +351,7 @@ public class TurnamentsManager
                 {
                     findTournament = [.. findTournamentTemp.Where(p => $"{p.Id} {p.Name} ".ToLower()
                     .Contains(inputString.ToString().ToLower())).OrderBy(i => i.Name)];
+                    indexSelectedPlayer = 0;
                 }
             }
             else if (keyFromUser.Key == ConsoleKey.DownArrow && indexSelectedPlayer <= findTournament.Count - 2)
@@ -391,5 +397,29 @@ public class TurnamentsManager
         } while (true);
 
         return null;
+    }
+    public void AllTournamentsView()
+    {
+        var allTournaments = _tournamentsService.GetAllItem().OrderByDescending(t => t.CreatedDateTime).ToList();
+        var headTableToview = "All Tournaments" + $"\r\n{" LP",-5}{"ID",-6}{"Name",-21}" +
+                   $"{"Game System",-16}{"Club Name",-21}{"Start",-15}{"End",-15}{"Players",-11}";
+
+        if (allTournaments.Any())
+        {
+            ConsoleService.WriteTitle(headTableToview);
+
+            foreach (var tournament in allTournaments)
+            {
+                var formmatStringToView = $" {allTournaments.IndexOf(tournament) + 1,-5}".Remove(5) + _tournamentsService.GetTournamentDetailView(tournament);
+
+                ConsoleService.WriteLineMessage(formmatStringToView);
+            }
+        }
+        else
+        {
+            ConsoleService.WriteLineErrorMessage("Empty List");
+        }
+        ConsoleService.WriteLineMessage("Press any key...");
+        ConsoleService.GetKeyFromUser();
     }
 }

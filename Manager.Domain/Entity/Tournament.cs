@@ -11,4 +11,5 @@ public class Tournament : BaseEntity
     public DateTime Start { get; set; }
     public DateTime End { get; set; }
     public int NumberOfPlayer { get; set; }
+    public int NumberOfTables { get; set; }
 }

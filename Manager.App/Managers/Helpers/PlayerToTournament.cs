@@ -14,6 +14,7 @@ public class PlayerToTournament
 
     public string TinyFulName { get; set; }
     public string Country { get; set; }
+    public string Group { get; set; }
 
     public int IdPLayer { get; set; }
     public PlayerToTournament()

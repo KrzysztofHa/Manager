@@ -234,7 +234,7 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
         }
         else
         {
-            title = "All Tournaments Duel";
+            title = "Tournaments Duel";
             listSinglesPlayerDuels = _singlePlayerDuelService.GetAllSinglePlayerDuel()
              .Where(s => s.IdPlayerTournament == idTournament).ToList();
         }
@@ -399,6 +399,7 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
                 {
                     findDuelsString = [.. findDuelsString.Where(p => p.ToLower().
                         Contains(inputString.ToString().ToLower())).OrderBy(i => i.Split(" ")[6])];
+                    indexSelectedDuel = 0;
                 }
             }
             else if (keyFromUser.Key == ConsoleKey.DownArrow && indexSelectedDuel <= findDuelsString.Count - 2)
@@ -436,6 +437,7 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
                 {
                     return findDuelToSelect;
                 }
+                indexSelectedDuel = 0;
             }
             else if (keyFromUser.Key == ConsoleKey.Escape)
             {
