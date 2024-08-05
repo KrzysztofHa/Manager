@@ -36,6 +36,7 @@ public class MenuActionService : BaseService<MenuAction>
         AddItem(new MenuAction(1500, "Remove Player", "Players"));
 
         AddItem(new MenuAction(3100, "Start New Sparring", "Sparring"));
+        AddItem(new MenuAction(3200, "Continue The Interrupted Sparring", "Sparring"));
         AddItem(new MenuAction(3200, "All Sparring", "Sparring"));
 
         AddItem(new MenuAction(4100, "League Not implemented", "Tournaments"));

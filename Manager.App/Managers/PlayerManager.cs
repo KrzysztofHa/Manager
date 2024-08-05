@@ -130,7 +130,13 @@ public class PlayerManager : IPlayerManager
             return test;
         };
 
-        var player = _playerService.GetItemById(SearchPlayer().Id);
+        var foundPlayer = SearchPlayer();
+        if (foundPlayer == null)
+        {
+            return null;
+        }
+
+        var player = _playerService.GetItemById(foundPlayer.Id);
         if (GetDataFromUser(player) == null)
         {
             return null;
@@ -276,17 +282,14 @@ public class PlayerManager : IPlayerManager
                         }
                         else if (countryName.Name.Contains("Exit"))
                         {
-                            return null;
+                            break;
                         }
                     }
                     else
                     {
                         if (inputInt == null && isUpdatePlayer)
-                        {
-                            if (ConsoleService.AnswerYesOrNo("You want to exit? \r\nThe entered data will not be saved"))
-                            {
-                                return null;
-                            }
+                        {                          
+                                break;                            
                         }
                         ConsoleService.WriteLineErrorMessage($"No option nr: " + inputInt);
                     }
@@ -351,7 +354,7 @@ public class PlayerManager : IPlayerManager
                 foreach (var player in findPlayersToView)
                 {
                     var formmatStringToView = findPlayers.IndexOf(player) == indexSelectedPlayer ?
-                        "---> " + $"{findPlayers.IndexOf(player) + 1,-5}".Remove(5) + _playerService.GetPlayerDetailView(player) + $" <----\r\n" :
+                        "\r\n---> " + $"{findPlayers.IndexOf(player) + 1,-5}".Remove(5) + _playerService.GetPlayerDetailView(player) + $" <----\r\n" :
                         "     " + $"{findPlayers.IndexOf(player) + 1,-5}".Remove(5) + _playerService.GetPlayerDetailView(player);
 
                     ConsoleService.WriteLineMessage(formmatStringToView);

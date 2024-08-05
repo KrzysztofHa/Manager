@@ -1,6 +1,7 @@
 ﻿using Manager.App.Abstract;
 using Manager.App.Concrete;
 using Manager.App.Concrete.Helpers;
+using Manager.App.Concrete.Helpers.TypeOfGame;
 using Manager.Consol.Concrete;
 using Manager.Domain.Entity;
 using Manager.Helpers;
@@ -24,7 +25,7 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
         _playerService = playerService;
     }
 
-    public SinglePlayerDuel? NewSingleDuel(int idFirstPlayer = 0, int idSecondPlayer = 0)
+    public SinglePlayerDuel NewSingleDuel(int idFirstPlayer = 0, int idSecondPlayer = 0)
     {
         var duel = new SinglePlayerDuel();
         if (idFirstPlayer == 0 || idSecondPlayer == 0)
@@ -189,7 +190,7 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
         }
         return true;
     }
-    public SinglePlayerDuel NewTournamentSinglePlayerDue(SinglePlayerDuel duel, int idTournament, int idFirstPlayer = -1, int idSecondPlayer = -1)
+    public SinglePlayerDuel NewTournamentSinglePlayerDue(SinglePlayerDuel duel, int idTournament, int idFirstPlayer, int idSecondPlayer)
     {
         duel = NewSingleDuel(idFirstPlayer, idSecondPlayer);
         duel.IdPlayerTournament = idTournament;
@@ -198,8 +199,11 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
     }
     public void StartSingleDuel(SinglePlayerDuel duel)
     {
-        duel.StartGame = DateTime.Now;
-        _singlePlayerDuelService.StartSinglePlayerDuel(duel);
+        if (duel.StartGame == DateTime.MinValue)
+        {
+            duel.StartGame = DateTime.Now;
+            _singlePlayerDuelService.StartSinglePlayerDuel(duel);
+        }
     }
     public List<SinglePlayerDuel>? GetSinglePlayerDuelsByTournamentsOrSparrings(int idTournament = 0)
     {
@@ -288,14 +292,14 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
         _singlePlayerDuelService.UpdateSinglePlayerDuel(duel);
     }
 
-    public SinglePlayerDuel? SearchDuel(string title = "")
+    public SinglePlayerDuel? SearchInterruptedDuel(string title = "", int? idTournament = null)
     {
         StringBuilder inputString = new StringBuilder();
         List<string> findDuelsString = new List<string>();
         List<string> findDuelsStringTemp = new List<string>();
         int maxEntriesToDisplay = 15;
         List<string> findDuelsStringToView = new List<string>();
-        List<SinglePlayerDuel> findDuelsTemp = _singlePlayerDuelService.SearchSinglePlayerDuel(" ");
+        List<SinglePlayerDuel> findDuelsTemp = _singlePlayerDuelService.SearchSinglePlayerDuel(" ").Where(d => d.EndGame == DateTime.MinValue && d.IdPlayerTournament == idTournament).ToList();
         if (!findDuelsTemp.Any())
         {
             if (!findDuelsTemp.Any())
@@ -316,10 +320,16 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
                 findDuelsStringToView.Clear();
                 findDuelsStringTemp.Clear();
                 foreach (var duel in findDuelsTemp)
-                {                    
-                    findDuelsStringTemp.Add(_singlePlayerDuelService.GetSinglePlayerDuelDetailView(duel));
+                {
+                    var duelString = _singlePlayerDuelService.GetSinglePlayerDuelDetailView(duel);
+                    if (duelString == string.Empty)
+                    {
+                        continue;
+                    }
+                    findDuelsStringTemp.Add(duelString);
+
                 }
-                findDuelsString.AddRange(findDuelsStringTemp);                
+                findDuelsString.AddRange(findDuelsStringTemp);
                 findDuelsStringToView = findDuelsString;
             }
 
@@ -334,7 +344,7 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
                 foreach (var duelString in findDuelsStringToView)
                 {
                     var formmatStringToView = findDuelsString.IndexOf(duelString) == indexSelectedDuel ?
-                        "--> " + $"{findDuelsString.IndexOf(duelString) + 1,-5}".Remove(5) + duelString + $" <---\r\n" :
+                        "\r\n--> " + $"{findDuelsString.IndexOf(duelString) + 1,-5}".Remove(5) + duelString + $" <---\r\n" :
                         "    " + $"{findDuelsString.IndexOf(duelString) + 1,-5}".Remove(5) + duelString;
 
                     ConsoleService.WriteLineMessage(formmatStringToView);
@@ -357,14 +367,25 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
 
                     if (inputString.Length == 1)
                     {
-                        findDuelsTemp = _singlePlayerDuelService.SearchSinglePlayerDuel(inputString.ToString());
-                        if (findDuelsTemp.Any())
+                        var secondFindDuelsTemp = _singlePlayerDuelService.SearchSinglePlayerDuel(inputString.ToString());
                         {
-                            findDuelsString.Clear();
-                        }
-                        else
-                        {
-                            inputString.Remove(inputString.Length - 1, 1);
+                            if (secondFindDuelsTemp.Count == 1 &&
+                                _singlePlayerDuelService.GetSinglePlayerDuelDetailView(secondFindDuelsTemp.First()) != string.Empty)
+                            {
+                                findDuelsTemp.Clear();
+                                findDuelsTemp = secondFindDuelsTemp;
+                            }
+
+                            if (secondFindDuelsTemp.Any())
+                            {
+                                findDuelsString.Clear();
+                            }
+                            else
+                            {
+                                inputString.Remove(inputString.Length - 1, 1);
+                                ConsoleService.WriteLineErrorMessage("No entries found !!!");
+                                findDuelsString.Clear();
+                            }
                         }
                     }
                     else
@@ -408,8 +429,8 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
                 {
                     if (findDuelsString.IndexOf(findDuelsStringToView.First()) != findDuelsString.Count - maxEntriesToDisplay)
                     {
-                        var nextPlayer = findDuelsStringToView.ElementAt(1);
-                        var startIndex = findDuelsString.IndexOf(nextPlayer);
+                        var nextDuel = findDuelsStringToView.ElementAt(1);
+                        var startIndex = findDuelsString.IndexOf(nextDuel);
                         findDuelsStringToView.Clear();
                         findDuelsStringToView = findDuelsString.GetRange(startIndex, maxEntriesToDisplay);
                     }
@@ -420,20 +441,19 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
             {
                 if (findDuelsString.IndexOf(findDuelsStringToView.First()) != findDuelsString.IndexOf(findDuelsString.First()))
                 {
-                    var nextPlayer = findDuelsStringToView.First();
+                    var nextDuel = findDuelsStringToView.First();
                     findDuelsStringToView.Clear();
-                    findDuelsStringToView = findDuelsString.GetRange(findDuelsString.IndexOf(nextPlayer) - 1, maxEntriesToDisplay);
+                    findDuelsStringToView = findDuelsString.GetRange(findDuelsString.IndexOf(nextDuel) - 1, maxEntriesToDisplay);
                 }
                 indexSelectedDuel--;
             }
             else if (keyFromUser.Key == ConsoleKey.Enter && findDuelsString.Any())
             {
-                var findDuelString = findDuelsString.First(p => findDuelsString.IndexOf(p) == indexSelectedDuel);
-                var findDuelToSelect = findDuelsTemp.First(p => p.Id == int.Parse(findDuelString[0].ToString().Trim()));
+                var findDuelToSelect = findDuelsTemp.First(p => findDuelsTemp.IndexOf(p) == indexSelectedDuel);
                 ConsoleService.WriteTitle(headTableToview);
                 ConsoleService.WriteLineMessage($"{_singlePlayerDuelService.GetSinglePlayerDuelDetailView(findDuelToSelect),106}");
 
-                if (ConsoleService.AnswerYesOrNo("Selected Player"))
+                if (ConsoleService.AnswerYesOrNo("Selected Sparring"))
                 {
                     return findDuelToSelect;
                 }
