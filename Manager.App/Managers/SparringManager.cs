@@ -11,14 +11,14 @@ namespace Manager.App.Managers;
 public class SparringManager
 {
     private readonly MenuActionService _actionService;
-    private readonly IPlayerManager _playerManager;    
+    private readonly IPlayerManager _playerManager;
     private readonly IPlayerService _playerService;
     private readonly SinglePlayerDuelManager _singlePlayerDuelManager;
     public SparringManager(MenuActionService actionService, IPlayerManager playerManager, IPlayerService playerService)
     {
         _playerService = playerService;
         _actionService = actionService;
-        _playerManager = playerManager;        
+        _playerManager = playerManager;
         _singlePlayerDuelManager = new SinglePlayerDuelManager(_playerManager, _playerService);
     }
     public void SparringOptionsView()
@@ -36,12 +36,15 @@ public class SparringManager
             switch (operation)
             {
                 case 1:
-                    StartNewSparring();
+                    StartSparring();
                     break;
                 case 2:
-                    AllSparring();
+                    StartSparring(_singlePlayerDuelManager.SearchInterruptedDuel());
                     break;
                 case 3:
+                    AllSparring();
+                    break;
+                case 4:
                     operation = null;
                     break;
                 default:
@@ -61,22 +64,30 @@ public class SparringManager
 
     public void AllSparring()
     {
-        _singlePlayerDuelManager.SearchDuel();
         _singlePlayerDuelManager.VievSinglePlayerDuelsByTournamentsOrSparrings();
         ConsoleService.WriteLineMessageActionSuccess("Press Any Key..");
     }
 
-    public void StartNewSparring()
+    public void StartSparring(SinglePlayerDuel singlePlayerDuel = null)
     {
-        IService<Frame> frameService = new BaseService<Frame>();        
+        IService<Frame> frameService = new BaseService<Frame>();
         Frame frame = new Frame();
         frameService.AddItem(frame);
         frameService.SaveList();
-        var singlePlayerDuel = _singlePlayerDuelManager.NewSingleDuel();
-
         if (singlePlayerDuel == null)
         {
-            return;
+            if (ConsoleService.AnswerYesOrNo("Start New Sparring ?"))
+            {
+                singlePlayerDuel = _singlePlayerDuelManager.NewSingleDuel();
+                if (singlePlayerDuel == null)
+                {
+                    return;
+                }
+            }
+            else
+            {
+                return;
+            }
         }
 
         var players = _playerService.ListOfActivePlayers().Where(p => p.Id == singlePlayerDuel.IdFirstPlayer || p.Id == singlePlayerDuel.IdSecondPlayer).ToList();
@@ -168,7 +179,7 @@ public class SparringManager
                 }
                 else if (inputKey.Key == ConsoleKey.Escape)
                 {
-                    if (ConsoleService.AnswerYesOrNo("you want to leave the game?"))
+                    if (ConsoleService.AnswerYesOrNo("You want to leave the game?"))
                     {
                         return;
                     }

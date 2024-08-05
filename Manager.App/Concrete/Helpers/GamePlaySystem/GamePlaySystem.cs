@@ -6,7 +6,7 @@ public class GameplaySystem
 
     public GameplaySystem()
     {
-        GameplaySystemsList = new List<string>() { "Group", "2Ko" };
+        GameplaySystemsList = new List<string>() { "Group", "2KO" };
     }
 
 

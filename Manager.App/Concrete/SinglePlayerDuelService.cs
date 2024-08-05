@@ -10,7 +10,6 @@ public class SinglePlayerDuelService : BaseService<SinglePlayerDuel>, ISinglePla
 {
     public void StartSinglePlayerDuel(SinglePlayerDuel singlePlayerDuel)
     {
-        singlePlayerDuel.StartGame = DateTime.Now;
         AddItem(singlePlayerDuel);
         SaveList();
     }
@@ -41,8 +40,15 @@ public class SinglePlayerDuelService : BaseService<SinglePlayerDuel>, ISinglePla
             IPlayerService playerservice = new PlayerService();
             ITournamentsService tournamentServis = new TournamentsService();
 
-            var firstPlayer = playerservice.GetItemById(duel.IdFirstPlayer);
-            var secondPlayer = playerservice.GetItemById(duel.IdSecondPlayer);
+            var firstPlayer = playerservice.GetItemById(duel.IdFirstPlayer) == null ? new Player { Id = duel.IdFirstPlayer, FirstName = "-", LastName = "Unknown" }
+            : playerservice.GetItemById(duel.IdFirstPlayer);
+            var secondPlayer = playerservice.GetItemById(duel.IdSecondPlayer) == null ? new Player { Id = duel.IdFirstPlayer, FirstName = "-", LastName = "Unknown" }
+            : playerservice.GetItemById(duel.IdSecondPlayer);
+
+            if (firstPlayer.LastName == "Unknown" && secondPlayer.LastName == "Unknown")
+            {
+                return string.Empty;
+            }
             var idTournament = duel.IdPlayerTournament == null ? 0 : (int)duel.IdPlayerTournament;
             var tournament = tournamentServis.GetItemById(idTournament);
 
@@ -102,7 +108,7 @@ public class SinglePlayerDuelService : BaseService<SinglePlayerDuel>, ISinglePla
                 var findDuelOfTournament = findTournaments.GroupJoin(allduel,
                     tournament => tournament.Id,
                     duel => duel.IdPlayerTournament,
-                    (tournament, duel) => duel.ToList()).First();
+                    (tournament, duels) => (tournament, duels)).ToList().SelectMany(d => d.duels).ToList();
 
                 findSinglePlayerDuels.AddRange(findDuelOfTournament);
             }
