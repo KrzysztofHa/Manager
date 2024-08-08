@@ -1,4 +1,4 @@
-﻿namespace Manager.App.Concrete.Helpers.GamePlaySystem;
+﻿namespace Manager.App.Managers.Helpers.GamePlaySystem;
 
 public class GameplaySystem
 {

@@ -1,15 +1,10 @@
 ﻿using Manager.App.Abstract;
 using Manager.App.Concrete;
-using Manager.App.Concrete.Helpers;
-using Manager.App.Concrete.Helpers.TypeOfGame;
+using Manager.App.Managers.Helpers.TypeOfGame;
 using Manager.Consol.Concrete;
 using Manager.Domain.Entity;
 using Manager.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Manager.App.Managers;
 

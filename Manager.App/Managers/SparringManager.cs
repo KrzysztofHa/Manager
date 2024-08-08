@@ -76,6 +76,7 @@ public class SparringManager
         frameService.SaveList();
         if (singlePlayerDuel == null)
         {
+            ConsoleService.WriteTitle("");
             if (ConsoleService.AnswerYesOrNo("Start New Sparring ?"))
             {
                 singlePlayerDuel = _singlePlayerDuelManager.NewSingleDuel();

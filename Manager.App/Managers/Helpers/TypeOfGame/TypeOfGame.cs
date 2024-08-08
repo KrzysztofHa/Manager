@@ -1,4 +1,4 @@
-﻿namespace Manager.App.Concrete.Helpers.TypeOfGame;
+﻿namespace Manager.App.Managers.Helpers.TypeOfGame;
 
 public class TypeOfGame
 {

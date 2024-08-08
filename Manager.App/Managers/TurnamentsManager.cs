@@ -1,13 +1,10 @@
 ﻿using Manager.App.Abstract;
-using Manager.App.Common;
 using Manager.App.Concrete;
-using Manager.App.Concrete.Helpers;
-using Manager.App.Concrete.Helpers.GamePlaySystem;
 using Manager.App.Managers.Helpers;
+using Manager.App.Managers.Helpers.GamePlaySystem;
 using Manager.Consol.Concrete;
 using Manager.Domain.Entity;
-using System.ComponentModel.DataAnnotations;
-using System.Reflection.Metadata.Ecma335;
+using System.Collections.Generic;
 using System.Text;
 
 namespace Manager.App.Managers;
@@ -79,7 +76,8 @@ public class TurnamentsManager
     }
     public void StartTournament(Tournament tournament)
     {
-
+        PlayersToTournament playersToTournament = new(tournament);
+        ViewListPlayersToTournament(tournament, playersToTournament.GetPlayerToTournament());
 
 
     }
@@ -124,8 +122,9 @@ public class TurnamentsManager
             return null;
         }
 
-        AddPlayerToTournaments(tournament, duel);
+       
         _tournamentsService.AddNewTournament(tournament);
+        AddPlayersToTournament(tournament, duel);
 
         duel = _singlePlayerDuelManager.NewTournamentSinglePlayerDue(duel, tournament.Id);
         if (duel == null)
@@ -135,10 +134,10 @@ public class TurnamentsManager
 
         return tournament;
     }
-    private void AddPlayerToTournaments(Tournament tournament, SinglePlayerDuel duel)
+    private void AddPlayersToTournament(Tournament tournament, SinglePlayerDuel duel)
     {
         PlayersToTournament playersToTournament = new(tournament);
-        List<PlayerToTournament> listPlayersToTournament = playersToTournament.GetPlayerToTournament();
+        List<PlayerToTournament> listPlayersToTournament = playersToTournament.ListPlayersToTournament;
 
         while (true)
         {

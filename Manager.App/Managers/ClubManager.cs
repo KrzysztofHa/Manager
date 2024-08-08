@@ -56,7 +56,7 @@ public class ClubManager : IClubManager
                 ConsoleService.WriteLineErrorMessage("Not Found Club");
             }
             ConsoleService.WriteLineMessage("---------------\r\n" + inputString.ToString());
-            ConsoleService.WriteLineMessage(@"Enter string move /\ or \/  and enter Select");
+            ConsoleService.WriteLineMessage(@"Enter string, move /\ or \/  and ENTER Select or ESC add new entry ");
 
             var keyFromUser = ConsoleService.GetKeyFromUser();
 

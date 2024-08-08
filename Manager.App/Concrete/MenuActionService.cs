@@ -7,7 +7,7 @@ namespace Manager.App.Concrete;
 public class MenuActionService : BaseService<MenuAction>
 {
     public MenuActionService()
-    {        
+    {
         Initialize();
     }
 
@@ -40,7 +40,7 @@ public class MenuActionService : BaseService<MenuAction>
         AddItem(new MenuAction(3200, "All Sparring", "Sparring"));
 
         AddItem(new MenuAction(4100, "League Not implemented", "Tournaments"));
-        AddItem(new MenuAction(4200, "New One Day Tournament", "Tournaments"));
+        AddItem(new MenuAction(4200, "Create New Tournament", "Tournaments"));
         AddItem(new MenuAction(4300, "Start Tournament", "Tournaments"));
         AddItem(new MenuAction(4400, "All Tournaments", "Tournaments"));
 
