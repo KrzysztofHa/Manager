@@ -8,6 +8,4 @@ public class GameplaySystem
     {
         GameplaySystemsList = new List<string>() { "Group", "2KO" };
     }
-
-
 }

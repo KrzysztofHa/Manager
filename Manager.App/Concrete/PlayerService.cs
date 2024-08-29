@@ -41,7 +41,7 @@ public class PlayerService : BaseService<Player>, IPlayerService, IService<Playe
         IService<Address> addressServis = new BaseService<Address>();
         if (player != null)
         {
-            address = addressServis.GetItemById(player.IdAddress);
+            address = addressServis.GetItemById(player.IdAddress);            
         }
 
         return address;

@@ -288,8 +288,8 @@ public class PlayerManager : IPlayerManager
                     else
                     {
                         if (inputInt == null && isUpdatePlayer)
-                        {                          
-                                break;                            
+                        {
+                            break;
                         }
                         ConsoleService.WriteLineErrorMessage($"No option nr: " + inputInt);
                     }
@@ -319,10 +319,23 @@ public class PlayerManager : IPlayerManager
             return false;
         }
     }
-    public Player? SearchPlayer(string title = "")
+    public Player? SearchPlayer(string title = "", List<Player> playersList = null)
     {
         StringBuilder inputString = new StringBuilder();
-        List<Player> findPlayers = _playerService.SearchPlayer(" ");
+        List<Player> findPlayers = new();
+        List<Player> findPlayersTemp = new();
+
+        if (playersList == null)
+        {
+            findPlayers = _playerService.SearchPlayer(" ");
+            findPlayersTemp.AddRange(findPlayers);
+        }
+        else
+        {
+            findPlayersTemp = playersList;
+            findPlayers.AddRange(playersList);
+        }
+        
         int maxEntriesToDisplay = 15;
         if (!findPlayers.Any())
         {
@@ -337,8 +350,7 @@ public class PlayerManager : IPlayerManager
         else
         {
             findPlayersToView = findPlayers;
-        }
-        List<Player> findPlayersTemp = new List<Player>();
+        }        
         var address = new Address();
         int indexSelectedPlayer = 0;
         title = string.IsNullOrWhiteSpace(title) ? "Search Player" : title;
@@ -381,7 +393,6 @@ public class PlayerManager : IPlayerManager
 
                     if (inputString.Length == 1)
                     {
-                        findPlayersTemp = _playerService.SearchPlayer(inputString.ToString());
                         if (findPlayersTemp.Any())
                         {
                             findPlayers.Clear();
@@ -465,7 +476,7 @@ public class PlayerManager : IPlayerManager
             {
                 var findPlayersToSelect = findPlayers.First(p => findPlayers.IndexOf(p) == indexSelectedPlayer);
                 ConsoleService.WriteTitle(headTableToview);
-                ConsoleService.WriteLineMessage($"{_playerService.GetPlayerDetailView(findPlayersToSelect), 106}");
+                ConsoleService.WriteLineMessage($"{_playerService.GetPlayerDetailView(findPlayersToSelect),106}");
 
                 if (ConsoleService.AnswerYesOrNo("Selected Player"))
                 {

@@ -1,6 +1,7 @@
 ﻿using Manager.App.Common;
 using Manager.App.Concrete.Helpers;
 using Manager.Domain.Entity;
+using System.Collections.Generic;
 
 namespace Manager.App.Concrete;
 
@@ -43,9 +44,19 @@ public class MenuActionService : BaseService<MenuAction>
         AddItem(new MenuAction(4200, "Create New Tournament", "Tournaments"));
         AddItem(new MenuAction(4300, "Start Tournament", "Tournaments"));
         AddItem(new MenuAction(4400, "All Tournaments", "Tournaments"));
+        AddItem(new MenuAction(4500, "Delete Tournaments Not Implement", "Tournaments"));
 
         AddItem(new MenuAction(4110, "Players Not implemented", "League"));
         AddItem(new MenuAction(4120, "League Ranking Not implemented", "League"));
+
+        AddItem(new MenuAction(4310, "Add Players", "Start Tournament"));
+        AddItem(new MenuAction(4320, "Delete Player", "Start Tournament"));
+        AddItem(new MenuAction(4330, "Set Groups", "Start Tournament"));
+        AddItem(new MenuAction(4340, "Random Selection Of Players", "Start Tournament"));
+        AddItem(new MenuAction(4350, "Chenge The Game System", "Start Tournament"));
+        AddItem(new MenuAction(4360, "--", "Start Tournament"));
+        AddItem(new MenuAction(4370, "Players", "Start Tournament"));
+        AddItem(new MenuAction(4380, "Reset", "Start Tournament"));
 
         AddItem(new MenuAction(5100, "Change Display Name", "Settings"));
 

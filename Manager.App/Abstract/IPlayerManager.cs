@@ -11,7 +11,7 @@ namespace Manager.App.Abstract
     {
         Player AddNewPlayer();
         Player UpdatePlayer();
-        Player SearchPlayer(string title = "");
+        Player SearchPlayer(string title = "", List<Player> playersList = null);
         void PlayerOptionView();
 
     }

@@ -15,8 +15,11 @@ public class PlayerToTournament
     public string TinyFulName { get; set; }
     public string Country { get; set; }
     public string Group { get; set; }
-
+    public string TwoKO { get; set; }
+    public string Round {  get; set; }
+    public int Position { get; set; }
     public int IdPLayer { get; set; }
+    public string Cup {  get; set; }
     public PlayerToTournament()
     {
     }
