@@ -1,13 +1,7 @@
 ﻿using Manager.App.Abstract;
-using Manager.App.Concrete;
 using Manager.Domain.Entity;
 using Manager.Infrastructure.Abstract;
 using Manager.Infrastructure.Common;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Manager.App.Managers.Helpers;
 
@@ -16,9 +10,11 @@ public class PlayersToTournament
     private readonly ITournamentsService _tournamentsService;
     public List<PlayerToTournament> ListPlayersToTournament { get; set; }
     public int IdTournament { get; set; }
+
     public PlayersToTournament()
     {
     }
+
     public PlayersToTournament(Tournament tournament, ITournamentsService tournamentsService)
     {
         _tournamentsService = tournamentsService;
@@ -26,6 +22,7 @@ public class PlayersToTournament
         IdTournament = tournament.Id;
         LoadList(tournament);
     }
+
     private void LoadList(Tournament tournament)
     {
         IBaseService<PlayersToTournament> baseService = new BaseOperationService<PlayersToTournament>();
@@ -54,9 +51,9 @@ public class PlayersToTournament
         listPlayer.ListPlayersToTournament = ListPlayersToTournament;
         baseService.SaveListToBase();
     }
+
     public List<PlayerToTournament> GetPlayerToTournament()
     {
         return ListPlayersToTournament;
     }
-
 }

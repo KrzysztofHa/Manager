@@ -15,5 +15,5 @@ public class SinglePlayerDuel : BaseEntity
     public int ScoreSecondPlayer { get; set; }
     public bool IsWalkOver { get; set; }
     public string Round { get; set; }
-    public string Group { get; set; }    
+    public string Group { get; set; }
 }

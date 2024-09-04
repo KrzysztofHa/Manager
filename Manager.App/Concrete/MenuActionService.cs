@@ -1,7 +1,6 @@
 ﻿using Manager.App.Common;
 using Manager.App.Concrete.Helpers;
 using Manager.Domain.Entity;
-using System.Collections.Generic;
 
 namespace Manager.App.Concrete;
 

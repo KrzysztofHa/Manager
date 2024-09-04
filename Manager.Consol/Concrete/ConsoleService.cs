@@ -12,6 +12,7 @@ public static class ConsoleService
         }
         return null;
     }
+
     public static string GetStringFromUser(string message)
     {
         ConsoleKeyInfo inputKey;
@@ -49,7 +50,6 @@ public static class ConsoleService
                 inputString.Remove(inputString.Length - 1, 1);
                 Console.SetCursorPosition(customCursorLeft, customCursorTop);
                 Console.Write(inputString.ToString().PadRight(Console.BufferWidth));
-
             }
 
             if (inputKey.Key == ConsoleKey.Escape)
@@ -65,6 +65,7 @@ public static class ConsoleService
         Console.ForegroundColor = ConsoleColor.White;
         return inputString.ToString();
     }
+
     public static string GetRequiredStringFromUser(string message)
     {
         var startCursorPosition = Console.GetCursorPosition();
@@ -84,13 +85,14 @@ public static class ConsoleService
                 return inputRequiredString;
             }
             Console.SetCursorPosition(startCursorPosition.Left, startCursorPosition.Top);
-
         } while (true);
     }
+
     public static void WriteLineMessage(string message)
     {
         Console.WriteLine(message);
     }
+
     public static bool AnswerYesOrNo(string message)
     {
         var startCursorTop = Console.CursorTop;
@@ -123,13 +125,15 @@ public static class ConsoleService
             }
         } while (true);
     }
+
     public static void WriteTitle(string title)
-    {        
+    {
         Console.Clear();
         Console.ForegroundColor = ConsoleColor.Green;
         Console.WriteLine($"{title}\n");
         Console.ForegroundColor = ConsoleColor.White;
     }
+
     public static void WriteLineMessageActionSuccess(string message)
     {
         var startCursorPosition = Console.GetCursorPosition();
@@ -152,13 +156,14 @@ public static class ConsoleService
         Console.Write(string.Empty.PadLeft(Console.BufferWidth));
         Console.CursorVisible = true;
     }
+
     public static void WriteLineErrorMessage(string errorMessage)
     {
         Console.CursorVisible = false;
         Console.ForegroundColor = ConsoleColor.Red;
         var startCursorPosition = Console.GetCursorPosition();
         Console.WriteLine(errorMessage);
-        
+
         Thread.Sleep(250);
         Console.SetCursorPosition(startCursorPosition.Left, startCursorPosition.Top);
         Console.WriteLine(string.Empty.PadLeft(Console.BufferWidth));
@@ -168,13 +173,14 @@ public static class ConsoleService
         Thread.Sleep(1500);
         Console.ForegroundColor = ConsoleColor.White;
         Console.SetCursorPosition(startCursorPosition.Left, startCursorPosition.Top);
-        Console.WriteLine(string.Empty.PadLeft(Console.BufferWidth));        
+        Console.WriteLine(string.Empty.PadLeft(Console.BufferWidth));
         while (Console.KeyAvailable == true)
-        {           
-            Console.ReadKey(true);            
+        {
+            Console.ReadKey(true);
         }
         Console.CursorVisible = true;
     }
+
     public static ConsoleKeyInfo GetKeyFromUser()
     {
         var startCursorPosition = Console.GetCursorPosition();

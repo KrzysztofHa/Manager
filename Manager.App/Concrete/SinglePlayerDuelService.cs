@@ -1,8 +1,6 @@
 ﻿using Manager.App.Abstract;
 using Manager.App.Common;
-using Manager.Consol.Concrete;
 using Manager.Domain.Entity;
-using System.Numerics;
 
 namespace Manager.App.Concrete;
 
@@ -13,26 +11,31 @@ public class SinglePlayerDuelService : BaseService<SinglePlayerDuel>, ISinglePla
         AddItem(singlePlayerDuel);
         SaveList();
     }
+
     public void EndSinglePlayerDuel(SinglePlayerDuel singlePlayerDuel)
     {
         singlePlayerDuel.EndGame = DateTime.Now;
         UpdateItem(singlePlayerDuel);
         SaveList();
     }
+
     public void UpdateSinglePlayerDuel(SinglePlayerDuel singlePlayerDuel)
     {
         UpdateItem(singlePlayerDuel);
         SaveList();
     }
+
     public void CreateTournamentSinglePlayerDue(SinglePlayerDuel singlePlayerDuel)
     {
         AddItem(singlePlayerDuel);
         SaveList();
     }
+
     public List<SinglePlayerDuel> GetAllSinglePlayerDuel()
     {
         return GetAllItem();
     }
+
     public string GetSinglePlayerDuelDetailView(SinglePlayerDuel duel)
     {
         if (duel != null)
@@ -70,6 +73,7 @@ public class SinglePlayerDuelService : BaseService<SinglePlayerDuel>, ISinglePla
         }
         return string.Empty;
     }
+
     public List<SinglePlayerDuel> SearchSinglePlayerDuel(string searchString)
     {
         List<SinglePlayerDuel> findSinglePlayerDuels = new List<SinglePlayerDuel>();

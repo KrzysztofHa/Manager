@@ -52,6 +52,7 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
 
         return duel;
     }
+
     private void AddPlayerToDuel(SinglePlayerDuel duel)
     {
         IUserService userService = new UserService();
@@ -123,6 +124,7 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
         ConsoleService.WriteTitle("Add Second Player");
         ConsoleService.WriteLineMessageActionSuccess("Succes\r\nPress Any Key");
     }
+
     private bool AddSettingsRaceAndTypeGame(SinglePlayerDuel singlePlayerDuel)
     {
         string[] settings = ["Type Of Game", "Race To"];
@@ -159,7 +161,6 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
                     {
                         return false;
                     }
-
                 } while (singlePlayerDuel.TypeNameOfGame == null);
             }
 
@@ -179,12 +180,12 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
                     {
                         singlePlayerDuel.RaceTo = (int)manyframe;
                     }
-
                 } while (singlePlayerDuel.RaceTo < 3 || singlePlayerDuel.RaceTo > 20);
             }
         }
         return true;
     }
+
     public SinglePlayerDuel NewTournamentSinglePlayerDue(SinglePlayerDuel duel, int idTournament, int idFirstPlayer, int idSecondPlayer)
     {
         duel = NewSingleDuel(idFirstPlayer, idSecondPlayer);
@@ -192,6 +193,7 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
         _singlePlayerDuelService.CreateTournamentSinglePlayerDue(duel);
         return duel;
     }
+
     public void StartSingleDuel(SinglePlayerDuel duel)
     {
         if (duel.StartGame == DateTime.MinValue)
@@ -200,6 +202,7 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
             _singlePlayerDuelService.StartSinglePlayerDuel(duel);
         }
     }
+
     public List<SinglePlayerDuel>? GetSinglePlayerDuelsByTournamentsOrSparrings(int idTournament = 0)
     {
         var listSinglesPlayerDuels = new List<SinglePlayerDuel>();
@@ -221,6 +224,7 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
 
         return listSinglesPlayerDuels;
     }
+
     public void VievSinglePlayerDuelsByTournamentsOrSparrings(int idTournament = 0)
     {
         var title = string.Empty;
@@ -237,7 +241,6 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
             listSinglesPlayerDuels = _singlePlayerDuelService.GetAllSinglePlayerDuel()
              .Where(s => s.IdPlayerTournament == idTournament).ToList();
         }
-
 
         if (!listSinglesPlayerDuels.Any())
         {
@@ -277,6 +280,7 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
             ConsoleService.WriteLineMessage(FormatToTextDuelsView);
         }
     }
+
     public void EndSinglePlayerDuel(SinglePlayerDuel duel)
     {
         _singlePlayerDuelService.EndSinglePlayerDuel(duel);
@@ -322,7 +326,6 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
                         continue;
                     }
                     findDuelsStringTemp.Add(duelString);
-
                 }
                 findDuelsString.AddRange(findDuelsStringTemp);
                 findDuelsStringToView = findDuelsString;
@@ -458,7 +461,6 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
             {
                 break;
             }
-
         } while (true);
 
         return null;

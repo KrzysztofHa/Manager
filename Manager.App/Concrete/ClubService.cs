@@ -1,11 +1,6 @@
 ﻿using Manager.App.Abstract;
 using Manager.App.Common;
 using Manager.Domain.Entity;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Manager.App.Concrete;
 
@@ -21,6 +16,7 @@ public class ClubService : BaseService<Club>, IClubService
         }
         return findClubsList;
     }
+
     public Club AddClubAddress(Club club, Address address)
     {
         if (address != null && club != null)
@@ -43,6 +39,7 @@ public class ClubService : BaseService<Club>, IClubService
         }
         return club;
     }
+
     public string GetClubDetailView(Club club)
     {
         if (club != null)
@@ -63,6 +60,7 @@ public class ClubService : BaseService<Club>, IClubService
 
         return string.Empty;
     }
+
     public Club GetClubById(int idClub)
     {
         return GetItemById(idClub);

@@ -1,13 +1,8 @@
 ﻿using Manager.App.Abstract;
-using Manager.App.Common;
 using Manager.App.Concrete;
 using Manager.Consol.Concrete;
 using Manager.Domain.Entity;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Manager.App.Managers;
 
@@ -15,10 +10,12 @@ public class ClubManager : IClubManager
 {
     private readonly IClubService _clubService = new ClubService();
     private readonly MenuActionService _actionService;
+
     public ClubManager(MenuActionService actionService)
     {
         _actionService = actionService;
     }
+
     public Club SearchClub(string title)
     {
         List<Club> findClubsList = _clubService.SearchClub(" ");
@@ -62,13 +59,11 @@ public class ClubManager : IClubManager
 
             if (char.IsLetterOrDigit(keyFromUser.KeyChar))
             {
-
                 inputString.Append(keyFromUser.KeyChar);
 
                 if (inputString.Length == 1)
                 {
                     findClubsTemp = _clubService.SearchClub(inputString.ToString());
-
 
                     if (findClubsTemp.Any())
                     {
@@ -128,19 +123,21 @@ public class ClubManager : IClubManager
             {
                 break;
             }
-
         } while (true);
 
         return null;
     }
+
     public Club AddNewClub()
     {
         return AddOrUpdateClub();
     }
+
     public void UpdateClub()
     {
         AddOrUpdateClub(true);
     }
+
     private Club AddOrUpdateClub(bool isUpdateClub = false)
     {
         Club updateClub = new Club();
@@ -261,10 +258,8 @@ public class ClubManager : IClubManager
                         }
                         ConsoleService.WriteLineErrorMessage($"No option nr: " + inputInt);
                     }
-
                 } while (playerAddress.Country == null);
             }
-
         }
         if (isUpdateClub)
         {
@@ -281,5 +276,4 @@ public class ClubManager : IClubManager
 
         return updateClub;
     }
-
 }

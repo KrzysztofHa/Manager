@@ -8,11 +8,13 @@ public class Settings
 {
     private readonly IUserService _userService;
     private string UserName;
+
     public Settings(IUserService userService)
     {
         _userService = userService;
         UserName = Environment.UserName;
     }
+
     public void ChangeSettings()
     {
         var settingMenu = new MenuActionService().GetMenuActionsByName("Settings");
@@ -36,15 +38,18 @@ public class Settings
                 case 1:
                     ChangeDisplayName();
                     break;
+
                 case 2:
                     operation = null;
                     break;
+
                 case 3:
                     break;
 
                 case 6:
 
                     break;
+
                 default:
                     if (operation != null)
                     {
@@ -59,6 +64,7 @@ public class Settings
             }
         }
     }
+
     private void ChangeDisplayName()
     {
         ConsoleService.WriteTitle($"Display Name: {_userService.GetDisplayUserName()}");

@@ -1,10 +1,5 @@
 ﻿using Manager.App.Abstract;
 using Manager.App.Concrete;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Manager.Helpers;
 
@@ -18,6 +13,7 @@ public static class ActiveUserNameOrId
         IUserService userService = new UserService();
         return userService.GetDisplayUserName();
     }
+
     private static int GetID()
     {
         IUserService userService = new UserService();

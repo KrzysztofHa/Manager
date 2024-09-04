@@ -1,10 +1,8 @@
 ﻿using Manager.App.Abstract;
 using Manager.App.Common;
 using Manager.App.Concrete;
-using Manager.App.Concrete.Helpers;
 using Manager.Consol.Concrete;
 using Manager.Domain.Entity;
-using Manager.Helpers;
 
 namespace Manager.App.Managers;
 
@@ -14,6 +12,7 @@ public class SparringManager
     private readonly IPlayerManager _playerManager;
     private readonly IPlayerService _playerService;
     private readonly SinglePlayerDuelManager _singlePlayerDuelManager;
+
     public SparringManager(MenuActionService actionService, IPlayerManager playerManager, IPlayerService playerService)
     {
         _playerService = playerService;
@@ -21,6 +20,7 @@ public class SparringManager
         _playerManager = playerManager;
         _singlePlayerDuelManager = new SinglePlayerDuelManager(_playerManager, _playerService);
     }
+
     public void SparringOptionsView()
     {
         var optionPlayerMenu = _actionService.GetMenuActionsByName("Sparring");
@@ -38,15 +38,19 @@ public class SparringManager
                 case 1:
                     StartSparring();
                     break;
+
                 case 2:
                     StartSparring(_singlePlayerDuelManager.SearchInterruptedDuel());
                     break;
+
                 case 3:
                     AllSparring();
                     break;
+
                 case 4:
                     operation = null;
                     break;
+
                 default:
                     if (operation != null)
                     {
@@ -186,7 +190,6 @@ public class SparringManager
                     }
                     break;
                 }
-
             } while (frame.IdPlayerWinner == 0);
             frame = new Frame();
             frameService.AddItem(frame);

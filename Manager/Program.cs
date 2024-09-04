@@ -4,6 +4,7 @@ using Manager.App.Concrete;
 using Manager.App.Managers;
 using Manager.Consol.Concrete;
 using Manager.Helpers;
+
 internal class Program
 {
     public static void Main()
@@ -36,21 +37,27 @@ internal class Program
                 case 1:
                     playerManager.PlayerOptionView();
                     break;
+
                 case 2:
                     //Global Ranking
                     break;
+
                 case 3:
                     sparringManager.SparringOptionsView();
                     break;
+
                 case 4:
                     turnamentsManager.TournamentOptionsView();
                     break;
+
                 case 5:
                     settings.ChangeSettings();
                     break;
+
                 case 6:
                     operation = null;
                     break;
+
                 default:
                     if (operation != null)
                     {

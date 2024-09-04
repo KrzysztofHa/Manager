@@ -260,8 +260,11 @@ public class TurnamentsManager
     {
     }
 
-    private void RandomSelectionOfPlayers(Tournament tournament, PlayersToTournament playersToTournament, int numberOfGroups = 0)
+    private void RandomSelectionOfPlayers(Tournament tournament, PlayersToTournament playersToTournament)
     {
+        if (tournament.GameplaySystem == "Group")
+        {
+        }
     }
 
     private Tournament? CreateNewTournament()

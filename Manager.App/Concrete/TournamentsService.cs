@@ -1,12 +1,6 @@
 ﻿using Manager.App.Abstract;
 using Manager.App.Common;
-using Manager.App.Managers;
 using Manager.Domain.Entity;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Manager.App.Concrete;
 
@@ -32,7 +26,6 @@ public class TournamentsService : BaseService<Tournament>, ITournamentsService
             .Contains(searchString.ToLower()) && p.IsActive == true).OrderBy(i => i.Name).ToList();
         }
         return findTournaments;
-
     }
 
     public void StartTournament(Tournament tournament)

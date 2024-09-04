@@ -1,13 +1,6 @@
 ﻿using Manager.App.Abstract;
 using Manager.App.Common;
 using Manager.Domain.Entity;
-using Manager.Infrastructure.Abstract;
-using Manager.Infrastructure.Common;
-using System;
-using System.IO;
-using System.Net;
-using Xunit.Abstractions;
-
 
 namespace Manager.App;
 
@@ -35,17 +28,19 @@ public class PlayerService : BaseService<Player>, IPlayerService, IService<Playe
         }
         return player;
     }
+
     public Address GetPlayerAddress(Player player)
     {
         var address = new Address();
         IService<Address> addressServis = new BaseService<Address>();
         if (player != null)
         {
-            address = addressServis.GetItemById(player.IdAddress);            
+            address = addressServis.GetItemById(player.IdAddress);
         }
 
         return address;
     }
+
     public List<Player> ListOfActivePlayers()
     {
         return GetAllItem().FindAll(p => p.IsActive == true);
@@ -97,6 +92,5 @@ public class PlayerService : BaseService<Player>, IPlayerService, IService<Playe
         }
         RemoveItem(player);
         SaveList();
-
     }
 }

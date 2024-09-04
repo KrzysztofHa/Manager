@@ -8,6 +8,7 @@ namespace Manager.Tests.ManagerAppTest.PlayerServiceTest;
 public class PlayerServiceTest
 {
     public List<Player> PlayerList { get; set; }
+
     public PlayerServiceTest()
     {
         PlayerList = new List<Player>();
@@ -15,8 +16,8 @@ public class PlayerServiceTest
         {
             PlayerList.Add(new Player { Id = i, IsActive = true, FirstName = "Player" + i + 1 });
         }
-
     }
+
     [Fact]
     public void CantGetListofActivePlayer()
     {
@@ -31,6 +32,7 @@ public class PlayerServiceTest
         resulActivePlayertList.Should().NotBeEmpty();
         Assert.Equal(resulActivePlayertList[0], PlayerList[0]);
     }
+
     [Fact]
     public void CantGetListPlayersOfStringInput()
     {

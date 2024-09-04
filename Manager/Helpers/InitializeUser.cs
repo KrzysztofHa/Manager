@@ -10,11 +10,11 @@ public class InitializeUser
 
     public InitializeUser(IUserService userService)
     {
-
         _userService = userService;
         UserName = Environment.UserName;
         SetActiveUser();
     }
+
     public void SetActiveUser()
     {
         string welcome = "When you run the application for the first time,\r\n" +

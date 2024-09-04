@@ -35,21 +35,27 @@ public class PlayerManager : IPlayerManager
                     ListOfActivePlayersView();
                     ConsoleService.WriteLineMessageActionSuccess("Press Any Key");
                     break;
+
                 case 2:
                     SearchPlayer();
                     break;
+
                 case 3:
                     AddNewPlayer();
                     break;
+
                 case 4:
                     UpdatePlayer();
                     break;
+
                 case 5:
                     RemovePlayerView();
                     break;
+
                 case 6:
                     operation = null;
                     break;
+
                 default:
                     if (operation != null)
                     {
@@ -64,6 +70,7 @@ public class PlayerManager : IPlayerManager
             }
         }
     }
+
     public int RemovePlayerView()
     {
         var playerId = SearchPlayer($"Remove Player\r\n Search and Select Player To Remove");
@@ -81,6 +88,7 @@ public class PlayerManager : IPlayerManager
         }
         return -1;
     }
+
     public Player AddNewPlayer()
     {
         var player = new Player();
@@ -120,6 +128,7 @@ public class PlayerManager : IPlayerManager
 
         return player;
     }
+
     public Player UpdatePlayer()
     {
         Func<Player, bool> isPlayerExist = (player) =>
@@ -169,6 +178,7 @@ public class PlayerManager : IPlayerManager
 
         return player;
     }
+
     private Player? GetDataFromUser(Player player)
     {
         Address playerAddress = new Address();
@@ -200,7 +210,6 @@ public class PlayerManager : IPlayerManager
                     $" {playerAddress.Zip,-5}".Remove(6);
             var formatPlayerDataToView = $"{player.Id,-5}".Remove(5) + $" {player.FirstName,-20}".Remove(21) +
                $" {player.LastName,-20}".Remove(21) + formatAddressToView;
-
 
             ConsoleService.WriteTitle($"{title}\r\n{"ID",-6}{"First Name",-21}{"Last Name",-21}" +
                    $"{"Street",-11}{"Number",-11}{"City",-11}{"Country",-11}{"zip",-6}");
@@ -300,6 +309,7 @@ public class PlayerManager : IPlayerManager
         _playerService.AddPlayerAddress(player, playerAddress);
         return player;
     }
+
     public bool ListOfActivePlayersView()
     {
         var activePlayer = _playerService.ListOfActivePlayers();
@@ -319,6 +329,7 @@ public class PlayerManager : IPlayerManager
             return false;
         }
     }
+
     public Player? SearchPlayer(string title = "", List<Player> playersList = null)
     {
         StringBuilder inputString = new StringBuilder();
@@ -335,7 +346,7 @@ public class PlayerManager : IPlayerManager
             findPlayersTemp = playersList;
             findPlayers.AddRange(playersList);
         }
-        
+
         int maxEntriesToDisplay = 15;
         if (!findPlayers.Any())
         {
@@ -350,7 +361,7 @@ public class PlayerManager : IPlayerManager
         else
         {
             findPlayersToView = findPlayers;
-        }        
+        }
         var address = new Address();
         int indexSelectedPlayer = 0;
         title = string.IsNullOrWhiteSpace(title) ? "Search Player" : title;
@@ -487,7 +498,6 @@ public class PlayerManager : IPlayerManager
             {
                 break;
             }
-
         } while (true);
 
         return null;
