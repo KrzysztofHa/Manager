@@ -4,26 +4,27 @@ namespace Manager.Consol.Concrete;
 
 public static class ConsoleService
 {
-    public static int? GetIntNumberFromUser(string message)
+    public static int? GetIntNumberFromUser(string message, string messageBack = " ")
     {
-        if (int.TryParse(GetStringFromUser(message), out int inputUserInt))
+        if (int.TryParse(GetStringFromUser(message, messageBack), out int inputUserInt))
         {
             return inputUserInt;
         }
         return null;
     }
 
-    public static string GetStringFromUser(string message)
+    public static string GetStringFromUser(string message, string messageBack = " ")
     {
         ConsoleKeyInfo inputKey;
         var inputString = new StringBuilder();
-        Console.WriteLine($"{message}\n");
+        Console.WriteLine($"{message}\n\r");
         int customCursorLeft = Console.CursorLeft;
         int customCursorTop = Console.CursorTop;
 
         Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine("\nExit Press Escape (Esc)");
+        Console.WriteLine("\n\rExit Press Escape (Esc)");
         var endBuferPosition = Console.GetCursorPosition();
+        Console.WriteLine(messageBack);
         Console.ForegroundColor = ConsoleColor.Yellow;
 
         do
@@ -66,12 +67,13 @@ public static class ConsoleService
         return inputString.ToString();
     }
 
-    public static string GetRequiredStringFromUser(string message)
+    public static string GetRequiredStringFromUser(string message, string messageBack = " ")
     {
         var startCursorPosition = Console.GetCursorPosition();
+
         do
         {
-            var inputRequiredString = GetStringFromUser(message);
+            var inputRequiredString = GetStringFromUser(message, messageBack);
             if (inputRequiredString == string.Empty)
             {
                 WriteLineErrorMessage("This field is required");
@@ -84,6 +86,7 @@ public static class ConsoleService
             {
                 return inputRequiredString;
             }
+
             Console.SetCursorPosition(startCursorPosition.Left, startCursorPosition.Top);
         } while (true);
     }
@@ -181,11 +184,12 @@ public static class ConsoleService
         Console.CursorVisible = true;
     }
 
-    public static ConsoleKeyInfo GetKeyFromUser()
+    public static ConsoleKeyInfo GetKeyFromUser(string messageBack = " ")
     {
         var startCursorPosition = Console.GetCursorPosition();
         Console.CursorVisible = false;
         Console.ForegroundColor = ConsoleColor.Blue;
+        Console.WriteLine("\n\r" + messageBack);
         Console.SetCursorPosition(startCursorPosition.Left, startCursorPosition.Top);
         Console.WriteLine(string.Empty.PadLeft(Console.BufferWidth));
         Console.CursorVisible = false;

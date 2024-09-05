@@ -4,6 +4,8 @@ using Manager.App.Managers.Helpers;
 using Manager.App.Managers.Helpers.GamePlaySystem;
 using Manager.Consol.Concrete;
 using Manager.Domain.Entity;
+using System.Runtime.Serialization;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace Manager.App.Managers;
@@ -107,7 +109,8 @@ public class TurnamentsManager
                 ConsoleService.WriteLineMessage($"{i + 1}. {optionPlayerMenu[i].Name}");
             }
 
-            var operation = ConsoleService.GetIntNumberFromUser("Enter Option");
+            var operation = ConsoleService.GetIntNumberFromUser("Enter Option", ViewGroupsOr2KO(tournament, playersToTournament));
+
             switch (operation)
             {
                 case 1:
@@ -135,7 +138,7 @@ public class TurnamentsManager
                     break;
 
                 case 7:
-                    ViewListPlayersToTournament(tournament, playersToTournament.GetPlayerToTournament());
+                    ViewListPlayersToTournament(tournament, playersToTournament);
                     ConsoleService.GetKeyFromUser();
                     break;
 
@@ -173,9 +176,14 @@ public class TurnamentsManager
         int? enterNumber = 0;
         if (tournament.NumberOfPlayer < 8 || tournament.GameplaySystem == "2KO")
         {
+            ConsoleService.WriteLineErrorMessage("2KO Game System Set Change To Group");
             return;
         }
         ConsoleService.WriteTitle($"{tournament.NumberOfPlayer} Players allows the tournament to start:");
+        if (string.IsNullOrEmpty(tournament.GameplaySystem))
+        {
+            tournament.GameplaySystem = "Group";
+        }
         if (tournament.GameplaySystem == "Group")
         {
             if (tournament.NumberOfPlayer >= 8 && tournament.NumberOfPlayer < 10)
@@ -262,9 +270,52 @@ public class TurnamentsManager
 
     private void RandomSelectionOfPlayers(Tournament tournament, PlayersToTournament playersToTournament)
     {
-        if (tournament.GameplaySystem == "Group")
+        var randomList = new List<PlayerToTournament>();
+        randomList.AddRange(playersToTournament.ListPlayersToTournament);
+        var random = new Random();
+
+        while (randomList.Count > 0)
         {
+            var randomNumber = random.Next(0, randomList.Count);
+            var playerId = randomList[randomNumber].IdPLayer;
+            randomList.RemoveAt(randomNumber);
+            var player = playersToTournament.ListPlayersToTournament.First(p => p.IdPLayer == playerId);
+            player.TwoKO = (randomList.Count + 1).ToString();
         }
+
+        randomList.AddRange(playersToTournament.ListPlayersToTournament.OrderBy(p => p.TwoKO));
+
+        char group = (char)65;
+        if (tournament.GameplaySystem == "Group" && tournament.NumberOfGroups != 0)
+        {
+            int numberPlayersOfGroup = playersToTournament.ListPlayersToTournament.Count / tournament.NumberOfGroups;
+            for (int i = 0; i < tournament.NumberOfGroups; i++)
+            {
+                for (int j = 0; j < numberPlayersOfGroup; j++)
+                {
+                    playersToTournament.ListPlayersToTournament[i * numberPlayersOfGroup + j].Group = group.ToString().ToUpper();
+                }
+                group++;
+            }
+            var endPlayers = playersToTournament.ListPlayersToTournament.Count % tournament.NumberOfGroups;
+            group = (char)65;
+
+            for (int p = playersToTournament.ListPlayersToTournament.Count - endPlayers; p < playersToTournament.ListPlayersToTournament.Count; p++)
+            {
+                playersToTournament.ListPlayersToTournament[p].Group = group.ToString().ToUpper();
+
+                if (group == (char)65 + tournament.NumberOfGroups)
+                {
+                    group = (char)65;
+                }
+                else
+                {
+                    group++;
+                }
+            }
+        }
+
+        playersToTournament.SavePlayersToTournament();
     }
 
     private Tournament? CreateNewTournament()
@@ -328,7 +379,7 @@ public class TurnamentsManager
 
         while (true)
         {
-            ViewListPlayersToTournament(tournament, listPlayersToTournament);
+            ViewListPlayersToTournament(tournament, playersToTournament);
             ConsoleService.WriteLineMessage("Press Any Key To Add Next Player \n\r Or Escape (Esc) To Exit");
             var inputKey = ConsoleService.GetKeyFromUser();
             if (inputKey.Key == ConsoleKey.Escape)
@@ -338,10 +389,18 @@ public class TurnamentsManager
             var player = _playerManager.SearchPlayer("Add Player");
             if (player == null)
             {
-                if (ConsoleService.AnswerYesOrNo("you want to add a new player"))
+                if (ConsoleService.AnswerYesOrNo("You want to add a new player"))
                 {
+                    player = _playerManager.AddNewPlayer();
                 }
-                break;
+                else
+                {
+                    break;
+                }
+                if (player == null)
+                {
+                    return;
+                }
             }
 
             if (listPlayersToTournament.Any(p => p.IdPLayer == player.Id))
@@ -396,16 +455,15 @@ public class TurnamentsManager
         }
     }
 
-    public void ViewListPlayersToTournament(Tournament tournament, List<PlayerToTournament> playerToTournaments)
+    public void ViewListPlayersToTournament(Tournament tournament, PlayersToTournament playersToTournament)
     {
-        if (playerToTournaments.Any())
+        if (playersToTournament.ListPlayersToTournament.Any())
         {
             ConsoleService.WriteTitle($"List Players Of {tournament.Name}");
-            foreach (var player in playerToTournaments)
+            foreach (var player in playersToTournament.ListPlayersToTournament)
             {
-                var formatText = playerToTournaments
-                    .Where(s => playerToTournaments.IndexOf(s) == playerToTournaments.IndexOf(player))
-                    .Select(p => new { number = $"{playerToTournaments.IndexOf(player) + 1}. " }).First().number
+                var formatText = playersToTournament.ListPlayersToTournament
+                    .Select(p => new { number = $"{playersToTournament.ListPlayersToTournament.IndexOf(player) + 1}. " }).First().number
                      + $"{player.TinyFulName} {player.Country}";
                 ConsoleService.WriteLineMessage(formatText);
             }
@@ -415,6 +473,35 @@ public class TurnamentsManager
             ConsoleService.WriteTitle($"List Players Of {tournament.Name}");
             ConsoleService.WriteLineErrorMessage("Empty List");
         }
+    }
+
+    public string ViewGroupsOr2KO(Tournament tournament, PlayersToTournament playersToTournament)
+    {
+        var formatText = string.Empty;
+        if (tournament.GameplaySystem == "2KO")
+        {
+            if (playersToTournament.ListPlayersToTournament.Any(p => !string.IsNullOrEmpty(p.TwoKO)))
+            {
+                formatText = formatText + "\n\rStart List 2KO System\n\r";
+                foreach (var player in playersToTournament.ListPlayersToTournament.OrderBy(p => p.TwoKO))
+                {
+                    formatText = formatText + $"{player.TwoKO}. {player.TinyFulName}\n\r";
+                }
+            }
+        }
+        else if (tournament.GameplaySystem == "Group")
+        {
+            if (playersToTournament.ListPlayersToTournament.Any(p => !string.IsNullOrEmpty(p.TwoKO)))
+            {
+                formatText = formatText + "\n\rGroups\n\r";
+                foreach (var player in playersToTournament.ListPlayersToTournament.OrderBy(p => p.TwoKO))
+                {
+                    formatText = formatText + $"{player.TwoKO}. {player.TinyFulName}\n\r";
+                }
+            }
+        }
+
+        return formatText;
     }
 
     public void UpdateGamePlaySystem(Tournament tournament)
@@ -495,7 +582,7 @@ public class TurnamentsManager
             findTournamentToView = findTournament;
         }
         var address = new Address();
-        int indexSelectedPlayer = 0;
+        int indexSelectedTournament = 0;
         title = string.IsNullOrWhiteSpace(title) ? "Search Tournament" : title;
 
         var headTableToview = title + $"\r\n    {" LP",-5}{"ID",-6}{"Name",-21}" +
@@ -506,7 +593,7 @@ public class TurnamentsManager
 
             foreach (var tournament in findTournamentToView)
             {
-                var formmatStringToView = findTournament.IndexOf(tournament) == indexSelectedPlayer ?
+                var formmatStringToView = findTournament.IndexOf(tournament) == indexSelectedTournament ?
                     "\r\n---> " + $"{findTournament.IndexOf(tournament) + 1,-5}".Remove(4) + _tournamentsService.GetTournamentDetailView(tournament) + $" <----\r\n" :
                     "     " + $"{findTournament.IndexOf(tournament) + 1,-5}".Remove(4) + _tournamentsService.GetTournamentDetailView(tournament);
 
@@ -516,7 +603,7 @@ public class TurnamentsManager
             ConsoleService.WriteLineMessage($"\r\n------(Found {findTournament.Count} Tournament)-------\r\n" + inputString.ToString());
             ConsoleService.WriteLineMessage(@"Enter string move UP or Down  and  press enter to Select");
 
-            var keyFromUser = ConsoleService.GetKeyFromUser();
+            var keyFromUser = ConsoleService.GetKeyFromUser("Id Selected Tournament:" + indexSelectedTournament);
 
             if (char.IsLetterOrDigit(keyFromUser.KeyChar))
             {
@@ -543,7 +630,7 @@ public class TurnamentsManager
                             {
                                 findTournamentToView = findTournament;
                             }
-                            indexSelectedPlayer = 0;
+                            indexSelectedTournament = 0;
                         }
                         else
                         {
@@ -566,7 +653,7 @@ public class TurnamentsManager
                             {
                                 findTournamentToView = findTournament;
                             }
-                            indexSelectedPlayer = 0;
+                            indexSelectedTournament = 0;
                         }
                         else
                         {
@@ -582,11 +669,11 @@ public class TurnamentsManager
                 findTournament.Clear();
                 findTournament.AddRange([.. findTournamentTemp.Where(p => $"{p.Id} {p.Name} {p.GameplaySystem}".ToLower()
                     .Contains(inputString.ToString().ToLower())).OrderBy(i => i.Name)]);
-                indexSelectedPlayer = 0;
+                indexSelectedTournament = 0;
             }
-            else if (keyFromUser.Key == ConsoleKey.DownArrow && indexSelectedPlayer <= findTournament.Count - 2)
+            else if (keyFromUser.Key == ConsoleKey.DownArrow && indexSelectedTournament <= findTournament.Count - 2)
             {
-                if (indexSelectedPlayer >= maxEntriesToDisplay - 1)
+                if (indexSelectedTournament >= maxEntriesToDisplay - 1)
                 {
                     if (findTournament.IndexOf(findTournamentToView.First()) != findTournament.Count - maxEntriesToDisplay)
                     {
@@ -596,9 +683,9 @@ public class TurnamentsManager
                         findTournamentToView = findTournament.GetRange(startIndex, maxEntriesToDisplay);
                     }
                 }
-                indexSelectedPlayer++;
+                indexSelectedTournament++;
             }
-            else if (keyFromUser.Key == ConsoleKey.UpArrow && indexSelectedPlayer > 0)
+            else if (keyFromUser.Key == ConsoleKey.UpArrow && indexSelectedTournament > 0)
             {
                 if (findTournament.IndexOf(findTournamentToView.First()) != findTournament.IndexOf(findTournament.First()))
                 {
@@ -606,11 +693,11 @@ public class TurnamentsManager
                     findTournamentToView.Clear();
                     findTournamentToView = findTournament.GetRange(findTournament.IndexOf(nextPlayer) - 1, maxEntriesToDisplay);
                 }
-                indexSelectedPlayer--;
+                indexSelectedTournament--;
             }
             else if (keyFromUser.Key == ConsoleKey.Enter && findTournament.Any())
             {
-                var findTournamentToSelect = findTournament.First(p => findTournament.IndexOf(p) == indexSelectedPlayer);
+                var findTournamentToSelect = findTournament.First(p => findTournament.IndexOf(p) == indexSelectedTournament);
                 ConsoleService.WriteTitle(headTableToview);
                 ConsoleService.WriteLineMessage($"{_tournamentsService.GetTournamentDetailView(findTournamentToSelect),106}");
 
