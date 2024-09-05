@@ -506,11 +506,6 @@ public class TurnamentsManager
 
     public void UpdateGamePlaySystem(Tournament tournament)
     {
-        if (tournament.GameplaySystem != null)
-        {
-            tournament.GameplaySystem = null;
-            tournament.NumberOfGroups = 0;
-        }
         AddGamePlaySystem(tournament);
         _tournamentsService.UpdateItem(tournament);
         _tournamentsService.SaveList();

@@ -404,11 +404,13 @@ public class PlayerManager : IPlayerManager
 
                     if (inputString.Length == 1)
                     {
-                        if (findPlayersTemp.Any())
+                        findPlayers.Clear(); 
+
+                        findPlayers.AddRange([.. findPlayersTemp.Where(p => $"{p.Id} {p.FirstName} {p.LastName}".ToLower().
+                            Contains(inputString.ToString().ToLower())).OrderBy(i => i.FirstName)]);
+
+                        if (findPlayers.Any())
                         {
-                            findPlayers.Clear();
-                            findPlayers.AddRange(findPlayersTemp);
-                            findPlayersToView.Clear();
                             if (findPlayers.Count >= maxEntriesToDisplay - 1)
                             {
                                 findPlayersToView = findPlayers.GetRange(0, maxEntriesToDisplay);
@@ -421,6 +423,17 @@ public class PlayerManager : IPlayerManager
                         }
                         else
                         {
+                            findPlayers.AddRange(findPlayersTemp);
+
+                            if (findPlayers.Count >= maxEntriesToDisplay - 1)
+                            {
+                                findPlayersToView = findPlayers.GetRange(0, maxEntriesToDisplay);
+                            }
+                            else
+                            {
+                                findPlayersToView = findPlayers;
+                            }
+                            indexSelectedPlayer = 0;
                             inputString.Remove(inputString.Length - 1, 1);
                         }
                     }
@@ -435,7 +448,7 @@ public class PlayerManager : IPlayerManager
                             Contains(inputString.ToString().ToLower())).OrderBy(i => i.FirstName)]);
                             ConsoleService.WriteLineErrorMessage("No entry found !!!");
                         }
-                        findPlayersToView.Clear();
+
                         if (findPlayers.Count >= maxEntriesToDisplay - 1)
                         {
                             findPlayersToView = findPlayers.GetRange(0, maxEntriesToDisplay);
@@ -452,10 +465,20 @@ public class PlayerManager : IPlayerManager
             {
                 inputString.Remove(inputString.Length - 1, 1);
 
-                if (!string.IsNullOrEmpty(inputString.ToString()))
+                if (string.IsNullOrEmpty(inputString.ToString()))
                 {
                     findPlayers = [.. findPlayersTemp.Where(p => $"{p.Id} {p.FirstName} {p.LastName}".ToLower()
                     .Contains(inputString.ToString().ToLower())).OrderBy(i => i.FirstName)];
+
+                    if (findPlayers.Count >= maxEntriesToDisplay - 1)
+                    {
+                        findPlayersToView = findPlayers.GetRange(0, maxEntriesToDisplay);
+                    }
+                    else
+                    {
+                        findPlayersToView = findPlayers;
+                    }
+
                     indexSelectedPlayer = 0;
                 }
             }
