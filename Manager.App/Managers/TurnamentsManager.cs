@@ -4,6 +4,7 @@ using Manager.App.Managers.Helpers;
 using Manager.App.Managers.Helpers.GamePlaySystem;
 using Manager.Consol.Concrete;
 using Manager.Domain.Entity;
+using System.Numerics;
 using System.Runtime.Serialization;
 using System.Security.Cryptography;
 using System.Text;
@@ -261,6 +262,7 @@ public class TurnamentsManager
         }
 
         tournament.NumberOfGroups = numberOfGroups;
+        RandomSelectionOfPlayers(tournament, playersToTournament);
         _tournamentsService.SaveList();
     }
 
@@ -281,28 +283,30 @@ public class TurnamentsManager
             randomList.RemoveAt(randomNumber);
             var player = playersToTournament.ListPlayersToTournament.First(p => p.IdPLayer == playerId);
             player.TwoKO = (randomList.Count + 1).ToString();
+            player.Position = randomList.Count + 1;
         }
 
+        playersToTournament.SavePlayersToTournament();
         randomList.AddRange(playersToTournament.ListPlayersToTournament.OrderBy(p => p.TwoKO));
 
         char group = (char)65;
         if (tournament.GameplaySystem == "Group" && tournament.NumberOfGroups != 0)
         {
-            int numberPlayersOfGroup = playersToTournament.ListPlayersToTournament.Count / tournament.NumberOfGroups;
+            int numberPlayersOfGroup = randomList.Count / tournament.NumberOfGroups;
             for (int i = 0; i < tournament.NumberOfGroups; i++)
             {
                 for (int j = 0; j < numberPlayersOfGroup; j++)
                 {
-                    playersToTournament.ListPlayersToTournament[i * numberPlayersOfGroup + j].Group = group.ToString().ToUpper();
+                    randomList[i * numberPlayersOfGroup + j].Group = group.ToString().ToUpper();
                 }
                 group++;
             }
-            var endPlayers = playersToTournament.ListPlayersToTournament.Count % tournament.NumberOfGroups;
+            var endPlayers = randomList.Count % tournament.NumberOfGroups;
             group = (char)65;
 
-            for (int p = playersToTournament.ListPlayersToTournament.Count - endPlayers; p < playersToTournament.ListPlayersToTournament.Count; p++)
+            for (int p = randomList.Count - endPlayers; p < randomList.Count; p++)
             {
-                playersToTournament.ListPlayersToTournament[p].Group = group.ToString().ToUpper();
+                randomList[p].Group = group.ToString().ToUpper();
 
                 if (group == (char)65 + tournament.NumberOfGroups)
                 {
@@ -315,6 +319,7 @@ public class TurnamentsManager
             }
         }
 
+        playersToTournament.ListPlayersToTournament = randomList;
         playersToTournament.SavePlayersToTournament();
     }
 
@@ -409,15 +414,24 @@ public class TurnamentsManager
             }
             else
             {
+                PlayerToTournament newPlayer = new(player, "------");
                 var playeraddress = _playerService.GetPlayerAddress(player);
-                if (playeraddress == null)
+
+                if (listPlayersToTournament.Any(p => !string.IsNullOrEmpty(p.Group)))
                 {
-                    listPlayersToTournament.Add(new PlayerToTournament(player, "------"));
+                    var groupingPlayers = listPlayersToTournament
+                   .GroupBy(group => group.Group, group => group).OrderBy(p => p.Count());
+                    newPlayer.Position = groupingPlayers.First().Count();
+                    newPlayer.TwoKO = newPlayer.Position.ToString();
+                    newPlayer.Group = groupingPlayers.First().Key;
                 }
-                else
+
+                if (playeraddress != null)
                 {
-                    listPlayersToTournament.Add(new PlayerToTournament(player, playeraddress.Country));
+                    newPlayer.Country = playeraddress.Country;
                 }
+
+                listPlayersToTournament.Add(newPlayer);
             }
         }
         tournament.NumberOfPlayer = listPlayersToTournament.Count;
@@ -480,12 +494,19 @@ public class TurnamentsManager
         var formatText = string.Empty;
         if (tournament.GameplaySystem == "2KO")
         {
+            int numberOfWriteLine = 0;
+            int numberOfItem = 5;
             if (playersToTournament.ListPlayersToTournament.Any(p => !string.IsNullOrEmpty(p.TwoKO)))
             {
-                formatText = formatText + "\n\rStart List 2KO System\n\r";
-                foreach (var player in playersToTournament.ListPlayersToTournament.OrderBy(p => p.TwoKO))
+                formatText += $"\n\rStart List 2KO System\n\r\n\r";
+                foreach (var player in playersToTournament.ListPlayersToTournament.OrderBy(p => p.Position))
                 {
-                    formatText = formatText + $"{player.TwoKO}. {player.TinyFulName}\n\r";
+                    if (numberOfWriteLine == numberOfItem + numberOfWriteLine)
+                    {
+                        formatText += "\n\r";
+                    }
+                    formatText += $"{player.TwoKO}. {player.TinyFulName}".Remove(20);
+                    numberOfItem++;
                 }
             }
         }
@@ -493,10 +514,39 @@ public class TurnamentsManager
         {
             if (playersToTournament.ListPlayersToTournament.Any(p => !string.IsNullOrEmpty(p.TwoKO)))
             {
-                formatText = formatText + "\n\rGroups\n\r";
-                foreach (var player in playersToTournament.ListPlayersToTournament.OrderBy(p => p.TwoKO))
+                if (playersToTournament.ListPlayersToTournament.Any(p => string.IsNullOrEmpty(p.Group)))
                 {
-                    formatText = formatText + $"{player.TwoKO}. {player.TinyFulName}\n\r";
+                    return formatText;
+                }
+                var groupingPlayer = playersToTournament.ListPlayersToTournament
+                    .GroupBy(group => group.Group, group => group).ToList();
+
+                List<PlayerToTournament> formatList = new List<PlayerToTournament>();
+                decimal numberLine = playersToTournament.ListPlayersToTournament.Count / tournament.NumberOfGroups;
+
+                formatText += "\n\r";
+                for (int i = 0; i < tournament.NumberOfGroups; i++)
+                {
+                    formatText += $"Group: {groupingPlayer[i].Key,-23}";
+                }
+
+                formatText += "\n\r";
+                for (var j = 0; j <= Math.Floor(numberLine); j++)
+                {
+                    formatText += "\n\r";
+                    for (var i = 0; i < tournament.NumberOfGroups; i++)
+                    {
+                        var player = groupingPlayer[i].Select(p => p).Except(formatList).FirstOrDefault();
+                        if (player != null)
+                        {
+                            formatList.Add(player);
+                            formatText += $"{player.TinyFulName}";
+                        }
+                        else
+                        {
+                            formatText += $"{" ",-30}";
+                        }
+                    }
                 }
             }
         }
@@ -514,7 +564,8 @@ public class TurnamentsManager
     private bool AddGamePlaySystem(Tournament tournament)
     {
         string[] settings = ["Gameplay System"];
-
+        var esc = tournament.GameplaySystem.ToString();
+        tournament.GameplaySystem = null;
         foreach (string setting in settings)
         {
             if (setting == "Gameplay System")
@@ -545,6 +596,7 @@ public class TurnamentsManager
                     }
                     else if (inputKey.Key == ConsoleKey.Escape)
                     {
+                        tournament.GameplaySystem = esc;
                         return false;
                     }
                 } while (tournament.GameplaySystem == null);
