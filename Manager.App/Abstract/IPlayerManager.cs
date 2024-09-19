@@ -8,7 +8,7 @@ namespace Manager.App.Abstract
 
         Player UpdatePlayer();
 
-        Player SearchPlayer(string title = "", List<Player> playersList = null);
+        Player SearchPlayer(string title = "", List<Player> exeptPlayerList = null, List<Player> playersList = null);
 
         void PlayerOptionView();
     }

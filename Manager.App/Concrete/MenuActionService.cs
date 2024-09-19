@@ -41,21 +41,24 @@ public class MenuActionService : BaseService<MenuAction>
 
         AddItem(new MenuAction(4100, "League Not implemented", "Tournaments"));
         AddItem(new MenuAction(4200, "Create New Tournament", "Tournaments"));
-        AddItem(new MenuAction(4300, "Start Or Resume Tournament", "Tournaments"));
+        AddItem(new MenuAction(4300, "Go To Tournament", "Tournaments"));
         AddItem(new MenuAction(4400, "All Tournaments", "Tournaments"));
-        AddItem(new MenuAction(4500, "Delete Tournaments Not Implemented", "Tournaments"));
+        AddItem(new MenuAction(4500, "Delete Tournaments", "Tournaments"));
 
         AddItem(new MenuAction(4110, "Players Not implemented", "League"));
         AddItem(new MenuAction(4120, "League Ranking Not implemented", "League"));
 
-        AddItem(new MenuAction(4310, "Add Players", "Start Tournament"));
-        AddItem(new MenuAction(4320, "Delete Player", "Start Tournament"));
-        AddItem(new MenuAction(4330, "Set Number Of Groups", "Start Tournament"));
-        AddItem(new MenuAction(4340, "Edit Groups Not Implemented", "Start Tournament"));
-        AddItem(new MenuAction(4350, "Chenge The Game System", "Start Tournament"));
-        AddItem(new MenuAction(4360, "Random Selection Of Players", "Start Tournament"));
-        AddItem(new MenuAction(4370, "Players", "Start Tournament"));
-        AddItem(new MenuAction(4380, "Reset Not Implemented", "Start Tournament"));
+        AddItem(new MenuAction(4310, "Add Players", "Go To Tournament"));
+        AddItem(new MenuAction(4320, "Delete Player", "Go To Tournament"));
+        AddItem(new MenuAction(4330, "Set Number Of Groups", "Go To Tournament"));
+        AddItem(new MenuAction(4340, "Edit Groups Or 2KO List", "Go To Tournament"));
+        AddItem(new MenuAction(4350, "Chenge The Game System", "Go To Tournament"));
+        AddItem(new MenuAction(4360, "Random Selection Of Players", "Go To Tournament"));
+        AddItem(new MenuAction(4370, "Players", "Go To Tournament"));
+        AddItem(new MenuAction(4380, "Start Tournament", "Go To Tournament"));
+
+        AddItem(new MenuAction(4341, "Move Player", "Edit Groups"));
+        AddItem(new MenuAction(4342, "Reset Changes", "Edit Groups"));
 
         AddItem(new MenuAction(5100, "Change Display Name", "Settings"));
 

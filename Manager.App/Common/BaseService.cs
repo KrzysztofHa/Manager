@@ -42,8 +42,11 @@ public class BaseService<T> : IService<T> where T : BaseEntity
 
     public void RemoveItem(T item)
     {
-        item.ModifiedDateTime = DateTime.Now;
-        item.IsActive = false;
+        if (Items.Any() && item != null)
+        {
+            item.ModifiedDateTime = DateTime.Now;
+            item.IsActive = false;
+        }
     }
 
     public int UpdateItem(T item)

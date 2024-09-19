@@ -183,17 +183,15 @@ public class PlayerManager : IPlayerManager
     {
         Address playerAddress = new Address();
         string title = string.Empty;
-        var isUpdatePlayer = player.Id != 0 ? true : false;
+        var isUpdatePlayer = player.Id != 0 & player.Id > 0 ? true : false;
         if (isUpdatePlayer)
         {
             title = "Update Player";
             playerAddress = _playerService.GetPlayerAddress(player);
-            if (player.Id != 0)
+            if (playerAddress == null)
             {
-                if (player == null)
-                {
-                    return null;
-                }
+                playerAddress = new();
+                player.IdAddress = playerAddress.Id;
             }
         }
         else
@@ -220,7 +218,7 @@ public class PlayerManager : IPlayerManager
             {
                 if (isUpdatePlayer)
                 {
-                    updateString = ConsoleService.GetStringFromUser($"----- \r\n" + propertyItem);
+                    updateString = ConsoleService.GetStringFromUser($"----- \r\n\n\r" + propertyItem, $"Press Enter to skip to the next one.");
                 }
                 else
                 {
@@ -330,7 +328,7 @@ public class PlayerManager : IPlayerManager
         }
     }
 
-    public Player? SearchPlayer(string title = "", List<Player> playersList = null)
+    public Player? SearchPlayer(string title = "", List<Player> playersList = null, List<Player> exeptPlayersList = null)
     {
         StringBuilder inputString = new StringBuilder();
         List<Player> findPlayers = new();
@@ -338,8 +336,16 @@ public class PlayerManager : IPlayerManager
 
         if (playersList == null)
         {
-            findPlayers = _playerService.SearchPlayer(" ");
-            findPlayersTemp.AddRange(findPlayers);
+            var findPlayersExept = _playerService.SearchPlayer(" ");
+            if (exeptPlayersList != null)
+            {
+                findPlayers = findPlayersExept.Except(exeptPlayersList).ToList();
+            }
+            else
+            {
+                findPlayers = findPlayersExept;
+            }
+            findPlayersTemp.AddRange(findPlayersExept);
         }
         else
         {
@@ -354,7 +360,7 @@ public class PlayerManager : IPlayerManager
             return null;
         }
         List<Player> findPlayersToView = new List<Player>();
-        if (findPlayers.Count >= maxEntriesToDisplay - 1)
+        if (findPlayers.Count >= maxEntriesToDisplay - 1 && findPlayers.Count >= maxEntriesToDisplay)
         {
             findPlayersToView = findPlayers.GetRange(0, maxEntriesToDisplay);
         }
@@ -404,7 +410,7 @@ public class PlayerManager : IPlayerManager
 
                     if (inputString.Length == 1)
                     {
-                        findPlayers.Clear(); 
+                        findPlayers.Clear();
 
                         findPlayers.AddRange([.. findPlayersTemp.Where(p => $"{p.Id} {p.FirstName} {p.LastName}".ToLower().
                             Contains(inputString.ToString().ToLower())).OrderBy(i => i.FirstName)]);

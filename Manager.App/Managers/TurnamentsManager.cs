@@ -4,9 +4,7 @@ using Manager.App.Managers.Helpers;
 using Manager.App.Managers.Helpers.GamePlaySystem;
 using Manager.Consol.Concrete;
 using Manager.Domain.Entity;
-using System.Numerics;
-using System.Runtime.Serialization;
-using System.Security.Cryptography;
+using Microsoft.VisualBasic;
 using System.Text;
 
 namespace Manager.App.Managers;
@@ -49,15 +47,12 @@ public class TurnamentsManager
                     var tournament = CreateNewTournament();
                     if (tournament != null)
                     {
-                        if (ConsoleService.AnswerYesOrNo("Start tournament now ?"))
-                        {
-                            StartTournament(tournament);
-                        }
+                        GoToTournament(tournament);
                     }
                     break;
 
                 case 3:
-                    StartTournament(SearchTournament());
+                    GoToTournament(SearchTournament());
                     break;
 
                 case 4:
@@ -65,7 +60,7 @@ public class TurnamentsManager
                     break;
 
                 case 5:
-                    //delete tournament
+                    DeleteTournament();
                     break;
 
                 case 6:
@@ -75,7 +70,7 @@ public class TurnamentsManager
                 default:
                     if (operation != null)
                     {
-                        ConsoleService.WriteLineErrorMessage("Enter a valid operation ID");
+                        ConsoleService.WriteLineErrorMessage("Enter a valid operation ID\n\rPress Any Key...");
                     }
                     break;
             }
@@ -87,14 +82,14 @@ public class TurnamentsManager
         }
     }
 
-    public void StartTournament(Tournament tournament)
+    public void GoToTournament(Tournament tournament)
     {
         if (tournament == null)
         {
             return;
         }
         PlayersToTournament playersToTournament = new(tournament, _tournamentsService);
-        var optionPlayerMenu = _actionService.GetMenuActionsByName("Start Tournament");
+        var optionPlayerMenu = _actionService.GetMenuActionsByName("Go To Tournament");
         while (true)
         {
             ConsoleService.WriteTitle($"Tournaments {tournament.Name} | Game System: {tournament.GameplaySystem}");
@@ -102,7 +97,7 @@ public class TurnamentsManager
 
             if (tournament.NumberOfPlayer < 8)
             {
-                ConsoleService.WriteLineErrorMessage("Minimum 8 players to start the tournament");
+                ConsoleService.WriteLineErrorMessage("Minimum 8 players to start the tournament\n\rPress Any Key...");
             }
 
             for (int i = 0; i < optionPlayerMenu.Count; i++)
@@ -127,7 +122,7 @@ public class TurnamentsManager
                     break;
 
                 case 4:
-                    //edit groups
+                    EditGroupsOr2KOList(tournament, playersToTournament);
                     break;
 
                 case 5:
@@ -154,13 +149,13 @@ public class TurnamentsManager
                 default:
                     if (operation == null)
                     {
-                        if (ConsoleService.AnswerYesOrNo("You want to Exit ?"))
+                        if (ConsoleService.AnswerYesOrNo("You want to Exit?"))
                         {
                             break;
                         }
                         operation = 0;
                     }
-                    ConsoleService.WriteLineErrorMessage("Enter a valid operation ID");
+                    ConsoleService.WriteLineErrorMessage("Enter a valid operation ID\n\rPress Any Key...");
                     break;
             }
 
@@ -171,13 +166,19 @@ public class TurnamentsManager
         }
     }
 
+    public void DeleteTournament()
+    {
+        _tournamentsService.RemoveItem(SearchTournament());
+        _tournamentsService.SaveList();
+    }
+
     private void SetGroups(Tournament tournament, PlayersToTournament playersToTournament)
     {
         int numberOfGroups = 0;
         int? enterNumber = 0;
         if (tournament.NumberOfPlayer < 8 || tournament.GameplaySystem == "2KO")
         {
-            ConsoleService.WriteLineErrorMessage("2KO Game System Set Change To Group");
+            ConsoleService.WriteLineErrorMessage("2KO Game System Set. Change To Group\n\rPress Any Key...");
             return;
         }
         ConsoleService.WriteTitle($"{tournament.NumberOfPlayer} Players allows the tournament to start:");
@@ -257,7 +258,7 @@ public class TurnamentsManager
         }
         else if (numberOfGroups == 0)
         {
-            ConsoleService.WriteLineErrorMessage("Something went wrong, please try again");
+            ConsoleService.WriteLineErrorMessage("Something went wrong, please try again\n\rPress Any Key...");
             return;
         }
 
@@ -266,8 +267,168 @@ public class TurnamentsManager
         _tournamentsService.SaveList();
     }
 
-    private void EditGroups()
+    private void EditGroupsOr2KOList(Tournament tournament, PlayersToTournament playersToTournament)
     {
+        var optionPlayerMenu = _actionService.GetMenuActionsByName("Edit Groups");
+        var title = tournament.GameplaySystem == "Group" ? "Edit Groups" : "Edit 2KO List";
+
+        while (true)
+        {
+            ConsoleService.WriteTitle(title);
+            ConsoleService.WriteLineMessage(ViewGroupsOr2KO(tournament, playersToTournament));
+            if (playersToTournament.ListPlayersToTournament.Count == 0)
+            {
+                ConsoleService.WriteLineErrorMessage("Empty List Of Player\n\rPress Any Key...");
+                return;
+            }
+            ConsoleService.WriteLineMessage("\n\r=====================");
+
+            for (int i = 0; i < optionPlayerMenu.Count; i++)
+            {
+                ConsoleService.WriteLineMessage($"{i + 1}. {optionPlayerMenu[i].Name}");
+            }
+
+            var operation = ConsoleService.GetIntNumberFromUser("\n\rEnter Option");
+            switch (operation)
+            {
+                case 1:
+                    MovePlayer(tournament, playersToTournament);
+                    break;
+
+                case 2:
+                    playersToTournament.LoadList(tournament);
+                    break;
+
+                case 3:
+                    operation = null;
+                    break;
+
+                default:
+                    if (operation == null)
+                    {
+                        if (!ConsoleService.AnswerYesOrNo("Exit To Tournament Menu?"))
+                        {
+                            ConsoleService.WriteLineErrorMessage("Enter a valid operation ID\n\rPress Any Key...");
+                            operation = 0;
+                        }
+                    }
+                    break;
+            }
+
+            if (operation == null)
+            {
+                if (ConsoleService.AnswerYesOrNo("Save Changes?"))
+                {
+                    playersToTournament.SavePlayersToTournament();
+                }
+                else
+                {
+                    if (!ConsoleService.AnswerYesOrNo("Back to Edit?"))
+                    {
+                        ConsoleService.WriteLineErrorMessage("Changes Not Save!\n\rPress Any Key...");
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    private void MovePlayer(Tournament tournament, PlayersToTournament playersToTournament)
+    {
+        List<Player> players = new List<Player>();
+        foreach (var playerToTournament in playersToTournament.ListPlayersToTournament)
+        {
+            var player = _playerService.GetItemById(playerToTournament.IdPLayer);
+            if (player != null)
+            {
+                players.Add(player);
+            }
+        }
+
+        if (players.Count > 0)
+        {
+            var player = _playerManager.SearchPlayer("Select Player To Move", players);
+            if (player == null)
+            {
+                return;
+            }
+            var playerToMove = playersToTournament.ListPlayersToTournament.FirstOrDefault(p => p.IdPLayer == player.Id);
+
+            if (playerToMove != null)
+            {
+                ConsoleService.WriteTitle("Move Player");
+                ConsoleService.WriteLineMessage(ViewGroupsOr2KO(tournament, playersToTournament));
+
+                if (tournament.GameplaySystem == "Group")
+                {
+                    string groups = string.Empty;
+
+                    var groupingPlayer = playersToTournament.ListPlayersToTournament.GroupBy(p => p.Group);
+                    if (tournament.NumberOfGroups == 2)
+                    {
+                        playerToMove.Group = groupingPlayer.First(g => g.Key != playerToMove.Group).Key;
+                    }
+                    else
+                    {
+                        var groupsList = groupingPlayer.Select(g => g.Key)
+                                               .Where(group => group != playerToMove.Group)
+                                               .ToList();
+                        groups = string.Join(",", groupsList);
+
+                        var key = ConsoleService.GetKeyFromUser($"{playerToMove.TinyFulName} Group: {playerToMove.Group}\n\r" +
+                            $"Press Key {groups}");
+                        var s = key.KeyChar.ToString().ToUpper();
+                        if (groupingPlayer.Any(g => g.Key == key.KeyChar.ToString().ToUpper()) && key.KeyChar.ToString().ToUpper() != playerToMove.Group)
+                        {
+                            playerToMove.Group = key.KeyChar.ToString().ToUpper();
+                        }
+                    }
+                }
+                else
+                {
+                    ConsoleService.WriteTitle("Move Player");
+                    ConsoleService.WriteLineMessage(ViewGroupsOr2KO(tournament, playersToTournament));
+                    var newPosition = ConsoleService.GetIntNumberFromUser("Enter New Position", $"\n\r{ViewPlayerToTournamentDetail(playerToMove)}");
+
+                    if (newPosition > 0 && newPosition != null && newPosition <= playersToTournament.ListPlayersToTournament.Count)
+                    {
+                        if (newPosition > playerToMove.Position)
+                        {
+                            for (int i = playerToMove.Position + 1; i <= (int)newPosition; i++)
+                            {
+                                var playerToChange = playersToTournament.ListPlayersToTournament
+                                .First(p => p.Position == i);
+                                playerToChange.Position = i - 1;
+                                playerToChange.TwoKO = playerToChange.Position.ToString();
+
+                                if (i == newPosition)
+                                {
+                                    playerToMove.Position = (int)newPosition;
+                                    playerToMove.TwoKO = playerToMove.Position.ToString();
+                                }
+                            }
+                        }
+                        else if (newPosition < playerToMove.Position)
+                        {
+                            for (int i = playerToMove.Position - 1; i >= (int)newPosition; i--)
+                            {
+                                var playerToChange = playersToTournament.ListPlayersToTournament
+                                .First(p => p.Position == i);
+
+                                playerToChange.Position = i + 1;
+                                playerToChange.TwoKO = playerToChange.Position.ToString();
+
+                                if (i == newPosition)
+                                {
+                                    playerToMove.Position = (int)newPosition;
+                                    playerToMove.TwoKO = playerToMove.Position.ToString();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private void RandomSelectionOfPlayers(Tournament tournament, PlayersToTournament playersToTournament)
@@ -340,7 +501,7 @@ public class TurnamentsManager
             }
             else if (_tournamentsService.GetAllItem().Any(t => t.Name.Equals(tournament.Name)))
             {
-                ConsoleService.WriteLineErrorMessage("The entered name is already use. Please enter a different name.");
+                ConsoleService.WriteLineErrorMessage("The entered name is already use. Please enter a different name.\n\rPress Any Key...");
             }
             else
             {
@@ -380,7 +541,19 @@ public class TurnamentsManager
 
     private void AddPlayersToTournament(Tournament tournament, PlayersToTournament playersToTournament)
     {
-        List<PlayerToTournament> listPlayersToTournament = playersToTournament.ListPlayersToTournament;
+        List<PlayerToTournament> listPlayersToTournament = playersToTournament.ListPlayersToTournament.OrderBy(p => p.Position).ToList();
+        List<Player> players = new List<Player>();
+        if (playersToTournament != null)
+        {
+            foreach (var playerToTournament in playersToTournament.ListPlayersToTournament)
+            {
+                var player = _playerService.GetItemById(playerToTournament.IdPLayer);
+                if (player != null)
+                {
+                    players.Add(player);
+                }
+            }
+        }
 
         while (true)
         {
@@ -391,7 +564,7 @@ public class TurnamentsManager
             {
                 break;
             }
-            var player = _playerManager.SearchPlayer("Add Player");
+            var player = _playerManager.SearchPlayer("Add Player", null, players);
             if (player == null)
             {
                 if (ConsoleService.AnswerYesOrNo("You want to add a new player"))
@@ -407,23 +580,35 @@ public class TurnamentsManager
                     return;
                 }
             }
+            var playeraddress = _playerService.GetPlayerAddress(player);
 
             if (listPlayersToTournament.Any(p => p.IdPLayer == player.Id))
             {
-                ConsoleService.WriteLineErrorMessage($"The Player {player.FirstName} {player.LastName} is on the list");
+                ConsoleService.WriteLineErrorMessage($"The Player {player.FirstName} {player.LastName} is on the list\n\rPress Any Key...");
             }
             else
             {
                 PlayerToTournament newPlayer = new(player, "------");
-                var playeraddress = _playerService.GetPlayerAddress(player);
 
                 if (listPlayersToTournament.Any(p => !string.IsNullOrEmpty(p.Group)))
                 {
                     var groupingPlayers = listPlayersToTournament
-                   .GroupBy(group => group.Group, group => group).OrderBy(p => p.Count());
-                    newPlayer.Position = groupingPlayers.First().Count();
+                   .GroupBy(group => group.Group, group => group).OrderBy(g => g.Count());
+                    newPlayer.Position = listPlayersToTournament.Max(p => p.Position) + 1;
                     newPlayer.TwoKO = newPlayer.Position.ToString();
                     newPlayer.Group = groupingPlayers.First().Key;
+                }
+                else
+                {
+                    if (listPlayersToTournament.Any())
+                    {
+                        newPlayer.Position = listPlayersToTournament.Max(p => p.Position) + 1;
+                        newPlayer.TwoKO = newPlayer.Position.ToString();
+                    }
+                    else
+                    {
+                        newPlayer.Position = 1;
+                    }
                 }
 
                 if (playeraddress != null)
@@ -432,25 +617,30 @@ public class TurnamentsManager
                 }
 
                 listPlayersToTournament.Add(newPlayer);
+                tournament.NumberOfPlayer = listPlayersToTournament.Count;
+                playersToTournament.ListPlayersToTournament = listPlayersToTournament;
             }
+            _tournamentsService.SaveList();
+            playersToTournament.SavePlayersToTournament();
+            players.Add(player);
         }
-        tournament.NumberOfPlayer = listPlayersToTournament.Count;
-        _tournamentsService.SaveList();
-
-        playersToTournament.SavePlayersToTournament();
     }
 
     private void RemovePlayerOfTournament(Tournament tournament, PlayersToTournament playersToTournament)
     {
         List<Player> players = new List<Player>();
-        foreach (var playerToTournament in playersToTournament.ListPlayersToTournament)
+        if (playersToTournament.ListPlayersToTournament.Any())
         {
-            var player = _playerService.GetItemById(playerToTournament.IdPLayer);
-            if (player != null)
+            foreach (var playerToTournament in playersToTournament.ListPlayersToTournament)
             {
-                players.Add(player);
+                var player = _playerService.GetItemById(playerToTournament.IdPLayer);
+                if (player != null)
+                {
+                    players.Add(player);
+                }
             }
         }
+
         if (players.Count > 0)
         {
             var player = _playerManager.SearchPlayer("Remowe Player", players);
@@ -485,7 +675,7 @@ public class TurnamentsManager
         else
         {
             ConsoleService.WriteTitle($"List Players Of {tournament.Name}");
-            ConsoleService.WriteLineErrorMessage("Empty List");
+            ConsoleService.WriteLineErrorMessage("Empty List\n\rPress Any Key...");
         }
     }
 
@@ -494,19 +684,39 @@ public class TurnamentsManager
         var formatText = string.Empty;
         if (tournament.GameplaySystem == "2KO")
         {
-            int numberOfWriteLine = 0;
-            int numberOfItem = 5;
+            string lineOne = string.Empty;
+            string lineTwo = string.Empty;
+            int numberItemOfLine = 6;
+            int item = 0;
+
             if (playersToTournament.ListPlayersToTournament.Any(p => !string.IsNullOrEmpty(p.TwoKO)))
             {
                 formatText += $"\n\rStart List 2KO System\n\r\n\r";
                 foreach (var player in playersToTournament.ListPlayersToTournament.OrderBy(p => p.Position))
                 {
-                    if (numberOfWriteLine == numberOfItem + numberOfWriteLine)
+                    if (player.Position % 2 != 0)
                     {
-                        formatText += "\n\r";
+                        lineOne += $" {player.TwoKO}. {player.TinyFulName}".Remove(20);
                     }
-                    formatText += $"{player.TwoKO}. {player.TinyFulName}".Remove(20);
-                    numberOfItem++;
+                    else
+                    {
+                        lineTwo += $" {player.TwoKO}. {player.TinyFulName}".Remove(20);
+                    }
+
+                    item++;
+
+                    if (item == numberItemOfLine * 2 ||
+                        player.Position == playersToTournament.ListPlayersToTournament.Count)
+                    {
+                        if (player.Position % 2 != 0)
+                        {
+                            lineTwo += $"{" Free Win ",-30}";
+                        }
+                        formatText += lineOne + "\n\r" + lineTwo + "\n\r\n\r";
+                        lineOne = string.Empty;
+                        lineTwo = string.Empty;
+                        item = 0;
+                    }
                 }
             }
         }
@@ -519,7 +729,7 @@ public class TurnamentsManager
                     return formatText;
                 }
                 var groupingPlayer = playersToTournament.ListPlayersToTournament
-                    .GroupBy(group => group.Group, group => group).ToList();
+                    .GroupBy(group => group.Group, group => group).OrderBy(g => g.Key).ToList();
 
                 List<PlayerToTournament> formatList = new List<PlayerToTournament>();
                 decimal numberLine = playersToTournament.ListPlayersToTournament.Count / tournament.NumberOfGroups;
@@ -564,7 +774,12 @@ public class TurnamentsManager
     private bool AddGamePlaySystem(Tournament tournament)
     {
         string[] settings = ["Gameplay System"];
-        var esc = tournament.GameplaySystem.ToString();
+        string esc = string.Empty;
+        if (!string.IsNullOrEmpty(tournament.GameplaySystem))
+        {
+            esc = tournament.GameplaySystem.ToString();
+        }
+
         tournament.GameplaySystem = null;
         foreach (string setting in settings)
         {
@@ -609,14 +824,14 @@ public class TurnamentsManager
     {
         StringBuilder inputString = new StringBuilder();
         List<Tournament> findTournamentTemp = _tournamentsService.SearchTournament(" ")
-            .Where(t => t.End == DateTime.MinValue).ToList();
+            .Where(t => t.End == DateTime.MinValue && t.IsActive == true).ToList();
         List<Tournament> findTournament = [];
         List<Tournament> findTournamentToView = [];
         findTournament.AddRange(findTournamentTemp);
         int maxEntriesToDisplay = 15;
         if (!findTournament.Any())
         {
-            ConsoleService.WriteLineErrorMessage("Empty List");
+            ConsoleService.WriteLineErrorMessage("Empty List\n\rPress Any Key...");
             return null;
         }
 
@@ -650,13 +865,14 @@ public class TurnamentsManager
             ConsoleService.WriteLineMessage($"\r\n------(Found {findTournament.Count} Tournament)-------\r\n" + inputString.ToString());
             ConsoleService.WriteLineMessage(@"Enter string move UP or Down  and  press enter to Select");
 
-            var keyFromUser = ConsoleService.GetKeyFromUser("Id Selected Tournament:" + indexSelectedTournament);
+            var keyFromUser = ConsoleService.GetKeyFromUser("Selected Tournament: "
+                + findTournament[indexSelectedTournament].Name);
 
             if (char.IsLetterOrDigit(keyFromUser.KeyChar))
             {
                 if (findTournament.Count == 1 && !string.IsNullOrEmpty(inputString.ToString()))
                 {
-                    ConsoleService.WriteLineErrorMessage("No entries found !!!");
+                    ConsoleService.WriteLineErrorMessage("No entries found !!!\n\rPress Any Key...");
                 }
                 else
                 {
@@ -682,7 +898,7 @@ public class TurnamentsManager
                         else
                         {
                             inputString.Remove(inputString.Length - 1, 1);
-                            ConsoleService.WriteLineErrorMessage("No entries found !!!");
+                            ConsoleService.WriteLineErrorMessage("No entries found !!!\n\rPress Any Key...");
                         }
                     }
                     else
@@ -705,7 +921,7 @@ public class TurnamentsManager
                         else
                         {
                             inputString.Remove(inputString.Length - 1, 1);
-                            ConsoleService.WriteLineErrorMessage("No entry found !!!");
+                            ConsoleService.WriteLineErrorMessage("No entry found !!!\n\rPress Any Key...");
                         }
                     }
                 }
@@ -746,7 +962,7 @@ public class TurnamentsManager
             {
                 var findTournamentToSelect = findTournament.First(p => findTournament.IndexOf(p) == indexSelectedTournament);
                 ConsoleService.WriteTitle(headTableToview);
-                ConsoleService.WriteLineMessage($"{_tournamentsService.GetTournamentDetailView(findTournamentToSelect),106}");
+                ConsoleService.WriteLineMessage($"{_tournamentsService.GetTournamentDetailView(findTournamentToSelect),107}");
 
                 if (ConsoleService.AnswerYesOrNo("Selected Player"))
                 {
@@ -764,7 +980,7 @@ public class TurnamentsManager
 
     public void AllTournamentsView()
     {
-        var allTournaments = _tournamentsService.GetAllItem().OrderByDescending(t => t.CreatedDateTime).ToList();
+        var allTournaments = _tournamentsService.GetAllItem().Where(t => t.IsActive == true).OrderByDescending(t => t.CreatedDateTime).ToList();
         var headTableToview = "All Tournaments" + $"\r\n{" LP",-5}{"ID",-6}{"Name",-21}" +
                    $"{"Game System",-16}{"Club Name",-21}{"Start",-15}{"End",-15}{"Players",-11}";
 
@@ -781,9 +997,19 @@ public class TurnamentsManager
         }
         else
         {
-            ConsoleService.WriteLineErrorMessage("Empty List");
+            ConsoleService.WriteLineErrorMessage("Empty List\n\rPress Any Key...");
         }
         ConsoleService.WriteLineMessage("Press any key...");
         ConsoleService.GetKeyFromUser();
+    }
+
+    public string ViewPlayerToTournamentDetail(PlayerToTournament playerToTournament)
+    {
+        string formatText = string.Empty;
+        if (playerToTournament != null)
+        {
+            formatText = $"Position: {playerToTournament.Position}.  {playerToTournament.TinyFulName} ";
+        }
+        return formatText;
     }
 }

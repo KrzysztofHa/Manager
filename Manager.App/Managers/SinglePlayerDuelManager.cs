@@ -449,7 +449,7 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
             {
                 var findDuelToSelect = findDuelsTemp.First(p => findDuelsTemp.IndexOf(p) == indexSelectedDuel);
                 ConsoleService.WriteTitle(headTableToview);
-                ConsoleService.WriteLineMessage($"{_singlePlayerDuelService.GetSinglePlayerDuelDetailView(findDuelToSelect),106}");
+                ConsoleService.WriteLineMessage($"{_singlePlayerDuelService.GetSinglePlayerDuelDetailView(findDuelToSelect),108}");
 
                 if (ConsoleService.AnswerYesOrNo("Selected Sparring"))
                 {

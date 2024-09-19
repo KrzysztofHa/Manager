@@ -23,7 +23,7 @@ public class PlayersToTournament
         LoadList(tournament);
     }
 
-    private void LoadList(Tournament tournament)
+    public void LoadList(Tournament tournament)
     {
         IBaseService<PlayersToTournament> baseService = new BaseOperationService<PlayersToTournament>();
         if (baseService.ListOfElements.Count == 0 ||

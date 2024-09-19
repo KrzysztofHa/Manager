@@ -11,6 +11,7 @@ internal class Program
     {
         IPlayerService playerService = new PlayerService();
         IUserService userService = new UserService();
+        ConsoleService.CheckAndSetSizeWindow();
 
         if (string.IsNullOrEmpty(userService.GetDisplayUserName()))
         {
