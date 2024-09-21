@@ -45,6 +45,7 @@ public class BaseService<T> : IService<T> where T : BaseEntity
         if (Items.Any() && item != null)
         {
             item.ModifiedDateTime = DateTime.Now;
+            item.ModifiedDateTime = DateTime.Now;
             item.IsActive = false;
         }
     }

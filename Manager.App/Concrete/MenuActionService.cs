@@ -50,15 +50,22 @@ public class MenuActionService : BaseService<MenuAction>
 
         AddItem(new MenuAction(4310, "Add Players", "Go To Tournament"));
         AddItem(new MenuAction(4320, "Delete Player", "Go To Tournament"));
-        AddItem(new MenuAction(4330, "Set Number Of Groups", "Go To Tournament"));
-        AddItem(new MenuAction(4340, "Edit Groups Or 2KO List", "Go To Tournament"));
-        AddItem(new MenuAction(4350, "Chenge The Game System", "Go To Tournament"));
-        AddItem(new MenuAction(4360, "Random Selection Of Players", "Go To Tournament"));
-        AddItem(new MenuAction(4370, "Players", "Go To Tournament"));
-        AddItem(new MenuAction(4380, "Start Tournament", "Go To Tournament"));
+        AddItem(new MenuAction(4330, "Chenge Race To", "Go To Tournament"));
+        AddItem(new MenuAction(4340, "Set Number Of Groups", "Go To Tournament"));
+        AddItem(new MenuAction(4350, "Edit Groups Or 2KO List", "Go To Tournament"));
+        AddItem(new MenuAction(4360, "Chenge The Game System", "Go To Tournament"));
+        AddItem(new MenuAction(4370, "Random Selection Of Players", "Go To Tournament"));
+        AddItem(new MenuAction(4380, "Players", "Go To Tournament"));
+        AddItem(new MenuAction(4390, "Start Tournament", "Go To Tournament"));
 
         AddItem(new MenuAction(4341, "Move Player", "Edit Groups"));
         AddItem(new MenuAction(4342, "Reset Changes", "Edit Groups"));
+
+        AddItem(new MenuAction(4391, "End Duel", "Start Tournament"));
+        AddItem(new MenuAction(4392, "Add Player", "Start Tournament"));
+        AddItem(new MenuAction(4393, "Delete Player", "Start Tournament"));
+        AddItem(new MenuAction(4394, "Move Player", "Start Tournament"));
+        AddItem(new MenuAction(4395, "Change Race To", "Start Tournament"));
 
         AddItem(new MenuAction(5100, "Change Display Name", "Settings"));
 

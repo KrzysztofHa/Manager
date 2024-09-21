@@ -17,6 +17,10 @@ public class PlayersToTournament
 
     public PlayersToTournament(Tournament tournament, ITournamentsService tournamentsService)
     {
+        if (tournament == null)
+        {
+            return;
+        }
         _tournamentsService = tournamentsService;
         ListPlayersToTournament = new List<PlayerToTournament>();
         IdTournament = tournament.Id;

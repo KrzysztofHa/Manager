@@ -1,11 +1,11 @@
 ﻿namespace Manager.App.Managers.Helpers.GamePlaySystem;
 
-public class GameplaySystem
+public class GamePlaySystem
 {
-    public List<string> GameplaySystemsList { get; set; }
+    public List<string> GamePlaySystemsList { get; set; }
 
-    public GameplaySystem()
+    public GamePlaySystem()
     {
-        GameplaySystemsList = new List<string>() { "Group", "2KO" };
+        GamePlaySystemsList = new List<string>() { "Group", "2KO" };
     }
 }

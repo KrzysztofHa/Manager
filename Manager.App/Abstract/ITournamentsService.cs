@@ -13,5 +13,7 @@ namespace Manager.App.Abstract
         List<Tournament> SearchTournament(string searchString);
 
         string GetTournamentDetailView(Tournament tournament);
+
+        void InterruptedTournament(Tournament tournament);
     }
 }

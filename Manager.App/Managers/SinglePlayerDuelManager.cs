@@ -186,7 +186,7 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
         return true;
     }
 
-    public SinglePlayerDuel NewTournamentSinglePlayerDue(SinglePlayerDuel duel, int idTournament, int idFirstPlayer, int idSecondPlayer)
+    public SinglePlayerDuel NewTournamentSinglePlayerDuel(SinglePlayerDuel duel, int idTournament, int idFirstPlayer, int idSecondPlayer)
     {
         duel = NewSingleDuel(idFirstPlayer, idSecondPlayer);
         duel.IdPlayerTournament = idTournament;
@@ -199,6 +199,7 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
         if (duel.StartGame == DateTime.MinValue)
         {
             duel.StartGame = DateTime.Now;
+            duel.Interrupted = DateTime.MinValue;
             _singlePlayerDuelService.StartSinglePlayerDuel(duel);
         }
     }
@@ -216,12 +217,6 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
             listSinglesPlayerDuels = _singlePlayerDuelService.GetAllSinglePlayerDuel()
              .Where(s => s.IdPlayerTournament == idTournament).ToList();
         }
-        if (listSinglesPlayerDuels.Count == 0)
-        {
-            ConsoleService.WriteLineErrorMessage("List Empty");
-            return null;
-        }
-
         return listSinglesPlayerDuels;
     }
 
@@ -265,7 +260,9 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
             duel.ScoreSecondPlayer,
             duel.IdPlayerTournament,
             StartGame = duel.StartGame.Equals(DateTime.MinValue) ? "Waiting" : duel.StartGame.ToShortTimeString(),
-            EndGame = duel.EndGame.Equals(DateTime.MinValue) ? "Interrupted" : duel.EndGame.ToShortTimeString(),
+
+            EndGame = !duel.Interrupted.Equals(DateTime.MinValue) && duel.EndGame.Equals(DateTime.MinValue) ?
+            "Interrupted" : duel.EndGame.Equals(DateTime.MinValue) ? "In Progress" : duel.EndGame.ToShortTimeString(),
         }).OrderBy(d => d.CreatedDateTime);
 
         ConsoleService.WriteTitle($"{title}");
@@ -291,6 +288,15 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
         _singlePlayerDuelService.UpdateSinglePlayerDuel(duel);
     }
 
+    public void InterruptedDuel(SinglePlayerDuel duel)
+    {
+        if (duel == null)
+        {
+            return;
+        }
+        _singlePlayerDuelService.InterruptedDuel(duel);
+    }
+
     public SinglePlayerDuel? SearchInterruptedDuel(string title = "", int? idTournament = null)
     {
         StringBuilder inputString = new StringBuilder();
@@ -298,7 +304,7 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
         List<string> findDuelsStringTemp = new List<string>();
         int maxEntriesToDisplay = 15;
         List<string> findDuelsStringToView = new List<string>();
-        List<SinglePlayerDuel> findDuelsTemp = _singlePlayerDuelService.SearchSinglePlayerDuel(" ").Where(d => d.EndGame == DateTime.MinValue && d.IdPlayerTournament == idTournament).ToList();
+        List<SinglePlayerDuel> findDuelsTemp = _singlePlayerDuelService.SearchSinglePlayerDuel(" ").Where(d => d.Interrupted != DateTime.MinValue && d.IdPlayerTournament == idTournament).ToList();
         if (!findDuelsTemp.Any())
         {
             if (!findDuelsTemp.Any())
@@ -451,7 +457,7 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
                 ConsoleService.WriteTitle(headTableToview);
                 ConsoleService.WriteLineMessage($"{_singlePlayerDuelService.GetSinglePlayerDuelDetailView(findDuelToSelect),108}");
 
-                if (ConsoleService.AnswerYesOrNo("Selected Sparring"))
+                if (ConsoleService.AnswerYesOrNo("Selected Duel"))
                 {
                     return findDuelToSelect;
                 }

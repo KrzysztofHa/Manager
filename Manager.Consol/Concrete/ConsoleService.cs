@@ -287,4 +287,9 @@ public static class ConsoleService
         Console.CursorVisible = false;
         return Console.ReadKey(true);
     }
+
+    public static void WriteMessage(string message)
+    {
+        Console.Write(message);
+    }
 }

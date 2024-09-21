@@ -25,6 +25,13 @@ public class SinglePlayerDuelService : BaseService<SinglePlayerDuel>, ISinglePla
         SaveList();
     }
 
+    public void InterruptedDuel(SinglePlayerDuel singlePlayerDuel)
+    {
+        singlePlayerDuel.Interrupted = DateTime.Now;
+        UpdateItem(singlePlayerDuel);
+        SaveList();
+    }
+
     public void CreateTournamentSinglePlayerDue(SinglePlayerDuel singlePlayerDuel)
     {
         AddItem(singlePlayerDuel);
@@ -56,7 +63,8 @@ public class SinglePlayerDuelService : BaseService<SinglePlayerDuel>, ISinglePla
             var tournament = tournamentServis.GetItemById(idTournament);
 
             var tournamentName = tournament != null ? tournament.Name : "Sparring";
-            var endGameText = duel.StartGame.Equals(DateTime.MinValue) ? "----------" : "Interrupted";
+            var endGameText = !duel.Interrupted.Equals(DateTime.MinValue) && duel.EndGame.Equals(DateTime.MinValue) ?
+            "Interrupted" : duel.EndGame.Equals(DateTime.MinValue) ? "In Progress" : duel.EndGame.ToShortTimeString();
 
             var firstPlayerText = $"{firstPlayer.FirstName.Remove(1)}.{firstPlayer.LastName}";
             var secondPlayerText = $"{secondPlayer.FirstName.Remove(1)}.{secondPlayer.LastName}";

@@ -6,7 +6,7 @@ namespace Manager.App.Abstract
     {
         SinglePlayerDuel NewSingleDuel(int idFirstPlayer = 0, int idSecondPlayer = 0);
 
-        SinglePlayerDuel NewTournamentSinglePlayerDue(SinglePlayerDuel duel, int idTournament, int idFirstPlayer = -1, int idSecondPlayer = -1);
+        SinglePlayerDuel NewTournamentSinglePlayerDuel(SinglePlayerDuel duel, int idTournament, int idFirstPlayer = -1, int idSecondPlayer = -1);
 
         void VievSinglePlayerDuelsByTournamentsOrSparrings(int idTournament = 0);
 
@@ -17,5 +17,7 @@ namespace Manager.App.Abstract
         void EndSinglePlayerDuel(SinglePlayerDuel duel);
 
         void UpdateSinglePlayerDuel(SinglePlayerDuel duel);
+
+        void InterruptedDuel(SinglePlayerDuel duel);
     }
 }
