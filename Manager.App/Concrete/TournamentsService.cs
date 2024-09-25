@@ -62,7 +62,7 @@ public class TournamentsService : BaseService<Tournament>, ITournamentsService
         return string.Empty;
     }
 
-    public void InterruptedTournament(Tournament tournament)
+    public void InterruptTournament(Tournament tournament)
     {
         if (tournament == null)
         {

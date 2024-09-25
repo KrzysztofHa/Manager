@@ -288,13 +288,13 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
         _singlePlayerDuelService.UpdateSinglePlayerDuel(duel);
     }
 
-    public void InterruptedDuel(SinglePlayerDuel duel)
+    public void InterruptDuel(SinglePlayerDuel duel)
     {
         if (duel == null)
         {
             return;
         }
-        _singlePlayerDuelService.InterruptedDuel(duel);
+        _singlePlayerDuelService.InterruptDuel(duel);
     }
 
     public SinglePlayerDuel? SearchInterruptedDuel(string title = "", int? idTournament = null)

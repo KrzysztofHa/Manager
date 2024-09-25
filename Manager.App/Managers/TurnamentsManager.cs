@@ -214,21 +214,22 @@ public class TurnamentsManager
 
     private void StartTournament(Tournament tournament, PlayersToTournament playersToTournament)
     {
-        if (tournament == null)
+        if (tournament == null || playersToTournament == null)
         {
             return;
         }
 
-        _tournamentsService.StartTournament(tournament);
+        CreateDuelsToTournament(tournament, playersToTournament);
 
         var optionPlayerMenu = _actionService.GetMenuActionsByName("Start Tournament");
         while (true)
         {
+            var tournamentDuels = _singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(tournament.Id);
             ConsoleService.WriteTitle($"Tournaments {tournament.Name} | Game System: {tournament.GamePlaySystem} | Start {tournament.Start} ");
 
             for (int i = 0; i < optionPlayerMenu.Count; i++)
             {
-                ConsoleService.WriteLineMessage($"{i + 1}. {optionPlayerMenu[i].Name} | ");
+                ConsoleService.WriteLineMessage($"{i + 1}. {optionPlayerMenu[i].Name}");
             }
 
             var operation = ConsoleService.GetIntNumberFromUser("Enter Option");
@@ -276,6 +277,22 @@ public class TurnamentsManager
             if (operation == null)
             {
                 break;
+            }
+        }
+    }
+
+    private void CreateDuelsToTournament(Tournament tournament, PlayersToTournament playersToTournament)
+    {
+        if (tournament == null || playersToTournament == null)
+        {
+            return;
+        }
+        if (tournament.GamePlaySystem == "Group")
+        {
+            _tournamentsService.StartTournament(tournament);
+
+            for (int i = 0; i < playersToTournament.ListPlayersToTournament.Count; i++)
+            {
             }
         }
     }
@@ -663,83 +680,73 @@ public class TurnamentsManager
         {
             foreach (var playerToTournament in playersToTournament.ListPlayersToTournament)
             {
-                var player = _playerService.GetItemById(playerToTournament.IdPLayer);
-                if (player != null)
+                var tournamentPlayer = _playerService.GetItemById(playerToTournament.IdPLayer);
+                if (tournamentPlayer != null)
                 {
-                    players.Add(player);
+                    players.Add(tournamentPlayer);
                 }
             }
         }
 
-        while (true)
+        var player = _playerManager.SearchPlayer($"Add Player To tournament {tournament.Name}" +
+            $"\n\rSelect Player On List Or Press Esc To Add New Player",
+            null,
+            players);
+        if (player == null)
         {
-            ViewListPlayersToTournament(tournament, playersToTournament);
-            ConsoleService.WriteLineMessage("Press Any Key To Add Next Player \n\r Or Escape (Esc) To Exit");
-            var inputKey = ConsoleService.GetKeyFromUser();
-            if (inputKey.Key == ConsoleKey.Escape)
+            if (ConsoleService.AnswerYesOrNo("You want to add a new player"))
             {
-                break;
+                player = _playerManager.AddNewPlayer();
             }
-            var player = _playerManager.SearchPlayer("Add Player", null, players);
+
             if (player == null)
             {
-                if (ConsoleService.AnswerYesOrNo("You want to add a new player"))
-                {
-                    player = _playerManager.AddNewPlayer();
-                }
-                else
-                {
-                    break;
-                }
-                if (player == null)
-                {
-                    return;
-                }
+                return;
             }
-            var playeraddress = _playerService.GetPlayerAddress(player);
+        }
+        var playeraddress = _playerService.GetPlayerAddress(player);
 
-            if (listPlayersToTournament.Any(p => p.IdPLayer == player.Id))
+        if (listPlayersToTournament.Any(p => p.IdPLayer == player.Id))
+        {
+            ConsoleService.WriteLineErrorMessage($"The Player {player.FirstName} {player.LastName} is on the list\n\rPress Any Key...");
+        }
+        else
+        {
+            PlayerToTournament newPlayer = new(player, "------");
+
+            if (listPlayersToTournament.Any(p => !string.IsNullOrEmpty(p.Group)))
             {
-                ConsoleService.WriteLineErrorMessage($"The Player {player.FirstName} {player.LastName} is on the list\n\rPress Any Key...");
+                var groupingPlayers = listPlayersToTournament
+               .GroupBy(group => group.Group, group => group).OrderBy(g => g.Count());
+                newPlayer.Position = listPlayersToTournament.Max(p => p.Position) + 1;
+                newPlayer.TwoKO = newPlayer.Position.ToString();
+                newPlayer.Group = groupingPlayers.First().Key;
             }
             else
             {
-                PlayerToTournament newPlayer = new(player, "------");
-
-                if (listPlayersToTournament.Any(p => !string.IsNullOrEmpty(p.Group)))
+                if (listPlayersToTournament.Any())
                 {
-                    var groupingPlayers = listPlayersToTournament
-                   .GroupBy(group => group.Group, group => group).OrderBy(g => g.Count());
                     newPlayer.Position = listPlayersToTournament.Max(p => p.Position) + 1;
                     newPlayer.TwoKO = newPlayer.Position.ToString();
-                    newPlayer.Group = groupingPlayers.First().Key;
                 }
                 else
                 {
-                    if (listPlayersToTournament.Any())
-                    {
-                        newPlayer.Position = listPlayersToTournament.Max(p => p.Position) + 1;
-                        newPlayer.TwoKO = newPlayer.Position.ToString();
-                    }
-                    else
-                    {
-                        newPlayer.Position = 1;
-                    }
+                    newPlayer.Position = 1;
                 }
-
-                if (playeraddress != null)
-                {
-                    newPlayer.Country = playeraddress.Country;
-                }
-
-                listPlayersToTournament.Add(newPlayer);
-                tournament.NumberOfPlayer = listPlayersToTournament.Count;
-                playersToTournament.ListPlayersToTournament = listPlayersToTournament;
             }
-            _tournamentsService.SaveList();
-            playersToTournament.SavePlayersToTournament();
-            players.Add(player);
+
+            if (playeraddress != null)
+            {
+                newPlayer.Country = playeraddress.Country;
+            }
+
+            listPlayersToTournament.Add(newPlayer);
+            tournament.NumberOfPlayer = listPlayersToTournament.Count;
+            playersToTournament.ListPlayersToTournament = listPlayersToTournament;
         }
+        _tournamentsService.SaveList();
+        playersToTournament.SavePlayersToTournament();
+        players.Add(player);
     }
 
     private void RemovePlayerOfTournament(Tournament tournament, PlayersToTournament playersToTournament)

@@ -18,6 +18,8 @@ namespace Manager.App.Abstract
 
         void UpdateSinglePlayerDuel(SinglePlayerDuel duel);
 
-        void InterruptedDuel(SinglePlayerDuel duel);
+        void InterruptDuel(SinglePlayerDuel duel);
+
+        SinglePlayerDuel? SearchInterruptedDuel(string title = "", int? idTournament = null);
     }
 }

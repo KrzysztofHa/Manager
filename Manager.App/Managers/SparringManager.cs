@@ -186,7 +186,7 @@ public class SparringManager
                 {
                     if (ConsoleService.AnswerYesOrNo("You want to leave the game?"))
                     {
-                        _singlePlayerDuelManager.InterruptedDuel(singlePlayerDuel);
+                        _singlePlayerDuelManager.InterruptDuel(singlePlayerDuel);
                         return;
                     }
                     break;

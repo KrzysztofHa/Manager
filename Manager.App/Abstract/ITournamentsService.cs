@@ -14,6 +14,6 @@ namespace Manager.App.Abstract
 
         string GetTournamentDetailView(Tournament tournament);
 
-        void InterruptedTournament(Tournament tournament);
+        void InterruptTournament(Tournament tournament);
     }
 }

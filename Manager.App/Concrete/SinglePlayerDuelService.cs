@@ -25,7 +25,7 @@ public class SinglePlayerDuelService : BaseService<SinglePlayerDuel>, ISinglePla
         SaveList();
     }
 
-    public void InterruptedDuel(SinglePlayerDuel singlePlayerDuel)
+    public void InterruptDuel(SinglePlayerDuel singlePlayerDuel)
     {
         singlePlayerDuel.Interrupted = DateTime.Now;
         UpdateItem(singlePlayerDuel);

@@ -18,5 +18,5 @@ internal interface ISinglePlayerDuelService
 
     string GetSinglePlayerDuelDetailView(SinglePlayerDuel duel);
 
-    void InterruptedDuel(SinglePlayerDuel duel);
+    void InterruptDuel(SinglePlayerDuel duel);
 }
