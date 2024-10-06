@@ -34,6 +34,17 @@ public class SinglePlayerDuelService : BaseService<SinglePlayerDuel>, ISinglePla
 
     public void CreateTournamentSinglePlayerDue(SinglePlayerDuel singlePlayerDuel)
     {
+        var tournamentDuelLastNumberDuel = GetAllItem().Where(d => d.IdPlayerTournament == singlePlayerDuel.IdPlayerTournament).MaxBy(d => d.NumberDuelOfTournament);
+        int lastNumberDuelsOfTournament = 0;
+        if (tournamentDuelLastNumberDuel == null)
+        {
+            lastNumberDuelsOfTournament = 0;
+        }
+        else
+        {
+            lastNumberDuelsOfTournament += tournamentDuelLastNumberDuel.NumberDuelOfTournament + 1;
+        }
+        singlePlayerDuel.NumberDuelOfTournament = lastNumberDuelsOfTournament;
         AddItem(singlePlayerDuel);
         SaveList();
     }
