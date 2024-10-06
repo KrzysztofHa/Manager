@@ -6,9 +6,11 @@ namespace Manager.App.Abstract
     {
         SinglePlayerDuel NewSingleDuel(int idFirstPlayer = 0, int idSecondPlayer = 0);
 
-        SinglePlayerDuel NewTournamentSinglePlayerDuel(SinglePlayerDuel duel, int idTournament, int idFirstPlayer = -1, int idSecondPlayer = -1);
+        SinglePlayerDuel NewTournamentSinglePlayerDuel(int idTournament, int idFirstPlayer = -1, int idSecondPlayer = -1, string round = "Eliminations");
 
         void VievSinglePlayerDuelsByTournamentsOrSparrings(int idTournament = 0);
+
+        string GetListSinglePlayerDuelsInText(int idTournament = 0);
 
         List<SinglePlayerDuel>? GetSinglePlayerDuelsByTournamentsOrSparrings(int idTournament = 0);
 
