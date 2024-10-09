@@ -508,4 +508,9 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
 
         return null;
     }
+
+    public void RemoveTournamentDuel(Tournament tournament, int idDuel)
+    {
+        _singlePlayerDuelService.removeTournamentDuelByIdPlayer(tournament, idDuel);
+    }
 }

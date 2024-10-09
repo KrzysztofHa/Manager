@@ -44,6 +44,7 @@ public class BaseService<T> : IService<T> where T : BaseEntity
     {
         if (Items.Any() && item != null)
         {
+            item.ModifiedById = ActiveUserNameOrId.IdActiveUser;
             item.ModifiedDateTime = DateTime.Now;
             item.ModifiedDateTime = DateTime.Now;
             item.IsActive = false;
@@ -76,5 +77,6 @@ public class BaseService<T> : IService<T> where T : BaseEntity
     public void SaveList()
     {
         _baseService.SaveListToBase();
+        LoadList();
     }
 }

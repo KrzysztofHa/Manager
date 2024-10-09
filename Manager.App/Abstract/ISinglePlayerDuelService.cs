@@ -2,7 +2,7 @@
 
 namespace Manager.App.Abstract;
 
-internal interface ISinglePlayerDuelService
+public interface ISinglePlayerDuelService
 {
     void StartSinglePlayerDuel(SinglePlayerDuel singlePlayerDuel);
 
@@ -19,4 +19,6 @@ internal interface ISinglePlayerDuelService
     string GetSinglePlayerDuelDetailView(SinglePlayerDuel duel);
 
     void InterruptDuel(SinglePlayerDuel duel);
+
+    void removeTournamentDuelByIdPlayer(Tournament tournament, int idPlayer);
 }
