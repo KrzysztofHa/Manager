@@ -30,16 +30,19 @@ public class TournamentsService : BaseService<Tournament>, ITournamentsService
 
     public void StartTournament(Tournament tournament)
     {
-        if (tournament.Start == DateTime.MinValue)
+        if (tournament.End != DateTime.MinValue)
         {
-            tournament.Start = DateTime.Now;
+            if (tournament.Start == DateTime.MinValue)
+            {
+                tournament.Start = DateTime.Now;
+            }
+            else
+            {
+                tournament.Interrupt = DateTime.MinValue;
+                tournament.Resume = DateTime.Now;
+            }
+            SaveList();
         }
-        else
-        {
-            tournament.Interrupt = DateTime.MinValue;
-            tournament.Resume = DateTime.Now;
-        }
-        SaveList();
     }
 
     public string GetTournamentDetailView(Tournament tournament)
