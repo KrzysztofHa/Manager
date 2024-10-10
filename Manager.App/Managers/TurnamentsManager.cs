@@ -313,6 +313,7 @@ public class TurnamentsManager
 
             if (operation == null)
             {
+                _tournamentsService.InterruptTournament(tournament);
                 break;
             }
         }
@@ -373,7 +374,14 @@ public class TurnamentsManager
 
     public void DeleteTournament()
     {
-        _tournamentsService.RemoveItem(SearchTournament());
+        var tournament = SearchTournament();
+        if (tournament == null || tournament.End != DateTime.MinValue)
+        {
+            return;
+        }
+
+        _tournamentsService.RemoveItem(tournament);
+        _singlePlayerDuelManager.RemoveTournamentDuel(tournament);
         _tournamentsService.SaveList();
     }
 
@@ -518,7 +526,7 @@ public class TurnamentsManager
                     {
                         if (!ConsoleService.AnswerYesOrNo("Exit To Tournament Menu?"))
                         {
-                            ConsoleService.WriteLineErrorMessage("Enter a valid operation ID\n\rPress Any Key...");
+                            ConsoleService.WriteLineErrorMessage("Enter a valid operation ID");
                             operation = 0;
                         }
                     }
@@ -535,7 +543,7 @@ public class TurnamentsManager
                 {
                     if (!ConsoleService.AnswerYesOrNo("Back to Edit?"))
                     {
-                        ConsoleService.WriteLineErrorMessage("Changes Not Save!\n\rPress Any Key...");
+                        ConsoleService.WriteLineErrorMessage("Changes Not Save!");
                         break;
                     }
                 }
@@ -564,6 +572,7 @@ public class TurnamentsManager
             {
                 return;
             }
+
             var playerToMove = playersToTournament.ListPlayersToTournament.FirstOrDefault(p => p.IdPLayer == player.Id);
 
             if (playerToMove != null)
@@ -576,6 +585,14 @@ public class TurnamentsManager
                     string groups = string.Empty;
 
                     var groupingPlayer = playersToTournament.ListPlayersToTournament.GroupBy(p => p.Group);
+                    var t = groupingPlayer.FirstOrDefault();
+
+                    if (groupingPlayer.FirstOrDefault(g => g.Key == playerToMove.Group).Count() <= 2)
+                    {
+                        ConsoleService.WriteLineErrorMessage("You cannot remove a player. Minimum number of players in group 2.");
+                        return;
+                    }
+
                     if (tournament.NumberOfGroups == 2)
                     {
                         playerToMove.Group = groupingPlayer.First(g => g.Key != playerToMove.Group).Key;
@@ -850,13 +867,13 @@ public class TurnamentsManager
         List<Player> players = new List<Player>();
         if (playersToTournament.ListPlayersToTournament.Any())
         {
-            ConsoleService.WriteTitle("Attention!!!");
-            if (!ConsoleService.AnswerYesOrNo("Remember that removing a player may disturb the group structure " +
-                "and changes will be necessary in the group structure." +
-                " Removing too many players may prevent the game from continuing."))
+            ConsoleService.WriteTitle("");
+            ConsoleService.WriteLineErrorMessage("Attention!!!");
+            if (!ConsoleService.AnswerYesOrNo("Remember that removing a player may disturb the group structure."))
             {
                 return;
             }
+
             foreach (var playerToTournament in playersToTournament.ListPlayersToTournament)
             {
                 var player = _playerService.GetItemById(playerToTournament.IdPLayer);
@@ -878,8 +895,14 @@ public class TurnamentsManager
                 return;
             }
             var playerToRemowe = playersToTournament.ListPlayersToTournament.FirstOrDefault(p => p.IdPLayer == player.Id);
+
             if (playerToRemowe != null)
             {
+                if (playersToTournament.ListPlayersToTournament.Where(p => p.Group == playerToRemowe.Group).Count() < 2)
+                {
+                    ConsoleService.WriteLineErrorMessage("You cannot remove a player. Minimum number of players in group 2.");
+                    return;
+                }
                 _singlePlayerDuelManager.RemoveTournamentDuel(tournament, playerToRemowe.IdPLayer);
                 playersToTournament.ListPlayersToTournament.Remove(playerToRemowe);
                 playersToTournament.SavePlayersToTournament();

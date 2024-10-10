@@ -260,17 +260,26 @@ public static class ConsoleService
         Console.ForegroundColor = ConsoleColor.Red;
         var startCursorPosition = Console.GetCursorPosition();
         Console.WriteLine(errorMessage);
-
         Thread.Sleep(250);
         Console.SetCursorPosition(startCursorPosition.Left, startCursorPosition.Top);
         Console.WriteLine(string.Empty.PadLeft(Console.BufferWidth));
         Thread.Sleep(250);
         Console.SetCursorPosition(startCursorPosition.Left, startCursorPosition.Top);
         Console.WriteLine(errorMessage);
-        Console.ReadKey(true);
+        Thread.Sleep(250);
+        Console.SetCursorPosition(startCursorPosition.Left, startCursorPosition.Top);
+        Console.WriteLine(string.Empty.PadLeft(Console.BufferWidth));
+        Thread.Sleep(250);
+        Console.SetCursorPosition(startCursorPosition.Left, startCursorPosition.Top);
+        Console.WriteLine(errorMessage);
+        Thread.Sleep(1000);
         Console.ForegroundColor = ConsoleColor.White;
         Console.SetCursorPosition(startCursorPosition.Left, startCursorPosition.Top);
         Console.WriteLine(string.Empty.PadLeft(Console.BufferWidth));
+        while (Console.KeyAvailable == true)
+        {
+            Console.ReadKey(true);
+        }
         Console.CursorVisible = true;
     }
 

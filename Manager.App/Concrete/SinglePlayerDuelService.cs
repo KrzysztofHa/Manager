@@ -142,11 +142,17 @@ public class SinglePlayerDuelService : BaseService<SinglePlayerDuel>, ISinglePla
         return findSinglePlayerDuels;
     }
 
-    public void removeTournamentDuelByIdPlayer(Tournament tournament, int idPlayer)
+    public void removeTournamentDuelByIdPlayer(Tournament tournament, int idPlayer = 0)
     {
-        var duelsToRemove = GetAllItem().Where(d => d.IdPlayerTournament == tournament.Id && (d.IdSecondPlayer == idPlayer || d.IdFirstPlayer == idPlayer)).ToList();
+        var duelsToRemove = GetAllItem().Where(d => d.IdPlayerTournament == tournament.Id).ToList();
+
         if (duelsToRemove.Count > 0)
         {
+            if (idPlayer != 0)
+            {
+                duelsToRemove = duelsToRemove.Where(d => d.IdFirstPlayer == idPlayer || d.IdSecondPlayer == idPlayer).ToList();
+            }
+
             foreach (var duel in duelsToRemove)
             {
                 GetAllItem().Remove(duel);

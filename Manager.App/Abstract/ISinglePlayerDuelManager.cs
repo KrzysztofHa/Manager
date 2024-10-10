@@ -24,6 +24,6 @@ namespace Manager.App.Abstract
 
         SinglePlayerDuel? SearchInterruptedDuel(string title = "", int? idTournament = null);
 
-        void RemoveTournamentDuel(Tournament tournament, int idDuel);
+        void RemoveTournamentDuel(Tournament tournament, int idDuel = 0);
     }
 }
