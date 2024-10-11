@@ -72,7 +72,7 @@ public class TurnamentsManager
                 default:
                     if (operation != null)
                     {
-                        ConsoleService.WriteLineErrorMessage("Enter a valid operation ID\n\rPress Any Key...");
+                        ConsoleService.WriteLineErrorMessage("Enter a valid operation ID");
                     }
                     break;
             }
@@ -212,7 +212,7 @@ public class TurnamentsManager
                         }
                         operation = 0;
                     }
-                    ConsoleService.WriteLineErrorMessage("Enter a valid operation ID\n\rPress Any Key...");
+                    ConsoleService.WriteLineErrorMessage("Enter a valid operation ID");
                     break;
             }
 
@@ -225,9 +225,10 @@ public class TurnamentsManager
 
     private void ChangeRaceTo(Tournament tournament)
     {
-        bool isPlayerEndDuel = _singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(tournament.Id)
-                .Any(p => p.EndGame != DateTime.MinValue);
-        if (isPlayerEndDuel)
+        var duels = _singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(tournament.Id).ToList();
+        var round = duels.First(d => d.EndGame == DateTime.MinValue).Round;
+
+        if (duels.Any(p => p.Round == round && p.EndGame != DateTime.MinValue))
         {
             return;
         }
@@ -237,9 +238,17 @@ public class TurnamentsManager
         {
             return;
         }
-        var duel = _singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings().First();
-        duel.RaceTo = (int)raceTo;
-        _singlePlayerDuelManager.UpdateSinglePlayerDuel(duel);
+
+        if (!string.IsNullOrEmpty(round))
+        {
+            duels = duels.Where(d => d.Round == round).ToList();
+        }
+
+        foreach (var duel in duels)
+        {
+            duel.RaceTo = (int)raceTo;
+            _singlePlayerDuelManager.UpdateSinglePlayerDuel(duel);
+        }
     }
 
     private void StartTournament(Tournament tournament, PlayersToTournament playersToTournament)
@@ -250,8 +259,6 @@ public class TurnamentsManager
         }
 
         _tournamentsService.StartTournament(tournament);
-        CreateDuelsToTournament(tournament, playersToTournament);
-
         var optionPlayerMenu = _actionService.GetMenuActionsByName("Start Tournament");
 
         while (true)
@@ -274,7 +281,7 @@ public class TurnamentsManager
                     break;
 
                 case 2:
-                    //EndTournamentDuel();
+                    //UpdateTournamentDuel();
                     break;
 
                 case 3:
@@ -307,7 +314,7 @@ public class TurnamentsManager
                         }
                         operation = 0;
                     }
-                    ConsoleService.WriteLineErrorMessage("Enter a valid operation ID\n\rPress Any Key...");
+                    ConsoleService.WriteLineErrorMessage("Enter a valid operation ID");
                     break;
             }
 
@@ -391,12 +398,12 @@ public class TurnamentsManager
         int? enterNumber = 0;
         if (tournament.GamePlaySystem == "2KO")
         {
-            ConsoleService.WriteLineErrorMessage("2KO Game System Set. Change To Group\n\rPress Any Key...");
+            ConsoleService.WriteLineErrorMessage("2KO Game System Set. Change To Group");
             return;
         }
         else if (tournament.NumberOfPlayer < 8)
         {
-            ConsoleService.WriteLineErrorMessage("Add More Players\n\rPress Any Key...");
+            ConsoleService.WriteLineErrorMessage("Add More Players");
             return;
         }
         ConsoleService.WriteTitle($"{tournament.NumberOfPlayer} Players allows the tournament to start:");
@@ -422,7 +429,7 @@ public class TurnamentsManager
             }
             else if (tournament.NumberOfPlayer >= 12 && tournament.NumberOfPlayer < 16)
             {
-                ConsoleService.WriteLineMessage("2 groups, maximum 6 players per group:\n\r" +
+                ConsoleService.WriteLineMessage("2 groups:\n\r" +
                     "4 players will advance from the group to the knockout round\n\r----\n\r");
                 ConsoleService.WriteLineMessage("4 groups:\n\r" +
                     "2 players will advance from the group to the knockout round\n\r----\n\r");
@@ -462,6 +469,7 @@ public class TurnamentsManager
             {
                 ConsoleService.WriteLineMessage("Eight groups" +
                     "\n\r2 players will advance from the group to the knockout round\n\r----\n\rPress Any Key ...");
+                ConsoleService.GetKeyFromUser();
                 numberOfGroups = 8;
             }
             else if (tournament.NumberOfPlayer >= 49)
@@ -476,7 +484,7 @@ public class TurnamentsManager
         }
         else if (numberOfGroups == 0)
         {
-            ConsoleService.WriteLineErrorMessage("Something went wrong, please try again\n\rPress Any Key...");
+            ConsoleService.WriteLineErrorMessage("Something went wrong, please try again");
             return;
         }
 
@@ -496,7 +504,7 @@ public class TurnamentsManager
             ConsoleService.WriteLineMessage(ViewGroupsOr2KO(tournament, playersToTournament));
             if (playersToTournament.ListPlayersToTournament.Count == 0)
             {
-                ConsoleService.WriteLineErrorMessage("Empty List Of Player\n\rPress Any Key...");
+                ConsoleService.WriteLineErrorMessage("Empty List Of Player");
                 return;
             }
             ConsoleService.WriteLineMessage("\n\r=====================");
@@ -585,7 +593,6 @@ public class TurnamentsManager
                     string groups = string.Empty;
 
                     var groupingPlayer = playersToTournament.ListPlayersToTournament.GroupBy(p => p.Group);
-                    var t = groupingPlayer.FirstOrDefault();
 
                     if (groupingPlayer.FirstOrDefault(g => g.Key == playerToMove.Group).Count() <= 2)
                     {
@@ -593,9 +600,14 @@ public class TurnamentsManager
                         return;
                     }
 
+                    var duelsPlayerToMove = _singlePlayerDuelManager
+                        .GetSinglePlayerDuelsByTournamentsOrSparrings(tournament.Id)
+                        .Where(p => p.IdFirstPlayer == playerToMove.IdPLayer || p.IdSecondPlayer == playerToMove.IdPLayer).ToList();
+
                     if (tournament.NumberOfGroups == 2)
                     {
-                        playerToMove.Group = groupingPlayer.First(g => g.Key != playerToMove.Group).Key;
+                        var newGroup = groupingPlayer.First(g => g.Key != playerToMove.Group).Key;
+                        playerToMove.Group = newGroup;
                     }
                     else
                     {
@@ -610,6 +622,49 @@ public class TurnamentsManager
                         if (groupingPlayer.Any(g => g.Key == key.KeyChar.ToString().ToUpper()) && key.KeyChar.ToString().ToUpper() != playerToMove.Group)
                         {
                             playerToMove.Group = key.KeyChar.ToString().ToUpper();
+                        }
+                    }
+
+                    if (duelsPlayerToMove.Count != 0)
+                    {
+                        var playersOfGroup = groupingPlayer.First(g => g.Key == playerToMove.Group).Where(p => p.IdPLayer != playerToMove.IdPLayer).ToList();
+
+                        if (duelsPlayerToMove.Count < playersOfGroup.Count)
+                        {
+                            var missingDuels = playersOfGroup.Count - duelsPlayerToMove.Count;
+
+                            for (int i = 0; i < playersOfGroup.Count; ++i)
+                            {
+                                if (i < playersOfGroup.Count - missingDuels)
+                                {
+                                    duelsPlayerToMove[i].IdFirstPlayer = playersOfGroup[i].IdPLayer;
+                                    duelsPlayerToMove[i].IdSecondPlayer = playerToMove.IdPLayer;
+                                    duelsPlayerToMove[i].Group = playerToMove.Group;
+                                }
+                                else
+                                {
+                                    _singlePlayerDuelManager.NewTournamentSinglePlayerDuel(tournament.Id, playersOfGroup[i].IdPLayer, playerToMove.IdPLayer);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            var duelsToRemoved = duelsPlayerToMove.Count - playersOfGroup.Count;
+                            for (int i = 0; i < duelsPlayerToMove.Count; ++i)
+                            {
+                                if (i < duelsPlayerToMove.Count - duelsToRemoved)
+                                {
+                                    duelsPlayerToMove[i].IdFirstPlayer = playersOfGroup[i].IdPLayer;
+                                    duelsPlayerToMove[i].IdSecondPlayer = playerToMove.IdPLayer;
+                                    duelsPlayerToMove[i].Group = playerToMove.Group;
+                                    _singlePlayerDuelManager.UpdateSinglePlayerDuel(duelsPlayerToMove[i]);
+                                }
+                                else
+                                {
+                                    duelsPlayerToMove[i].IsActive = false;
+                                    _singlePlayerDuelManager.UpdateSinglePlayerDuel(duelsPlayerToMove[i]);
+                                }
+                            }
                         }
                     }
                 }
@@ -657,16 +712,7 @@ public class TurnamentsManager
                     }
                 }
             }
-        }
-
-        var allTournamentDuel = _singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(tournament.Id);
-        if (allTournamentDuel != null)
-        {
-            foreach (var duel in allTournamentDuel)
-            {
-                duel.Round = " ";
-            }
-            CreateDuelsToTournament(tournament, playersToTournament);
+            playersToTournament.SavePlayersToTournament();
         }
     }
 
@@ -740,7 +786,7 @@ public class TurnamentsManager
             }
             else if (_tournamentsService.GetAllItem().Any(t => t.Name.Equals(tournament.Name)))
             {
-                ConsoleService.WriteLineErrorMessage("The entered name is already use. Please enter a different name.\n\rPress Any Key...");
+                ConsoleService.WriteLineErrorMessage("The entered name is already use. Please enter a different name.");
             }
             else
             {
@@ -816,7 +862,7 @@ public class TurnamentsManager
 
         if (listPlayersToTournament.Any(p => p.IdPLayer == player.Id))
         {
-            ConsoleService.WriteLineErrorMessage($"The Player {player.FirstName} {player.LastName} is on the list\n\rPress Any Key...");
+            ConsoleService.WriteLineErrorMessage($"The Player {player.FirstName} {player.LastName} is on the list");
         }
         else
         {
@@ -854,11 +900,16 @@ public class TurnamentsManager
         }
         _tournamentsService.SaveList();
         playersToTournament.SavePlayersToTournament();
+
         players.Add(player);
         ConsoleService.WriteTitle("");
         if (ConsoleService.AnswerYesOrNo("Add Next Player"))
         {
             AddPlayersToTournament(tournament, playersToTournament);
+        }
+        if (tournament.Start != DateTime.MinValue)
+        {
+            CreateDuelsToTournament(tournament, playersToTournament);
         }
     }
 
@@ -898,7 +949,7 @@ public class TurnamentsManager
 
             if (playerToRemowe != null)
             {
-                if (playersToTournament.ListPlayersToTournament.Where(p => p.Group == playerToRemowe.Group).Count() < 2)
+                if (playersToTournament.ListPlayersToTournament.Where(p => p.Group == playerToRemowe.Group).Count() <= 2)
                 {
                     ConsoleService.WriteLineErrorMessage("You cannot remove a player. Minimum number of players in group 2.");
                     return;
@@ -929,7 +980,7 @@ public class TurnamentsManager
         else
         {
             ConsoleService.WriteTitle($"List Players Of {tournament.Name}");
-            ConsoleService.WriteLineErrorMessage("Empty List\n\rPress Any Key...");
+            ConsoleService.WriteLineErrorMessage("Empty List");
         }
     }
 
@@ -1085,7 +1136,7 @@ public class TurnamentsManager
         int maxEntriesToDisplay = 15;
         if (!findTournament.Any())
         {
-            ConsoleService.WriteLineErrorMessage("Empty List\n\rPress Any Key...");
+            ConsoleService.WriteLineErrorMessage("Empty List");
             return null;
         }
 
@@ -1126,7 +1177,7 @@ public class TurnamentsManager
             {
                 if (findTournament.Count == 1 && !string.IsNullOrEmpty(inputString.ToString()))
                 {
-                    ConsoleService.WriteLineErrorMessage("No entries found !!!\n\rPress Any Key...");
+                    ConsoleService.WriteLineErrorMessage("No entries found !!!");
                 }
                 else
                 {
@@ -1152,7 +1203,7 @@ public class TurnamentsManager
                         else
                         {
                             inputString.Remove(inputString.Length - 1, 1);
-                            ConsoleService.WriteLineErrorMessage("No entries found !!!\n\rPress Any Key...");
+                            ConsoleService.WriteLineErrorMessage("No entries found !!!");
                         }
                     }
                     else
@@ -1175,7 +1226,7 @@ public class TurnamentsManager
                         else
                         {
                             inputString.Remove(inputString.Length - 1, 1);
-                            ConsoleService.WriteLineErrorMessage("No entry found !!!\n\rPress Any Key...");
+                            ConsoleService.WriteLineErrorMessage("No entry found !!!");
                         }
                     }
                 }
@@ -1251,7 +1302,7 @@ public class TurnamentsManager
         }
         else
         {
-            ConsoleService.WriteLineErrorMessage("Empty List\n\rPress Any Key...");
+            ConsoleService.WriteLineErrorMessage("Empty List");
         }
         ConsoleService.WriteLineMessage("Press any key...");
         ConsoleService.GetKeyFromUser();

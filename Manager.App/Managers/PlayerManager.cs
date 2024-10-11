@@ -328,7 +328,7 @@ public class PlayerManager : IPlayerManager
         }
     }
 
-    public Player? SearchPlayer(string title = "", List<Player> playersList = null, List<Player> exeptPlayersList = null)
+    public Player? SearchPlayer(string title = "", List<Player>? playersList = null, List<Player>? exeptPlayersList = null)
     {
         StringBuilder inputString = new StringBuilder();
         List<Player> findPlayers = new();

@@ -20,5 +20,5 @@ public interface ISinglePlayerDuelService
 
     void InterruptDuel(SinglePlayerDuel duel);
 
-    void removeTournamentDuelByIdPlayer(Tournament tournament, int idPlayer);
+    void RemoveAllTournamentDuelsOrByIdPlayer(Tournament tournament, int idPlayer);
 }

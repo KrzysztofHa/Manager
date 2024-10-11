@@ -100,8 +100,8 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
         {
             while (duel.IdFirstPlayer == secondPlayer.Id)
             {
-                ConsoleService.WriteTitle("Add Second Player\r\n Press Any Key..");
                 ConsoleService.WriteLineErrorMessage("The selected player is already added.");
+                ConsoleService.WriteTitle("Add Second Player\r\n Press Any Key..");
                 ConsoleService.GetKeyFromUser();
 
                 secondPlayer = _playerManager.SearchPlayer();
@@ -232,12 +232,12 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
         if (idTournament == 0)
         {
             listSinglesPlayerDuels = _singlePlayerDuelService.GetAllSinglePlayerDuel()
-                .Where(s => s.IdPlayerTournament == null).ToList();
+                .Where(s => s.IdPlayerTournament == null && s.IsActive == true).ToList();
         }
         else
         {
             listSinglesPlayerDuels = _singlePlayerDuelService.GetAllSinglePlayerDuel()
-             .Where(s => s.IdPlayerTournament == idTournament).ToList();
+             .Where(s => s.IdPlayerTournament == idTournament && s.IsActive == true).ToList();
         }
         return listSinglesPlayerDuels;
     }
@@ -250,13 +250,13 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
         {
             title = "Sparrings";
             listSinglesPlayerDuels = _singlePlayerDuelService.GetAllSinglePlayerDuel()
-                .Where(s => s.IdPlayerTournament == null).ToList();
+                .Where(s => s.IdPlayerTournament == null && s.IsActive == true).ToList();
         }
         else
         {
             title = "Tournaments Duel";
             listSinglesPlayerDuels = _singlePlayerDuelService.GetAllSinglePlayerDuel()
-             .Where(s => s.IdPlayerTournament == idTournament).ToList();
+             .Where(s => s.IdPlayerTournament == idTournament && s.IsActive == true).ToList();
         }
 
         if (!listSinglesPlayerDuels.Any())
@@ -511,6 +511,6 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
 
     public void RemoveTournamentDuel(Tournament tournament, int idDuel)
     {
-        _singlePlayerDuelService.removeTournamentDuelByIdPlayer(tournament, idDuel);
+        _singlePlayerDuelService.RemoveAllTournamentDuelsOrByIdPlayer(tournament, idDuel);
     }
 }

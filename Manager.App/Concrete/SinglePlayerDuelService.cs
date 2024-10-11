@@ -51,7 +51,7 @@ public class SinglePlayerDuelService : BaseService<SinglePlayerDuel>, ISinglePla
 
     public List<SinglePlayerDuel> GetAllSinglePlayerDuel()
     {
-        return GetAllItem();
+        return GetAllItem().Where(s => s.IsActive == true).ToList();
     }
 
     public string GetSinglePlayerDuelDetailView(SinglePlayerDuel duel)
@@ -142,9 +142,9 @@ public class SinglePlayerDuelService : BaseService<SinglePlayerDuel>, ISinglePla
         return findSinglePlayerDuels;
     }
 
-    public void removeTournamentDuelByIdPlayer(Tournament tournament, int idPlayer = 0)
+    public void RemoveAllTournamentDuelsOrByIdPlayer(Tournament tournament, int idPlayer = 0)
     {
-        var duelsToRemove = GetAllItem().Where(d => d.IdPlayerTournament == tournament.Id).ToList();
+        var duelsToRemove = GetAllItem().Where(d => d.IdPlayerTournament == tournament.Id && d.IsActive == true).ToList();
 
         if (duelsToRemove.Count > 0)
         {
@@ -155,10 +155,10 @@ public class SinglePlayerDuelService : BaseService<SinglePlayerDuel>, ISinglePla
 
             foreach (var duel in duelsToRemove)
             {
-                GetAllItem().Remove(duel);
+                RemoveItem(duel);
             }
 
-            var allTournamentDuels = GetAllItem().Where(d => d.IdPlayerTournament == tournament.Id).ToList();
+            var allTournamentDuels = GetAllItem().Where(d => d.IdPlayerTournament == tournament.Id && d.IsActive == true).ToList();
             if (allTournamentDuels.Count > 0)
             {
                 for (int i = 0; i < allTournamentDuels.Count; ++i)

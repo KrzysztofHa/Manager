@@ -14,7 +14,10 @@ public class TournamentsService : BaseService<Tournament>, ITournamentsService
 
     public void EndTournament(Tournament tournament)
     {
-        throw new NotImplementedException();
+        if (tournament != null)
+        {
+            tournament.End = DateTime.Now;
+        }
     }
 
     public List<Tournament> SearchTournament(string searchString)
@@ -30,7 +33,7 @@ public class TournamentsService : BaseService<Tournament>, ITournamentsService
 
     public void StartTournament(Tournament tournament)
     {
-        if (tournament.End != DateTime.MinValue)
+        if (tournament.End == DateTime.MinValue)
         {
             if (tournament.Start == DateTime.MinValue)
             {

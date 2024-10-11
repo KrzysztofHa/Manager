@@ -77,6 +77,5 @@ public class BaseService<T> : IService<T> where T : BaseEntity
     public void SaveList()
     {
         _baseService.SaveListToBase();
-        LoadList();
     }
 }
