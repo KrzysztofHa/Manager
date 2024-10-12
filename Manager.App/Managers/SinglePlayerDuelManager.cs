@@ -291,8 +291,8 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
         string FormatToTextDuelsView = string.Empty;
         foreach (var duelView in tally)
         {
-            FormatToTextDuelsView += $"\r\nNumber: {duelView.NumberDuelOfTournament} Type Game: {duelView.TypeNameOfGame}" +
-            $" Race To: {duelView.RaceTo} Create Date: {duelView.CreatedDateTime,0:d} " +
+            FormatToTextDuelsView += $"\r\nMatch: {duelView.NumberDuelOfTournament} Type Game: {duelView.TypeNameOfGame}" +
+            $" Race To: {duelView.RaceTo} " +
             $"Start Game: {duelView.StartGame} End Game: {duelView.EndGame}" +
             $"\r\n{duelView.FirstPlayer,45} : {duelView.ScoreFirstPlayer}" +
             $"\r\n{duelView.SecondPleyer,45} : {duelView.ScoreSecondPlayer}";
@@ -341,7 +341,15 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
         List<string> findDuelsStringTemp = new List<string>();
         int maxEntriesToDisplay = 15;
         List<string> findDuelsStringToView = new List<string>();
-        List<SinglePlayerDuel> findDuelsTemp = _singlePlayerDuelService.SearchSinglePlayerDuel(" ").Where(d => d.Interrupted != DateTime.MinValue && d.IdPlayerTournament == idTournament).ToList();
+        List<SinglePlayerDuel> findDuelsTemp = _singlePlayerDuelService.SearchSinglePlayerDuel(" ")
+          .Where(d => d.Interrupted != DateTime.MinValue && d.IdPlayerTournament == idTournament).ToList();
+
+        if (idTournament != null)
+        {
+            findDuelsTemp = _singlePlayerDuelService.SearchSinglePlayerDuel(" ")
+          .Where(d => d.IdPlayerTournament == idTournament).ToList();
+        }
+
         if (!findDuelsTemp.Any())
         {
             if (!findDuelsTemp.Any())
@@ -363,7 +371,7 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
                 findDuelsStringTemp.Clear();
                 foreach (var duel in findDuelsTemp)
                 {
-                    var duelString = _singlePlayerDuelService.GetSinglePlayerDuelDetailView(duel);
+                    var duelString = _singlePlayerDuelService.GetSinglePlayerDuelDetailsView(duel);
                     if (duelString == string.Empty)
                     {
                         continue;
@@ -371,7 +379,7 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
                     findDuelsStringTemp.Add(duelString);
                 }
                 findDuelsString.AddRange(findDuelsStringTemp);
-                findDuelsStringToView = findDuelsString;
+                findDuelsStringToView = findDuelsString.GetRange(0, maxEntriesToDisplay);
             }
 
             if (!findDuelsStringToView.Any())
@@ -411,7 +419,7 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
                         var secondFindDuelsTemp = _singlePlayerDuelService.SearchSinglePlayerDuel(inputString.ToString());
                         {
                             if (secondFindDuelsTemp.Count == 1 &&
-                                _singlePlayerDuelService.GetSinglePlayerDuelDetailView(secondFindDuelsTemp.First()) != string.Empty)
+                                _singlePlayerDuelService.GetSinglePlayerDuelDetailsView(secondFindDuelsTemp.First()) != string.Empty)
                             {
                                 findDuelsTemp.Clear();
                                 findDuelsTemp = secondFindDuelsTemp;
@@ -492,7 +500,7 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
             {
                 var findDuelToSelect = findDuelsTemp.First(p => findDuelsTemp.IndexOf(p) == indexSelectedDuel);
                 ConsoleService.WriteTitle(headTableToview);
-                ConsoleService.WriteLineMessage($"{_singlePlayerDuelService.GetSinglePlayerDuelDetailView(findDuelToSelect),108}");
+                ConsoleService.WriteLineMessage($"{_singlePlayerDuelService.GetSinglePlayerDuelDetailsView(findDuelToSelect),108}");
 
                 if (ConsoleService.AnswerYesOrNo("Selected Duel"))
                 {
@@ -512,5 +520,10 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
     public void RemoveTournamentDuel(Tournament tournament, int idDuel)
     {
         _singlePlayerDuelService.RemoveAllTournamentDuelsOrByIdPlayer(tournament, idDuel);
+    }
+
+    public string GetViewInTextOfDetailsDuel(SinglePlayerDuel duel)
+    {
+        return _singlePlayerDuelService.GetSinglePlayerDuelDetailsView(duel);
     }
 }

@@ -54,7 +54,7 @@ public class SinglePlayerDuelService : BaseService<SinglePlayerDuel>, ISinglePla
         return GetAllItem().Where(s => s.IsActive == true).ToList();
     }
 
-    public string GetSinglePlayerDuelDetailView(SinglePlayerDuel duel)
+    public string GetSinglePlayerDuelDetailsView(SinglePlayerDuel duel)
     {
         if (duel != null)
         {
@@ -74,14 +74,24 @@ public class SinglePlayerDuelService : BaseService<SinglePlayerDuel>, ISinglePla
             var tournament = tournamentServis.GetItemById(idTournament);
 
             var tournamentName = tournament != null ? tournament.Name : "Sparring";
-            var endGameText = !duel.Interrupted.Equals(DateTime.MinValue) && duel.EndGame.Equals(DateTime.MinValue) ?
-            "Interrupted" : duel.EndGame.Equals(DateTime.MinValue) ? "In Progress" : duel.EndGame.ToShortTimeString();
+            var endGame = duel.EndGame.ToShortTimeString();
+            if (duel.EndGame.Equals(DateTime.MinValue) && duel.Interrupted.Equals(DateTime.MinValue) && duel.StartGame.Equals(DateTime.MinValue))
+            {
+                endGame = "----";
+            }
+            else if (!duel.Interrupted.Equals(DateTime.MinValue))
+            {
+                endGame = "Interrupted";
+            }
+            else if (!duel.StartGame.Equals(DateTime.MinValue) && duel.Interrupted.Equals(DateTime.MinValue))
+            {
+                endGame = "In Progress";
+            }
 
             var firstPlayerText = $"{firstPlayer.FirstName.Remove(1)}.{firstPlayer.LastName}";
             var secondPlayerText = $"{secondPlayer.FirstName.Remove(1)}.{secondPlayer.LastName}";
 
             var startGame = duel.StartGame.Equals(DateTime.MinValue) ? "Waiting" : duel.StartGame.ToShortDateString();
-            var endGame = duel.EndGame.Equals(DateTime.MinValue) ? endGameText : duel.EndGame.ToShortDateString();
 
             var formatDuelDataToView = $"{duel.Id,-5}".Remove(5) + $" {tournamentName,-10}".Remove(11) +
                 $" {duel.TypeNameOfGame,-10}".Remove(11) + $" {duel.RaceTo,-5}".Remove(6) +

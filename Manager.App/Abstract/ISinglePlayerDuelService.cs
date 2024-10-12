@@ -16,7 +16,7 @@ public interface ISinglePlayerDuelService
 
     List<SinglePlayerDuel> SearchSinglePlayerDuel(string searchString);
 
-    string GetSinglePlayerDuelDetailView(SinglePlayerDuel duel);
+    string GetSinglePlayerDuelDetailsView(SinglePlayerDuel duel);
 
     void InterruptDuel(SinglePlayerDuel duel);
 

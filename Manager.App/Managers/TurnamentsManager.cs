@@ -260,47 +260,75 @@ public class TurnamentsManager
 
         _tournamentsService.StartTournament(tournament);
         var optionPlayerMenu = _actionService.GetMenuActionsByName("Start Tournament");
+        string listStartedDuelsInText = String.Empty;
 
         while (true)
         {
-            CreateDuelsToTournament(tournament, playersToTournament);
-            var listTournamentDuelsinText = _singlePlayerDuelManager.GetListSinglePlayerDuelsInText(tournament.Id);
-            ConsoleService.WriteTitle($"Tournaments {tournament.Name} | Game System: {tournament.GamePlaySystem} | Start {tournament.Start} ");
+            var listStartedTournamentDuels = _singlePlayerDuelManager
+                .GetSinglePlayerDuelsByTournamentsOrSparrings().Where(d => d.StartGame != DateTime.MinValue).ToList();
+
+            if (listStartedTournamentDuels.Count > 0)
+            {
+                foreach (var duel in listStartedTournamentDuels)
+                {
+                    listStartedDuelsInText += _singlePlayerDuelManager.GetViewInTextOfDetailsDuel(duel);
+                }
+            }
+            else
+            {
+                listStartedDuelsInText = ViewGroupsOr2KO(tournament, playersToTournament);
+            }
+
+            ConsoleService.WriteTitle($"Tournaments {tournament.Name} | Game System: {tournament.GamePlaySystem} | Start {tournament.Start} | Number Of Tables {tournament.NumberOfTables}");
 
             for (int i = 0; i < optionPlayerMenu.Count; i++)
             {
                 ConsoleService.WriteLineMessage($"{i + 1}. {optionPlayerMenu[i].Name}");
             }
 
-            var operation = ConsoleService.GetIntNumberFromUser("Enter Option", listTournamentDuelsinText);
+            var operation = ConsoleService.GetIntNumberFromUser("Enter Option", listStartedDuelsInText);
 
             switch (operation)
             {
                 case 1:
                     //StartTournamentDuel();
+                    _singlePlayerDuelManager.SearchInterruptedDuel("", tournament.Id);
                     break;
 
                 case 2:
-                    //UpdateTournamentDuel();
+                    //UpdateDuelResult();
                     break;
 
                 case 3:
-                    AddPlayersToTournament(tournament, playersToTournament);
+                    ConsoleService.WriteTitle($"View Groups Of Tournament {tournament.Name}");
+                    ConsoleService.WriteLineMessage(ViewGroupsOr2KO(tournament, playersToTournament));
+                    ConsoleService.GetKeyFromUser("Press Any Key...");
                     break;
 
                 case 4:
-                    RemovePlayerOfTournament(tournament, playersToTournament);
+                    var listTournamentDuelsinText = _singlePlayerDuelManager.GetListSinglePlayerDuelsInText(tournament.Id);
+                    ConsoleService.WriteTitle($"All Duels Of Tournament {tournament.Name}");
+                    ConsoleService.WriteLineMessage(listTournamentDuelsinText);
+                    ConsoleService.GetKeyFromUser("Press Any Key...");
                     break;
 
                 case 5:
-                    MovePlayer(tournament, playersToTournament);
+                    AddPlayersToTournament(tournament, playersToTournament);
                     break;
 
                 case 6:
-                    ChangeRaceTo(tournament);
+                    RemovePlayerOfTournament(tournament, playersToTournament);
                     break;
 
                 case 7:
+                    MovePlayer(tournament, playersToTournament);
+                    break;
+
+                case 8:
+                    ChangeRaceTo(tournament);
+                    break;
+
+                case 9:
                     operation = null;
                     break;
 
