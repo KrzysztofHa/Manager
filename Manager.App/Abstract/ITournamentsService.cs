@@ -1,4 +1,5 @@
-﻿using Manager.Domain.Entity;
+﻿using Manager.App.Managers;
+using Manager.Domain.Entity;
 
 namespace Manager.App.Abstract
 {
@@ -6,7 +7,7 @@ namespace Manager.App.Abstract
     {
         void AddNewTournament(Tournament tournament);
 
-        void StartTournament(Tournament tournament);
+        void StartTournament(Tournament tournament, ISinglePlayerDuelManager singlePlayerDuelManager);
 
         void EndTournament(Tournament tournament);
 
@@ -14,6 +15,6 @@ namespace Manager.App.Abstract
 
         string GetTournamentDetailView(Tournament tournament);
 
-        void InterruptTournament(Tournament tournament);
+        void InterruptTournament(Tournament tournament, ISinglePlayerDuelManager singlePlayerDuelManager);
     }
 }

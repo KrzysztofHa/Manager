@@ -61,7 +61,7 @@ public class MenuActionService : BaseService<MenuAction>
         AddItem(new MenuAction(4341, "Move Player", "Edit Groups"));
         AddItem(new MenuAction(4342, "Reset Changes", "Edit Groups"));
 
-        AddItem(new MenuAction(4391, "Start Duel", "Start Tournament"));
+        AddItem(new MenuAction(4391, "Start Duel / Interrupt Duel", "Start Tournament"));
         AddItem(new MenuAction(4392, "Update Duel Result", "Start Tournament"));
         AddItem(new MenuAction(4393, "Group View", "Start Tournament"));
         AddItem(new MenuAction(4394, "All Duels", "Start Tournament"));
@@ -69,6 +69,7 @@ public class MenuActionService : BaseService<MenuAction>
         AddItem(new MenuAction(4396, "Delete Player", "Start Tournament"));
         AddItem(new MenuAction(4397, "Move Player", "Start Tournament"));
         AddItem(new MenuAction(4398, "Change Race To", "Start Tournament"));
+        AddItem(new MenuAction(4399, "Change Number Of Tables", "Start Tournament"));
 
         AddItem(new MenuAction(5100, "Change Display Name", "Settings"));
 

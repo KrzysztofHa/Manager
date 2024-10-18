@@ -28,6 +28,7 @@ public class SinglePlayerDuelService : BaseService<SinglePlayerDuel>, ISinglePla
     public void InterruptDuel(SinglePlayerDuel singlePlayerDuel)
     {
         singlePlayerDuel.Interrupted = DateTime.Now;
+        singlePlayerDuel.Resume = DateTime.MinValue;
         UpdateItem(singlePlayerDuel);
         SaveList();
     }
@@ -161,11 +162,39 @@ public class SinglePlayerDuelService : BaseService<SinglePlayerDuel>, ISinglePla
             if (idPlayer != 0)
             {
                 duelsToRemove = duelsToRemove.Where(d => d.IdFirstPlayer == idPlayer || d.IdSecondPlayer == idPlayer).ToList();
+                if (duelsToRemove.Any(d => d.EndGame != DateTime.MinValue))
+                {
+                    return;
+                }
             }
 
-            foreach (var duel in duelsToRemove)
+            if (tournament.GamePlaySystem == "2KO")
             {
-                RemoveItem(duel);
+                if (duelsToRemove.First().IdFirstPlayer == -1 || duelsToRemove.First().IdFirstPlayer == -1)
+                {
+                    foreach (var duel in duelsToRemove)
+                    {
+                        RemoveItem(duel);
+                    }
+                }
+                else
+                {
+                    if (duelsToRemove.First().IdFirstPlayer == idPlayer)
+                    {
+                        duelsToRemove.First().IdFirstPlayer = idPlayer;
+                    }
+                    else
+                    {
+                        duelsToRemove.First().IdSecondPlayer = idPlayer;
+                    }
+                }
+            }
+            else
+            {
+                foreach (var duel in duelsToRemove)
+                {
+                    RemoveItem(duel);
+                }
             }
 
             var allTournamentDuels = GetAllItem().Where(d => d.IdPlayerTournament == tournament.Id && d.IsActive == true).ToList();

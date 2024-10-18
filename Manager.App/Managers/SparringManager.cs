@@ -40,7 +40,7 @@ public class SparringManager
                     break;
 
                 case 2:
-                    StartSparring(_singlePlayerDuelManager.SearchInterruptedDuel());
+                    StartSparring(_singlePlayerDuelManager.SelectInterruptedDuelBySparring());
                     break;
 
                 case 3:
@@ -68,7 +68,7 @@ public class SparringManager
 
     public void AllSparring()
     {
-        _singlePlayerDuelManager.VievSinglePlayerDuelsByTournamentsOrSparrings();
+        _singlePlayerDuelManager.VievAllSparring();
         ConsoleService.WriteLineMessageActionSuccess("Press Any Key..");
     }
 

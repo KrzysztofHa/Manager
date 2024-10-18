@@ -19,4 +19,5 @@ public class SinglePlayerDuel : BaseEntity
     public string Group { get; set; }
     public int NumberOfTable { get; set; }
     public DateTime Interrupted { get; set; }
+    public DateTime Resume { get; set; }
 }

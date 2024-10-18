@@ -1,5 +1,6 @@
 ﻿using Manager.App.Abstract;
 using Manager.App.Common;
+using Manager.App.Managers;
 using Manager.Domain.Entity;
 
 namespace Manager.App.Concrete;
@@ -31,7 +32,7 @@ public class TournamentsService : BaseService<Tournament>, ITournamentsService
         return findTournaments;
     }
 
-    public void StartTournament(Tournament tournament)
+    public void StartTournament(Tournament tournament, ISinglePlayerDuelManager singlePlayerDuelManager)
     {
         if (tournament.End == DateTime.MinValue)
         {
@@ -43,6 +44,15 @@ public class TournamentsService : BaseService<Tournament>, ITournamentsService
             {
                 tournament.Interrupt = DateTime.MinValue;
                 tournament.Resume = DateTime.Now;
+                var startedDuelsOfTournament = singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(tournament.Id)
+               .Where(d => !d.StartGame.Equals(DateTime.MinValue)).ToArray();
+                if (tournament.NumberOfTables > startedDuelsOfTournament.Count())
+                {
+                    for (var i = 0; i < tournament.NumberOfTables; i++)
+                    {
+                        singlePlayerDuelManager.StartSingleDuel(startedDuelsOfTournament[i]);
+                    }
+                }
             }
             SaveList();
         }
@@ -68,15 +78,24 @@ public class TournamentsService : BaseService<Tournament>, ITournamentsService
         return string.Empty;
     }
 
-    public void InterruptTournament(Tournament tournament)
+    public void InterruptTournament(Tournament tournament, ISinglePlayerDuelManager singlePlayerDuelManager)
     {
-        if (tournament == null)
+        if (tournament == null && singlePlayerDuelManager == null)
         {
             return;
         }
-        tournament.Interrupt = DateTime.Now;
-        tournament.Resume = DateTime.MinValue;
-        UpdateItem(tournament);
-        SaveList();
+        else
+        {
+            var startedDuelsOfTournament = singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(tournament.Id)
+                .Where(d => !d.StartGame.Equals(DateTime.MinValue));
+            foreach (var duel in startedDuelsOfTournament)
+            {
+                singlePlayerDuelManager.InterruptDuel(duel);
+            }
+            tournament.Interrupt = DateTime.Now;
+            tournament.Resume = DateTime.MinValue;
+            UpdateItem(tournament);
+            SaveList();
+        }
     }
 }
