@@ -106,9 +106,9 @@ public class SinglePlayerDuelService : BaseService<SinglePlayerDuel>, ISinglePla
 
     public List<SinglePlayerDuel> SearchSinglePlayerDuel(string searchString)
     {
-        List<SinglePlayerDuel> findSinglePlayerDuels = new List<SinglePlayerDuel>();
+        List<SinglePlayerDuel> foundSinglePlayerDuels = new List<SinglePlayerDuel>();
 
-        findSinglePlayerDuels = GetAllItem().Where(d => $"{d.Id} {d.RaceTo} {d.TypeNameOfGame}".ToLower()
+        foundSinglePlayerDuels = GetAllItem().Where(d => $"{d.Id} {d.RaceTo} {d.TypeNameOfGame}".ToLower()
                .Contains(searchString.ToLower()) && d.IsActive == true).ToList();
 
         if (!string.IsNullOrEmpty(searchString) && searchString != " ")
@@ -116,41 +116,41 @@ public class SinglePlayerDuelService : BaseService<SinglePlayerDuel>, ISinglePla
             IPlayerService playerservice = new PlayerService();
             ITournamentsService tournamentservis = new TournamentsService();
 
-            var findPlayers = playerservice.SearchPlayer(searchString);
-            var findTournaments = tournamentservis.SearchTournament(searchString);
+            var foundPlayers = playerservice.SearchPlayer(searchString);
+            var foundTournaments = tournamentservis.SearchTournament(searchString);
             var allduel = GetAllItem().Where(d => d.IsActive == true);
 
-            if (findPlayers.Any())
+            if (foundPlayers.Any())
             {
-                var findDuelOfPlayer = findPlayers
+                var foundDuelOfPlayer = foundPlayers
                     .GroupJoin(allduel,
                     player => player.Id,
                     duel => duel.IdFirstPlayer,
                     (player, duels) => (player, duels)).ToList().SelectMany(p => p.duels).ToList();
 
-                findDuelOfPlayer.AddRange(findPlayers
+                foundDuelOfPlayer.AddRange(foundPlayers
                     .GroupJoin(allduel,
                     player => player.Id,
                     duel => duel.IdSecondPlayer,
                     (player, duels) => (player, duels)).ToList().SelectMany(p => p.duels).ToList());
 
-                findSinglePlayerDuels.AddRange(findDuelOfPlayer);
+                foundSinglePlayerDuels.AddRange(foundDuelOfPlayer);
             }
 
-            if (findTournaments.Any())
+            if (foundTournaments.Any())
             {
-                var findDuelOfTournament = findTournaments.GroupJoin(allduel,
+                var foundDuelOfTournament = foundTournaments.GroupJoin(allduel,
                     tournament => tournament.Id,
                     duel => duel.IdPlayerTournament,
                     (tournament, duels) => (tournament, duels)).ToList().SelectMany(d => d.duels).ToList();
 
-                findSinglePlayerDuels.AddRange(findDuelOfTournament);
+                foundSinglePlayerDuels.AddRange(foundDuelOfTournament);
             }
-            var findDuel = findSinglePlayerDuels.Distinct().ToList();
-            findSinglePlayerDuels.Clear();
-            findSinglePlayerDuels = findDuel;
+            var foundDuel = foundSinglePlayerDuels.Distinct().ToList();
+            foundSinglePlayerDuels.Clear();
+            foundSinglePlayerDuels = foundDuel;
         }
-        return findSinglePlayerDuels;
+        return foundSinglePlayerDuels;
     }
 
     public void RemoveAllTournamentDuelsOrByIdPlayer(Tournament tournament, int idPlayer = 0)
@@ -170,7 +170,7 @@ public class SinglePlayerDuelService : BaseService<SinglePlayerDuel>, ISinglePla
 
             if (tournament.GamePlaySystem == "2KO")
             {
-                if (duelsToRemove.First().IdFirstPlayer == -1 || duelsToRemove.First().IdFirstPlayer == -1)
+                if (duelsToRemove.First().IdFirstPlayer == -1 || duelsToRemove.First().IdSecondPlayer == -1)
                 {
                     foreach (var duel in duelsToRemove)
                     {

@@ -272,7 +272,7 @@ public static class ConsoleService
         Thread.Sleep(250);
         Console.SetCursorPosition(startCursorPosition.Left, startCursorPosition.Top);
         Console.WriteLine(errorMessage);
-        Thread.Sleep(1000);
+        Thread.Sleep(1300);
         Console.ForegroundColor = ConsoleColor.White;
         Console.SetCursorPosition(startCursorPosition.Left, startCursorPosition.Top);
         Console.WriteLine(string.Empty.PadLeft(Console.BufferWidth));

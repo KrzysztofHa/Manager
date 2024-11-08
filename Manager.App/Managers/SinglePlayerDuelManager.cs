@@ -208,7 +208,6 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
             duel.RaceTo = templateSinglePlayerDuel.RaceTo;
             duel.Round = templateSinglePlayerDuel.Round;
             duel.IdPlayerTournament = idTournament;
-            duel.Group = templateSinglePlayerDuel.Group;
             duel.IdFirstPlayer = idFirstPlayer;
             duel.IdSecondPlayer = idSecondPlayer;
             _singlePlayerDuelService.CreateTournamentSinglePlayerDue(duel);
@@ -370,7 +369,7 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
         while (ConsoleService.GetKeyFromUser().Key == ConsoleKey.Escape);
     }
 
-    public SinglePlayerDuel? SelectDuel(List<SinglePlayerDuel> singlePlayerDuels, string title = "")
+    public SinglePlayerDuel? SelectDuel(List<SinglePlayerDuel> singlePlayerDuels, string title = " ", string backText = " ")
     {
         StringBuilder inputString = new StringBuilder();
         List<string> findDuelsString = new List<string>();
@@ -438,7 +437,7 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
             ConsoleService.WriteLineMessage($"\r\n------(Found {findDuelsString.Count} Duel)-------\r\n" + inputString.ToString());
             ConsoleService.WriteLineMessage(@"Enter string move UP or Down  and  press enter to Select");
 
-            var keyFromUser = ConsoleService.GetKeyFromUser();
+            var keyFromUser = ConsoleService.GetKeyFromUser(backText);
 
             if (char.IsLetterOrDigit(keyFromUser.KeyChar))
             {

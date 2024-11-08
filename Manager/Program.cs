@@ -21,7 +21,7 @@ internal class Program
         MenuActionService actionService = new();
         IPlayerManager playerManager = new PlayerManager(actionService, playerService);
         SparringManager sparringManager = new(actionService, playerManager, playerService);
-        TurnamentsManager turnamentsManager = new(actionService, playerManager, playerService);
+        TournamentsManager turnamentsManager = new(actionService, playerManager, playerService);
 
         var mainMenu = actionService.GetMenuActionsByName("Main");
 

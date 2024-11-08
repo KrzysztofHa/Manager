@@ -46,7 +46,8 @@ public class TournamentsService : BaseService<Tournament>, ITournamentsService
                 tournament.Resume = DateTime.Now;
                 var startedDuelsOfTournament = singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(tournament.Id)
                .Where(d => !d.StartGame.Equals(DateTime.MinValue)).ToArray();
-                if (tournament.NumberOfTables > startedDuelsOfTournament.Count())
+
+                if (startedDuelsOfTournament.Count() > 0 && tournament.NumberOfTables > startedDuelsOfTournament.Count())
                 {
                     for (var i = 0; i < tournament.NumberOfTables; i++)
                     {
