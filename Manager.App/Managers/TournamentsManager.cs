@@ -402,7 +402,8 @@ public class TournamentsManager
             }
         }
 
-        var duelsOfTournament = _singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(tournament.Id);
+        var duelsOfTournament = _singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(tournament.Id)
+            .Where(d => d.IdFirstPlayer != -1 && d.IdSecondPlayer != -1).ToList();
         var startedDuels = duelsOfTournament.Where(d => d.StartGame != DateTime.MinValue && d.Interrupted == DateTime.MinValue).ToList();
         var completedDuels = duelsOfTournament.Where(d => d.EndGame != DateTime.MinValue).ToList();
 
@@ -428,7 +429,7 @@ public class TournamentsManager
 
                         if (duelsToStart.Count > tournament.NumberOfTables)
                         {
-                            var duelToStart = duelsToStart.OrderBy(d => d.StartNumberOfGroup).ToList();
+                            var duelToStart = duelsToStart.OrderBy(d => d.StartNumberInGroup).ToList();
                             for (int i = tournament.NumberOfTables - startedDuels.Count; i < tournament.NumberOfTables; i++)
                             {
                                 _singlePlayerDuelManager.StartSingleDuel(duelToStart[i]);
@@ -482,9 +483,11 @@ public class TournamentsManager
         }
         else
         {
-            for (int i = 1; i <= tournament.NumberOfTables; i++)
+            var groupingDuels = duelsOfTournament.GroupBy(d => d.Group);
+
+            foreach (var duelsOfGroup in groupingDuels)
             {
-                _singlePlayerDuelManager.StartSingleDuel(duelsOfTournament[i]);
+                _singlePlayerDuelManager.StartSingleDuel(duelsOfGroup.OrderBy(d => d.StartNumberInGroup).First());
             }
         }
     }
@@ -539,6 +542,7 @@ public class TournamentsManager
             }
 
             playersToTournament.SavePlayersToTournament();
+            DetermineTheOrderOfDuelsToStartInGroup(tournament, playersToTournament);
         }
         else
         {
@@ -602,20 +606,52 @@ public class TournamentsManager
             foreach (var groupPlayers in groupingPlayers)
             {
                 List<int[]> queueDuels = new List<int[]>();
-                var numberOfPlayerToTable = groupPlayers.Count();
-                if (numberOfPlayerToTable % 2 != 0)
+                var numberOfPlayerInGroup = groupPlayers.Count();
+
+                List<int> firstSequenceNumberOfDuel = new List<int>();
+                List<int> secondSequenceNumberOfDuel = new List<int>();
+                int numberDuelsInRound = numberOfPlayerInGroup / 2;
+
+                var addDuelsToQueue = (List<int> firstSequence, List<int> secondSequence) =>
                 {
-                    numberOfPlayerToTable++;
-                    int[] duelsToQueue = new int[numberOfPlayerToTable / 2];
-                    int j = numberOfPlayerToTable / 2;
-                    for (int i = 0; i < numberOfPlayerToTable / 2; i++)
+                    queueDuels.AddRange(firstSequence
+                    .Zip(secondSequence, (first, second) => new int[2] { first, second }));
+                };
+
+                if (numberOfPlayerInGroup % 2 != 0)
+                {
+                    numberDuelsInRound++;
+                }
+
+                for (int i = 1; i <= numberDuelsInRound; i++)
+                {
+                    firstSequenceNumberOfDuel.Add(i);
+                    secondSequenceNumberOfDuel.Add(numberDuelsInRound + i);
+                }
+
+                for (int i = 1; i <= numberDuelsInRound; i++)
+                {
+                    addDuelsToQueue(firstSequenceNumberOfDuel, secondSequenceNumberOfDuel);
+                    secondSequenceNumberOfDuel.Add(secondSequenceNumberOfDuel.First());
+                    secondSequenceNumberOfDuel.Remove(secondSequenceNumberOfDuel.First());
+                }
+
+                for (int i = 1; i < numberDuelsInRound; i++)
+                {
+                    for (int j = i + 1; j <= numberDuelsInRound; j++)
                     {
-                        duelsToQueue[i] = j++;
+                        queueDuels.Add([i, j]);
+                        queueDuels.Add([numberDuelsInRound + i, numberDuelsInRound + j]);
                     }
                 }
-                else
+
+                if (numberOfPlayerInGroup % 2 != 0)
                 {
-                    int[] halfNumberOfPlayers = new int[numberOfPlayerToTable / 2];
+                    var intToRemove = queueDuels.Where(d => d[1] == numberOfPlayerInGroup + 1).ToList();
+                    foreach (var intre in intToRemove)
+                    {
+                        queueDuels.Remove(intre);
+                    }
                 }
 
                 foreach (var player in groupPlayers)
@@ -626,16 +662,15 @@ public class TournamentsManager
                 }
                 var listGroupingPlayers = groupPlayers.ToList();
 
-                for (int i = 0; i < duelsOfGroup.Count; i += 2)
-                {
-                    duelsOfGroup.First(d =>
-                    d.IdFirstPlayer == listGroupingPlayers[i].IdPLayer && d.IdSecondPlayer == listGroupingPlayers[i].IdPLayer);
-                }
-
                 foreach (var duel in duelsOfGroup)
                 {
                     duel.Group = groupPlayers.Key;
+                    duel.StartNumberInGroup = queueDuels
+                        .FindIndex(d => d[0] == listGroupingPlayers.FindIndex(p => p.IdPLayer == duel.IdFirstPlayer) + 1 && d[1] == listGroupingPlayers.FindIndex(p => p.IdPLayer == duel.IdSecondPlayer) + 1
+                         || d[0] == listGroupingPlayers.FindIndex(p => p.IdPLayer == duel.IdSecondPlayer) + 1 && d[1] == listGroupingPlayers.FindIndex(p => p.IdPLayer == duel.IdFirstPlayer) + 1) + 1;
+                    _singlePlayerDuelManager.UpdateSinglePlayerDuel(duel);
                 }
+
                 duelsOfGroup.Clear();
             }
         }
@@ -1229,6 +1264,7 @@ public class TournamentsManager
                         _singlePlayerDuelManager.RemoveTournamentDuel(tournament, playerToRemove.IdPLayer);
                         playersToTournament.ListPlayersToTournament.Remove(playerToRemove);
                         playersToTournament.SavePlayersToTournament();
+                        DetermineTheOrderOfDuelsToStartInGroup(tournament, playersToTournament);
                         tournament.NumberOfPlayer = playersToTournament.ListPlayersToTournament.Count;
                         _tournamentsService.SaveList();
                     }
