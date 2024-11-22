@@ -1,4 +1,5 @@
 ﻿using Manager.App.Abstract;
+using Manager.Domain.Entity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,11 +11,12 @@ namespace Manager.App.Managers.Helpers.GamePlaySystem;
 public class TwoKOSystem
 {
     private readonly ISinglePlayerDuelManager _singlePlayerDuelManager;
-    private readonly PlayersToTournament _playersToTournament;
+    private readonly ITournamentsService _tournamentService;
+    private readonly PlayersToTournament _playersToTournament = new PlayersToTournament();
 
-    public TwoKOSystem(PlayersToTournament playersToTournament, ISinglePlayerDuelManager singlePlayerDuelManager)
+    public TwoKOSystem(Tournament tournament, ITournamentsService tournamentService, ISinglePlayerDuelManager singlePlayerDuelManager)
     {
         _singlePlayerDuelManager = singlePlayerDuelManager;
-        _playersToTournament = playersToTournament;
+        _tournamentService = tournamentService;
     }
 }

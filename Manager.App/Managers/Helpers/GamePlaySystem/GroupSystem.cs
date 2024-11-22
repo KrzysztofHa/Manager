@@ -5,9 +5,11 @@ namespace Manager.App.Managers.Helpers.GamePlaySystem;
 public class GroupSystem
 {
     private readonly ISinglePlayerDuelManager _singlePlayerDuelManager;
+    private readonly ITournamentsService _tournamentService;
 
-    public GroupSystem(PlayersToTournament playersToTournament, ISinglePlayerDuelManager singlePlayerDuelManager)
+    public GroupSystem(ITournamentsService tournamentsService, ISinglePlayerDuelManager singlePlayerDuelManager)
     {
         _singlePlayerDuelManager = singlePlayerDuelManager;
+        _tournamentService = tournamentsService;
     }
 }
