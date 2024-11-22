@@ -44,15 +44,19 @@ public class TournamentsService : BaseService<Tournament>, ITournamentsService
             {
                 tournament.Interrupt = DateTime.MinValue;
                 tournament.Resume = DateTime.Now;
-                var startedDuelsOfTournament = singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(tournament.Id)
-               .Where(d => !d.StartGame.Equals(DateTime.MinValue)).ToArray();
+                var interruptedDuelsOfTournament = singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(tournament.Id)
+               .Where(d => !d.StartGame.Equals(DateTime.MinValue) && d.Interrupted != DateTime.MinValue && d.EndGame == DateTime.MinValue)
+               .OrderBy(p => p.StartNumberInGroup).ToList();
 
-                if (startedDuelsOfTournament.Count() > 0 && tournament.NumberOfTables > startedDuelsOfTournament.Count())
+                int numberDuelsTostart = tournament.NumberOfTables;
+                if (tournament.NumberOfTables > interruptedDuelsOfTournament.Count)
                 {
-                    for (var i = 0; i < tournament.NumberOfTables; i++)
-                    {
-                        singlePlayerDuelManager.StartSingleDuel(startedDuelsOfTournament[i]);
-                    }
+                    numberDuelsTostart = interruptedDuelsOfTournament.Count;
+                }
+
+                for (var i = 0; i < numberDuelsTostart; i++)
+                {
+                    singlePlayerDuelManager.StartSingleDuel(interruptedDuelsOfTournament[i]);
                 }
             }
             SaveList();
@@ -88,7 +92,7 @@ public class TournamentsService : BaseService<Tournament>, ITournamentsService
         else
         {
             var startedDuelsOfTournament = singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(tournament.Id)
-                .Where(d => !d.StartGame.Equals(DateTime.MinValue));
+                .Where(d => !d.StartGame.Equals(DateTime.MinValue) && d.Interrupted == DateTime.MinValue && d.EndGame == DateTime.MinValue);
             foreach (var duel in startedDuelsOfTournament)
             {
                 singlePlayerDuelManager.InterruptDuel(duel);

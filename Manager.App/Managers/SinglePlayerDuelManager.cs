@@ -335,36 +335,36 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
         }
     }
 
-    public SinglePlayerDuel? SelectInterruptedDuelBySparring(string title = "Sparring")
+    public SinglePlayerDuel? SelectInterruptedDuelBySparring(string title = "Sparring", string backText = " ")
     {
-        List<SinglePlayerDuel> findDuels = _singlePlayerDuelService.GetAllSinglePlayerDuel()
+        List<SinglePlayerDuel> foundDuels = _singlePlayerDuelService.GetAllSinglePlayerDuel()
           .Where(d => d.Interrupted != DateTime.MinValue && d.IdPlayerTournament == null).ToList();
-        return SelectDuel(findDuels, title);
+        return SelectDuel(foundDuels, title, backText);
     }
 
-    public SinglePlayerDuel? SelectStartedDuelByTournament(int idTournament, string title = "Select Started Duels")
+    public SinglePlayerDuel? SelectStartedDuelByTournament(int idTournament, string title = "Select Started Duels", string backText = " ")
     {
-        List<SinglePlayerDuel> findDuels = _singlePlayerDuelService.GetAllSinglePlayerDuel()
-          .Where(d => d.Interrupted == DateTime.MinValue && !d.StartGame.Equals(DateTime.MinValue)
+        List<SinglePlayerDuel> foundDuels = _singlePlayerDuelService.GetAllSinglePlayerDuel()
+          .Where(d => d.Interrupted == DateTime.MinValue && !d.StartGame.Equals(DateTime.MinValue) && d.EndGame == DateTime.MinValue
           && d.IdPlayerTournament == idTournament).ToList();
-        return SelectDuel(findDuels, title);
+        return SelectDuel(foundDuels, title, backText);
     }
 
-    public SinglePlayerDuel? SelectDuelToStartByTournament(int idTournament, string title = "Select Interrupted Duels")
+    public SinglePlayerDuel? SelectDuelToStartByTournament(int idTournament, string title = "Select Interrupted Duels", string backText = " ")
     {
-        List<SinglePlayerDuel> findDuels = _singlePlayerDuelService.GetAllSinglePlayerDuel()
+        List<SinglePlayerDuel> foundDuels = _singlePlayerDuelService.GetAllSinglePlayerDuel()
             .Where(d => d.IdPlayerTournament == idTournament
             && d.StartGame != DateTime.MinValue && d.Interrupted == DateTime.MinValue).ToList();
 
-        return SelectDuel(_singlePlayerDuelService.GetAllSinglePlayerDuel().Where(d => d.IdPlayerTournament == idTournament).Except(findDuels).ToList(), title);
+        return SelectDuel(_singlePlayerDuelService.GetAllSinglePlayerDuel().Where(d => d.IdPlayerTournament == idTournament).Except(foundDuels).ToList(), title, backText);
     }
 
     public void SearchDuel()
     {
         do
         {
-            List<SinglePlayerDuel> findDuels = _singlePlayerDuelService.SearchSinglePlayerDuel(" ");
-            ConsoleService.WriteLineMessage(GetViewInTextOfDetailsDuel(SelectDuel(findDuels)));
+            List<SinglePlayerDuel> foundDuels = _singlePlayerDuelService.SearchSinglePlayerDuel(" ");
+            ConsoleService.WriteLineMessage(GetViewInTextOfDetailsDuel(SelectDuel(foundDuels)));
         }
         while (ConsoleService.GetKeyFromUser().Key == ConsoleKey.Escape);
     }

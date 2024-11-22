@@ -18,7 +18,7 @@ public class SinglePlayerDuel : BaseEntity
     public bool IsWalkOver { get; set; }
     public string Round { get; set; }
     public string Group { get; set; }
-    public int NumberOfTable { get; set; }
+    public int TableNumber { get; set; }
     public DateTime Interrupted { get; set; }
     public DateTime Resume { get; set; }
 }
