@@ -12,7 +12,6 @@ public class TwoKOSystem
 {
     private readonly ISinglePlayerDuelManager _singlePlayerDuelManager;
     private readonly ITournamentsService _tournamentService;
-    private readonly PlayersToTournament _playersToTournament = new PlayersToTournament();
 
     public TwoKOSystem(Tournament tournament, ITournamentsService tournamentService, ISinglePlayerDuelManager singlePlayerDuelManager)
     {
