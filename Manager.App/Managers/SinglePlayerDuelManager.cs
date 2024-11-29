@@ -202,7 +202,7 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
             _singlePlayerDuelService.CreateTournamentSinglePlayerDue(duel);
         }
 
-        if (idFirstPlayer > 0 && idSecondPlayer > 0)
+        if (idFirstPlayer > 0 && (idSecondPlayer > 0 || idSecondPlayer == -1))
         {
             duel.TypeNameOfGame = templateSinglePlayerDuel.TypeNameOfGame;
             duel.RaceTo = templateSinglePlayerDuel.RaceTo;
@@ -259,7 +259,7 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
             return string.Empty;
         }
 
-        var listPlayers = _playerService.ListOfActivePlayers();
+        var listPlayers = _playerService.GetAllItem();
         var tally = listPlayers.Join(listSinglesPlayerDuels,
             player => player.Id,
             duel => duel.IdFirstPlayer,
@@ -267,7 +267,7 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
         new
         {
             FirstPlayer = $"{player.FirstName} {player.LastName}",
-            SecondPleyer = listPlayers.Where(p => p.Id == duel.IdSecondPlayer)
+            SecondPleyer = duel.IdFirstPlayer != -1 && duel.IdSecondPlayer == -1 ? "Free Win" : listPlayers.Where(p => p.Id == duel.IdSecondPlayer)
             .Select(n => new { FulNamen = n.FirstName + " " + n.LastName }).First().FulNamen,
             duel.NumberDuelOfTournament,
             duel.TypeNameOfGame,
@@ -552,9 +552,9 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
         return null;
     }
 
-    public void RemoveTournamentDuel(Tournament tournament, int idDuel)
+    public void RemoveTournamentDuel(Tournament tournament, int idPlayer)
     {
-        _singlePlayerDuelService.RemoveAllTournamentDuelsOrByIdPlayer(tournament, idDuel);
+        _singlePlayerDuelService.RemoveAllTournamentDuelsOrByIdPlayer(tournament, idPlayer);
     }
 
     public string GetViewInTextOfDetailsDuel(SinglePlayerDuel duel)

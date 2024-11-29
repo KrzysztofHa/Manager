@@ -157,20 +157,17 @@ public class SinglePlayerDuelService : BaseService<SinglePlayerDuel>, ISinglePla
     {
         var duelsToRemove = GetAllItem().Where(d => d.IdPlayerTournament == tournament.Id && d.IsActive == true).ToList();
 
-        if (duelsToRemove.Count > 0)
+        if (duelsToRemove.Any(d => d.IdFirstPlayer == idPlayer || d.IdSecondPlayer == idPlayer))
         {
-            if (idPlayer != 0)
+            duelsToRemove = duelsToRemove.Where(d => d.IdFirstPlayer == idPlayer || d.IdSecondPlayer == idPlayer).ToList();
+            if (duelsToRemove.Any(d => d.EndGame != DateTime.MinValue && (d.StartGame != DateTime.MinValue && d.Interrupted == DateTime.MinValue)))
             {
-                duelsToRemove = duelsToRemove.Where(d => d.IdFirstPlayer == idPlayer || d.IdSecondPlayer == idPlayer).ToList();
-                if (duelsToRemove.Any(d => d.EndGame != DateTime.MinValue))
-                {
-                    return;
-                }
+                return;
             }
 
             if (tournament.GamePlaySystem == "2KO")
             {
-                if (duelsToRemove.First().IdFirstPlayer == -1 || duelsToRemove.First().IdSecondPlayer == -1)
+                if (duelsToRemove.First().IdFirstPlayer == idPlayer && duelsToRemove.First().IdSecondPlayer == -1)
                 {
                     foreach (var duel in duelsToRemove)
                     {
@@ -181,12 +178,14 @@ public class SinglePlayerDuelService : BaseService<SinglePlayerDuel>, ISinglePla
                 {
                     if (duelsToRemove.First().IdFirstPlayer == idPlayer)
                     {
-                        duelsToRemove.First().IdFirstPlayer = idPlayer;
+                        duelsToRemove.First().IdFirstPlayer = duelsToRemove.First().IdSecondPlayer;
+                        duelsToRemove.First().IdSecondPlayer = -1;
                     }
                     else
                     {
-                        duelsToRemove.First().IdSecondPlayer = idPlayer;
+                        duelsToRemove.First().IdSecondPlayer = -1;
                     }
+                    SaveList();
                 }
             }
             else
@@ -196,8 +195,10 @@ public class SinglePlayerDuelService : BaseService<SinglePlayerDuel>, ISinglePla
                     RemoveItem(duel);
                 }
             }
-
-            var allTournamentDuels = GetAllItem().Where(d => d.IdPlayerTournament == tournament.Id && d.IsActive == true).ToList();
+        }
+        else if (idPlayer == 0)
+        {
+            var allTournamentDuels = GetAllItem().Where(d => d.IdPlayerTournament == tournament.Id && d.IsActive == true).OrderBy(d => d.NumberDuelOfTournament).ToList();
             if (allTournamentDuels.Count > 0)
             {
                 for (int i = 0; i < allTournamentDuels.Count; ++i)
@@ -205,7 +206,7 @@ public class SinglePlayerDuelService : BaseService<SinglePlayerDuel>, ISinglePla
                     allTournamentDuels[i].NumberDuelOfTournament = i;
                 }
             }
-            SaveList();
         }
+        SaveList();
     }
 }
