@@ -276,6 +276,7 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
             duel.ScoreFirstPlayer,
             duel.ScoreSecondPlayer,
             duel.IdPlayerTournament,
+            duel.Group,
             StartGame = duel.StartGame.Equals(DateTime.MinValue) ? "Waiting" : duel.StartGame.ToShortTimeString(),
             Inrerrupted = !duel.Interrupted.Equals(DateTime.MinValue) ? "Interrtupted" : "In Progress",
             EndGame = duel.EndGame.Equals(DateTime.MinValue) ? "----" : duel.EndGame.ToShortTimeString(),
@@ -288,7 +289,7 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
             var endGame = duelView.StartGame.Equals("Waiting") ? duelView.EndGame : duelView.Inrerrupted;
             endGame = !duelView.StartGame.Equals("Waiting") && !duelView.EndGame.Equals("----") ? duelView.EndGame : endGame;
 
-            FormatToTextDuelsView += $"\r\nMatch: {duelView.NumberDuelOfTournament} Type Game: {duelView.TypeNameOfGame}" +
+            FormatToTextDuelsView += $"\r\nMatch: {duelView.NumberDuelOfTournament} Group: {duelView.Group} Type Game: {duelView.TypeNameOfGame}" +
             $" Race To: {duelView.RaceTo} " +
             $"Start Game: {duelView.StartGame} End Game: {endGame}" +
             $"\r\n{duelView.FirstPlayer,45} : {duelView.ScoreFirstPlayer}" +

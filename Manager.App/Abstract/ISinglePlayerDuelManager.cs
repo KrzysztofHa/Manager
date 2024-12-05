@@ -30,7 +30,7 @@ namespace Manager.App.Abstract
 
         SinglePlayerDuel? SelectDuel(List<SinglePlayerDuel> singlePlayerDuels, string title = " ", string backText = " ");
 
-        void RemoveTournamentDuel(Tournament tournament, int idDuel = 0);
+        void RemoveTournamentDuel(Tournament tournament, int idPlayer = 0);
 
         void SearchDuel();
 

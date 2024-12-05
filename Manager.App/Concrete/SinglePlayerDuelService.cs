@@ -185,7 +185,6 @@ public class SinglePlayerDuelService : BaseService<SinglePlayerDuel>, ISinglePla
                     {
                         duelsToRemove.First().IdSecondPlayer = -1;
                     }
-                    SaveList();
                 }
             }
             else
@@ -195,6 +194,8 @@ public class SinglePlayerDuelService : BaseService<SinglePlayerDuel>, ISinglePla
                     RemoveItem(duel);
                 }
             }
+
+            SaveList();
         }
         else if (idPlayer == 0)
         {

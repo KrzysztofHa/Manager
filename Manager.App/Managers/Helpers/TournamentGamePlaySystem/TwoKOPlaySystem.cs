@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 
 namespace Manager.App.Managers.Helpers.GamePlaySystem;
 
-public class TwoKOSystem
+public class TwoKOPlaySystem
 {
     private readonly ISinglePlayerDuelManager _singlePlayerDuelManager;
     private readonly ITournamentsService _tournamentService;
 
-    public TwoKOSystem(Tournament tournament, ITournamentsService tournamentService, ISinglePlayerDuelManager singlePlayerDuelManager)
+    public TwoKOPlaySystem(Tournament tournament, ITournamentsService tournamentService, ISinglePlayerDuelManager singlePlayerDuelManager)
     {
         _singlePlayerDuelManager = singlePlayerDuelManager;
         _tournamentService = tournamentService;
