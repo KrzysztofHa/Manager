@@ -282,7 +282,6 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
             EndGame = duel.EndGame.Equals(DateTime.MinValue) ? "----" : duel.EndGame.ToShortTimeString(),
         }).OrderBy(d => d.CreatedDateTime);
 
-        ConsoleService.WriteTitle($"{title}");
         string FormatToTextDuelsView = string.Empty;
         foreach (var duelView in tally)
         {

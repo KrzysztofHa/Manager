@@ -58,7 +58,7 @@ public class MenuActionService : BaseService<MenuAction>
 
         AddItem(new MenuAction(4391, "Start Duel / Interrupt Duel", "Start Tournament"));
         AddItem(new MenuAction(4392, "Update Duel Result", "Start Tournament"));
-        AddItem(new MenuAction(4393, "Group/2KO View", "Start Tournament"));
+        AddItem(new MenuAction(4393, "Tournament View", "Start Tournament"));
         AddItem(new MenuAction(4394, "All Duels", "Start Tournament"));
         AddItem(new MenuAction(4394, "Chenge Race To", "Start Tournament"));
 

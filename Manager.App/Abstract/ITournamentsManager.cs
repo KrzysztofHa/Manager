@@ -1,23 +1,21 @@
-﻿using Manager.App.Managers.Helpers;
-using Manager.Domain.Entity;
+﻿using Manager.Domain.Entity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Manager.App.Abstract
+namespace Manager.App.Abstract;
+
+public interface ITournamentsManager
 {
-    public interface ITournamentsManager
-    {
-        void AddPlayersToTournament(Tournament tournament, PlayersToTournament playersToTournament);
+    public void UpdateTournament(Tournament tournament);
 
-        void ViewListPlayersToTournament(Tournament tournament, PlayersToTournament playersToTournament);
+    void InterruptTournament(Tournament tournament);
 
-        string ViewPlayerToTournamentDetail(PlayerToTournament playerToTournament);
+    string GetTournamentDetailView(Tournament tournament);
 
-        void RemovePlayerOfTournament(Tournament tournament, PlayersToTournament playersToTournament);
+    void EndTournament(Tournament tournament);
 
-        //void ChangeNumberOfTable(Tournament tournament, PlayersToTournament playersToTournament);
-    }
+    void StartTournament(Tournament tournament);
 }

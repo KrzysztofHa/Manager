@@ -1,19 +1,20 @@
 ﻿using Manager.App.Abstract;
 using Manager.App.Concrete;
+using Manager.App.Managers.Helpers.TournamentGamePlaySystem;
 using Manager.Consol.Concrete;
 using Manager.Domain.Entity;
 
 namespace Manager.App.Managers.Helpers.GamePlaySystem;
 
-public class GroupPlaySystem
+public class GroupPlaySystem : PlaySystem
 {
     private readonly ISinglePlayerDuelManager _singlePlayerDuelManager;
     private readonly ITournamentsManager _tournamentManager;
 
-    public GroupPlaySystem(Tournament tournament, ITournamentsManager tournamentsService, ISinglePlayerDuelManager singlePlayerDuelManager)
+    public GroupPlaySystem(Tournament tournament, ITournamentsManager tournamentsManager, ISinglePlayerDuelManager singlePlayerDuelManager) : base(tournament)
     {
         _singlePlayerDuelManager = singlePlayerDuelManager;
-        _tournamentManager = tournamentsService;
+        _tournamentManager = tournamentsManager;
     }
 
     private void SetGroups(Tournament tournament, PlayersToTournament playersToTournament)
@@ -200,5 +201,53 @@ public class GroupPlaySystem
 
             duelsOfGroup.Clear();
         }
+    }
+
+    public override string ViewTournamentBracket(PlayersToTournament playersToTournament)
+    {
+        var formatText = string.Empty;
+        if (playersToTournament.ListPlayersToTournament.Any(p => !string.IsNullOrEmpty(p.TwoKO)))
+        {
+            if (playersToTournament.ListPlayersToTournament.Any(p => string.IsNullOrEmpty(p.Group)))
+            {
+                return formatText = "Set Groups";
+            }
+            var groupingPlayer = playersToTournament.ListPlayersToTournament
+                .GroupBy(group => group.Group, group => group).OrderBy(g => g.Key).ToList();
+
+            List<PlayerToTournament> formatList = new List<PlayerToTournament>();
+            decimal numberLine = playersToTournament.ListPlayersToTournament.Count / Tournament.NumberOfGroups;
+
+            formatText += "\n\r";
+            for (int i = 0; i < Tournament.NumberOfGroups; i++)
+            {
+                formatText += $"Group: {groupingPlayer[i].Key,-23}";
+            }
+
+            formatText += "\n\r";
+            for (var j = 0; j <= Math.Floor(numberLine); j++)
+            {
+                formatText += "\n\r";
+                for (var i = 0; i < Tournament.NumberOfGroups; i++)
+                {
+                    var player = groupingPlayer[i].Select(p => p).Except(formatList).FirstOrDefault();
+                    if (player != null)
+                    {
+                        formatList.Add(player);
+                        formatText += $"{player.TinyFulName}";
+                    }
+                    else
+                    {
+                        formatText += $"{" ",-30}";
+                    }
+                }
+            }
+        }
+        return formatText;
+    }
+
+    public override void StartTournament()
+    {
+        throw new NotImplementedException();
     }
 }

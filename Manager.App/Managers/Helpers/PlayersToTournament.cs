@@ -7,7 +7,7 @@ namespace Manager.App.Managers.Helpers;
 
 public class PlayersToTournament
 {
-    private readonly ITournamentsService _tournamentsService;
+    private readonly ITournamentsManager _tournamentsManager;
     public List<PlayerToTournament> ListPlayersToTournament { get; set; }
     public int IdTournament { get; set; }
 
@@ -15,13 +15,13 @@ public class PlayersToTournament
     {
     }
 
-    public PlayersToTournament(Tournament tournament, ITournamentsService tournamentsService)
+    public PlayersToTournament(Tournament tournament, ITournamentsManager tournamentsManager)
     {
         if (tournament == null)
         {
             return;
         }
-        _tournamentsService = tournamentsService;
+        _tournamentsManager = tournamentsManager;
         ListPlayersToTournament = new List<PlayerToTournament>();
         IdTournament = tournament.Id;
         LoadList(tournament);
@@ -42,8 +42,7 @@ public class PlayersToTournament
         if (checkList.Count != tournament.NumberOfPlayer)
         {
             tournament.NumberOfPlayer = checkList.Count;
-            _tournamentsService.UpdateItem(tournament);
-            _tournamentsService.SaveList();
+            _tournamentsManager.UpdateTournament(tournament);
         }
         ListPlayersToTournament = checkList;
     }
