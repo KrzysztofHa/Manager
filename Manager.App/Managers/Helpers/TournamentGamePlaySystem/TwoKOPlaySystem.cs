@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Manager.App.Managers.Helpers.GamePlaySystem;
 
-public class TwoKOPlaySystem : PlaySystem
+public class TwoKOPlaySystem : PlaySystems
 {
     protected readonly ITournamentsManager _tournamentsManager;
     protected readonly ISinglePlayerDuelManager _singlePlayerDuelManager;
@@ -18,6 +18,11 @@ public class TwoKOPlaySystem : PlaySystem
     {
         _tournamentsManager = tournamentsManager;
         _singlePlayerDuelManager = singlePlayerDuelManager;
+    }
+
+    public override void StartTournament()
+    {
+        throw new NotImplementedException();
     }
 
     public override string ViewTournamentBracket(PlayersToTournament playersToTournament)

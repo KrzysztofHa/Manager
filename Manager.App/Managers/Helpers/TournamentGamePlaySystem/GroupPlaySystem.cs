@@ -6,7 +6,7 @@ using Manager.Domain.Entity;
 
 namespace Manager.App.Managers.Helpers.GamePlaySystem;
 
-public class GroupPlaySystem : PlaySystem
+public class GroupPlaySystem : PlaySystems
 {
     private readonly ISinglePlayerDuelManager _singlePlayerDuelManager;
     private readonly ITournamentsManager _tournamentManager;

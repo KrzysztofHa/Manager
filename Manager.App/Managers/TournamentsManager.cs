@@ -1210,19 +1210,21 @@ public class TournamentsManager : ITournamentsManager
                 return null;
             }
         }
-
         tournament.IdClub = club.Id;
+
+        _tournamentsService.AddNewTournament(tournament);
+        _singlePlayerDuelManager.NewTournamentSinglePlayerDuel(tournament.Id);
+
         ITournamentsManager tournamentsManager = this;
-        TournamentGamePlayManager tournamentGamePlaySystem = new TournamentGamePlayManager(tournament, tournamentsManager, _actionService, _playerManager, _playerService, _singlePlayerDuelManager);
+        TournamentGamePlayManager tournamentGamePlaySystem = new(tournament, tournamentsManager, _actionService, _playerManager, _playerService, _singlePlayerDuelManager);
         tournament.GamePlaySystem = tournamentGamePlaySystem.GetGamePlaySystemFromUser();
 
         if (string.IsNullOrEmpty(tournament.GamePlaySystem))
         {
             return null;
         }
-
-        _tournamentsService.AddNewTournament(tournament);
-        tournamentGamePlaySystem.AddPlayersToTournament();
+        PlayersToTournament playersToTournament = new PlayersToTournament(tournament, tournamentsManager, _playerManager, _playerService);
+        playersToTournament.AddPlayersToTournament();
         _tournamentsService.UpdateItem(tournament);
         _tournamentsService.SaveList();
 

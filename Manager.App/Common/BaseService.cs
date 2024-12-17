@@ -59,8 +59,9 @@ public class BaseService<T> : IService<T> where T : BaseEntity
             entity = item;
             entity.ModifiedDateTime = DateTime.Now;
             entity.ModifiedById = ActiveUserNameOrId.IdActiveUser;
+            return entity.Id;
         }
-        return entity.Id;
+        return 0;
     }
 
     public T GetItemById(int id)

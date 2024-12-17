@@ -10,11 +10,11 @@ using System.Threading.Tasks;
 
 namespace Manager.App.Managers.Helpers.TournamentGamePlaySystem;
 
-public abstract class PlaySystem
+public abstract class PlaySystems
 {
     public Tournament Tournament { get; }
 
-    protected PlaySystem(Tournament tournament)
+    protected PlaySystems(Tournament tournament)
     {
         Tournament = tournament;
     }
