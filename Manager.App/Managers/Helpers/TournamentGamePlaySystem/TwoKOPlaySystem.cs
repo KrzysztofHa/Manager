@@ -1,5 +1,6 @@
 ﻿using Manager.App.Abstract;
 using Manager.App.Managers.Helpers.TournamentGamePlaySystem;
+using Manager.Consol.Concrete;
 using Manager.Domain.Entity;
 using System;
 using System.Collections.Generic;
@@ -11,13 +12,22 @@ namespace Manager.App.Managers.Helpers.GamePlaySystem;
 
 public class TwoKOPlaySystem : PlaySystems
 {
-    protected readonly ITournamentsManager _tournamentsManager;
-    protected readonly ISinglePlayerDuelManager _singlePlayerDuelManager;
-
-    public TwoKOPlaySystem(Tournament tournament, ITournamentsManager tournamentsManager, ISinglePlayerDuelManager singlePlayerDuelManager) : base(tournament)
+    public TwoKOPlaySystem(Tournament tournament, ITournamentsManager tournamentsManager, ISinglePlayerDuelManager singlePlayerDuelManager, PlayersToTournament playersToTournament) : base(tournament, tournamentsManager, singlePlayerDuelManager, playersToTournament)
     {
-        _tournamentsManager = tournamentsManager;
-        _singlePlayerDuelManager = singlePlayerDuelManager;
+    }
+
+    public override void AddPlayers()
+    {
+        var newPlayers = PlayersToTournament.AddPlayersToTournament();
+
+        if (newPlayers.Count > 0 && Tournament.Start != DateTime.MinValue)
+        {
+        }
+    }
+
+    public override void MovePlayer()
+    {
+        throw new NotImplementedException();
     }
 
     public override void StartTournament()
@@ -25,17 +35,21 @@ public class TwoKOPlaySystem : PlaySystems
         throw new NotImplementedException();
     }
 
-    public override string ViewTournamentBracket(PlayersToTournament playersToTournament)
+    public override string ViewTournamentBracket()
     {
         var formatText = string.Empty;
-        if (playersToTournament.ListPlayersToTournament.Any(p => !string.IsNullOrEmpty(p.TwoKO)))
+        if (PlayersToTournament.ListPlayersToTournament.Any(p => !string.IsNullOrEmpty(p.TwoKO)))
         {
             formatText = $"\n\rStart List 2KO System\n\r\n\r";
-            foreach (var player in playersToTournament.ListPlayersToTournament.OrderBy(p => p.Position))
+            foreach (var player in PlayersToTournament.ListPlayersToTournament.OrderBy(p => p.Position))
             {
-                formatText += $" {playersToTournament.ListPlayersToTournament.IndexOf(player) + 1}. {player.FirstName} {player.LastName} {player.Country}\n\r";
+                formatText += $" {PlayersToTournament.ListPlayersToTournament.IndexOf(player) + 1}. {player.FirstName} {player.LastName} {player.Country}\n\r";
             }
         }
         return formatText;
+    }
+
+    protected override void RemovePlayers(PlayerToTournament playerToRemove)
+    {
     }
 }

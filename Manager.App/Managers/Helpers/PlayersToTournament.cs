@@ -11,7 +11,9 @@ public class PlayersToTournament
     private readonly ITournamentsManager _tournamentsManager;
     private readonly IPlayerManager _playerManager;
     private readonly IPlayerService _playerService;
-    public List<PlayerToTournament> ListPlayersToTournament { get; set; }
+    private List<PlayerToTournament> _listPlayersToTournament { get; set; }
+    public List<PlayerToTournament> ListPlayersToTournament
+    { get { return _listPlayersToTournament; } }
     public int IdTournament { get; set; }
     private Tournament _tournament;
 
@@ -26,7 +28,7 @@ public class PlayersToTournament
             return;
         }
         _tournamentsManager = tournamentsManager;
-        ListPlayersToTournament = new List<PlayerToTournament>();
+        _listPlayersToTournament = new List<PlayerToTournament>();
         IdTournament = tournament.Id;
         LoadList(tournament);
         _tournament = tournament;
@@ -45,31 +47,32 @@ public class PlayersToTournament
         }
 
         var checkList = baseService.ListOfElements
-       .Where(l => l.IdTournament == IdTournament).Select(e => e.GetPlayerToTournament()).First();
+       .Where(l => l.IdTournament == IdTournament).Select(e => e.GetPlayersToTournament()).First();
         if (checkList.Count != tournament.NumberOfPlayer)
         {
             tournament.NumberOfPlayer = checkList.Count;
             _tournamentsManager.UpdateTournament(tournament);
         }
-        ListPlayersToTournament = checkList;
+        _listPlayersToTournament = checkList;
     }
 
     public void SavePlayersToTournament()
     {
         IBaseService<PlayersToTournament> baseService = new BaseOperationService<PlayersToTournament>();
         var listPlayer = baseService.ListOfElements.FirstOrDefault(p => p.IdTournament == this.IdTournament);
-        listPlayer.ListPlayersToTournament = ListPlayersToTournament;
+        listPlayer._listPlayersToTournament = _listPlayersToTournament;
         baseService.SaveListToBase();
     }
 
-    public List<PlayerToTournament> GetPlayerToTournament()
+    public List<PlayerToTournament> GetPlayersToTournament()
     {
         return ListPlayersToTournament;
     }
 
-    public void AddPlayersToTournament()
+    public List<PlayerToTournament> AddPlayersToTournament()
     {
         List<Player> players = new List<Player>();
+        List<PlayerToTournament> newPlayersList = new List<PlayerToTournament>();
 
         foreach (var playerToTournament in ListPlayersToTournament)
         {
@@ -94,7 +97,7 @@ public class PlayersToTournament
 
             if (player == null)
             {
-                return;
+                return newPlayersList;
             }
         }
         var playeraddress = _playerService.GetPlayerAddress(player);
@@ -107,116 +110,71 @@ public class PlayersToTournament
         {
             PlayerToTournament newPlayer = new(player, "------");
 
-            if (ListPlayersToTournament.Any(p => !string.IsNullOrEmpty(p.Group)))
-            {
-                var groupingPlayers = ListPlayersToTournament
-               .GroupBy(group => group.Group, group => group).OrderBy(g => g.Count());
-                newPlayer.Position = ListPlayersToTournament.Max(p => p.Position) + 1;
-                newPlayer.TwoKO = newPlayer.Position.ToString();
-                newPlayer.Group = groupingPlayers.First().Key;
-            }
-            else
-            {
-                if (ListPlayersToTournament.Any())
-                {
-                    newPlayer.Position = ListPlayersToTournament.Max(p => p.Position) + 1;
-                    newPlayer.TwoKO = newPlayer.Position.ToString();
-                }
-                else
-                {
-                    newPlayer.Position = 1;
-                    newPlayer.TwoKO = newPlayer.Position.ToString();
-                }
-            }
-
             if (playeraddress != null)
             {
                 newPlayer.Country = playeraddress.Country;
             }
 
+            if (ListPlayersToTournament.Any())
+            {
+                newPlayer.Position = ListPlayersToTournament.Max(p => p.Position) + 1;
+                newPlayer.TwoKO = newPlayer.Position.ToString();
+            }
+            else
+            {
+                newPlayer.Position = 1;
+                newPlayer.TwoKO = newPlayer.Position.ToString();
+            }
+
             ListPlayersToTournament.Add(newPlayer);
+            newPlayersList.Add(newPlayer);
             _tournament.NumberOfPlayer = ListPlayersToTournament.Count;
         }
         _tournamentsManager.UpdateTournament(_tournament);
         SavePlayersToTournament();
-
-        ConsoleService.WriteTitle("");
+        ViewListPlayersToTournament();
         if (ConsoleService.AnswerYesOrNo("Add Next Player"))
         {
-            AddPlayersToTournament();
+            newPlayersList.AddRange(AddPlayersToTournament());
+        }
+        return newPlayersList;
+    }
+
+    public void RemovePlayerInTournament(PlayerToTournament playerToRemove)
+    {
+        if (playerToRemove != null)
+        {
+            ListPlayersToTournament.Remove(playerToRemove);
+            SavePlayersToTournament();
         }
     }
 
-    public void RemovePlayerInTournament()
+    public void ViewListPlayersToTournament()
     {
-        List<Player> players = new List<Player>();
-        if (PLayersList.Count > 8)
+        string formatText = string.Empty;
+        if (ListPlayersToTournament.Any())
         {
-            ConsoleService.WriteTitle("");
-            ConsoleService.WriteLineErrorMessage("Attention!!!");
-            if (!ConsoleService.AnswerYesOrNo("Remember that removing a player may disturb the group structure.\n\r" +
-                "Players who are currently playing or have finished the match will not appear on the list."))
+            ConsoleService.WriteTitle($"List Players Of {_tournament.Name}");
+            foreach (var player in ListPlayersToTournament)
             {
-                return;
-            }
-
-            foreach (var playerToTournament in PLayersList)
-            {
-                var player = _playerService.GetItemById(playerToTournament.IdPLayer);
-                bool isPlayerEndDuelOrPlay = _singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id)
-               .Exists(p => (p.IdFirstPlayer == player.Id || p.IdSecondPlayer == player.Id) && (p.StartGame != DateTime.MinValue && p.Interrupted == DateTime.MinValue) || p.EndGame != DateTime.MinValue);
-
-                if (player != null && !isPlayerEndDuelOrPlay)
-                {
-                    players.Add(player);
-                }
+                formatText = $"{player.Position}. {player.TinyFulName} {player.Country}";
+                ConsoleService.WriteLineMessage(formatText);
             }
         }
         else
         {
-            ConsoleService.WriteLineErrorMessage("You cannot remove a player. \n\rThe minimum number of players is 8.");
+            ConsoleService.WriteTitle($"List Players Of {_tournament.Name}");
+            ConsoleService.WriteLineErrorMessage("Empty List");
         }
+    }
 
-        if (players.Count > 0)
+    public string ViewPlayerToTournamentDetail(PlayerToTournament playerToTournament)
+    {
+        string formatText = string.Empty;
+        if (playerToTournament != null)
         {
-            var player = _playerManager.SearchPlayer("Remowe Player", players);
-            if (player == null)
-            {
-                return;
-            }
-            else
-            {
-                var playerToRemove = PLayersList.FirstOrDefault(p => p.IdPLayer == player.Id);
-
-                if (playerToRemove != null)
-                {
-                    if (Tournament.GamePlaySystem == "Group")
-                    {
-                        var groupingPlayer = PLayersList.GroupBy(d => d.Group);
-                        if (groupingPlayer.FirstOrDefault(g => g.Key == playerToRemove.Group).Count() <= 2)
-                        {
-                            ConsoleService.WriteLineErrorMessage("You cannot remove a player. Minimum number of players in group 2.");
-                            return;
-                        }
-                        else
-                        {
-                            _singlePlayerDuelManager.RemoveTournamentDuel(Tournament, playerToRemove.IdPLayer);
-                            PLayersList.Remove(playerToRemove);
-                            playersToTournament.SavePlayersToTournament();
-                            Tournament.NumberOfPlayer = PLayersList.Count;
-                            _tournamentsManager.UpdateTournament(Tournament);
-                        }
-                    }
-                    else
-                    {
-                        _singlePlayerDuelManager.RemoveTournamentDuel(Tournament, playerToRemove.IdPLayer);
-                        PLayersList.Remove(playerToRemove);
-                        playersToTournament.SavePlayersToTournament();
-                        Tournament.NumberOfPlayer = PLayersList.Count;
-                        _tournamentsManager.UpdateTournament(Tournament);
-                    }
-                }
-            }
+            formatText = $"Position: {playerToTournament.Position}.  {playerToTournament.TinyFulName} ";
         }
+        return formatText;
     }
 }

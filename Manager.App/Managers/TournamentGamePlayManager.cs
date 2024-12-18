@@ -21,9 +21,9 @@ public class TournamentGamePlayManager
     public Tournament Tournament { get; }
 
     public List<PlayerToTournament> PLayersList
-    { get { return playersToTournament.ListPlayersToTournament; } }
+    { get { return _playersToTournament.ListPlayersToTournament; } }
 
-    private PlayersToTournament playersToTournament;
+    private PlayersToTournament _playersToTournament;
     private PlaySystems playSystem;
 
     public TournamentGamePlayManager(Tournament tournament, ITournamentsManager tournamentsManager, MenuActionService actionService, IPlayerManager playerManager, IPlayerService playerService, ISinglePlayerDuelManager singlePlayerDuelManager)
@@ -34,15 +34,23 @@ public class TournamentGamePlayManager
         _playerService = playerService;
         _singlePlayerDuelManager = singlePlayerDuelManager;
         Tournament = tournament;
-        playersToTournament = new PlayersToTournament(tournament, _tournamentsManager, playerManager, playerService);
+        _playersToTournament = new PlayersToTournament(tournament, _tournamentsManager, playerManager, playerService);
 
-        if (tournament.GamePlaySystem == "Group")
+        if (string.IsNullOrEmpty(tournament.GamePlaySystem))
         {
-            playSystem = new GroupPlaySystem(Tournament, _tournamentsManager, _singlePlayerDuelManager);
+            ChangeGamePlaySystem();
+            playSystem.AddPlayers();
         }
         else
         {
-            playSystem = new TwoKOPlaySystem(Tournament, _tournamentsManager, _singlePlayerDuelManager);
+            if (tournament.GamePlaySystem == "Group")
+            {
+                playSystem = new GroupPlaySystem(Tournament, _tournamentsManager, _singlePlayerDuelManager, _playersToTournament);
+            }
+            else
+            {
+                playSystem = new TwoKOPlaySystem(Tournament, _tournamentsManager, _singlePlayerDuelManager, _playersToTournament);
+            }
         }
 
         CheckTournament();
@@ -58,7 +66,6 @@ public class TournamentGamePlayManager
         {
             _tournamentsManager.StartTournament(Tournament);
         }
-        PlayersToTournament playersToTournament = new(Tournament, _tournamentsManager, _playerManager, _playerService);
 
         var firstDuel = _singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id).FirstOrDefault();
         var optionPlayerMenuList = _actionService.GetMenuActionsByName("Go To Tournament");
@@ -124,7 +131,7 @@ public class TournamentGamePlayManager
 
             if (Tournament.Start != DateTime.MinValue)
             {
-                messageToDo = playSystem.ViewTournamentBracket(playersToTournament);
+                messageToDo = playSystem.ViewTournamentBracket();
             }
             else
             {
@@ -155,7 +162,7 @@ public class TournamentGamePlayManager
                     break;
 
                 case "Tournament View":
-                    ConsoleService.WriteTitle(playSystem.ViewTournamentBracket(playersToTournament));
+                    ConsoleService.WriteTitle(playSystem.ViewTournamentBracket());
                     ConsoleService.GetKeyFromUser("Press Any Key");
                     break;
 
@@ -168,15 +175,15 @@ public class TournamentGamePlayManager
                     break;
 
                 case "Chenge Race To":
-                    ChangeRaceTo();
+                    playSystem.ChangeRaceTo();
                     break;
 
                 case "Add Players":
-                    playersToTournament.AddPlayersToTournament();
+                    playSystem.AddPlayers();
                     break;
 
                 case "Delete Player":
-                    playersToTournament.RemovePlayerInTournament();
+                    playSystem.RemovePlayerInTournament();
                     break;
 
                 case "Move Player":
@@ -189,7 +196,7 @@ public class TournamentGamePlayManager
                     break;
 
                 case "Players List":
-                    ViewListPlayersToTournament();
+                    _playersToTournament.ViewListPlayersToTournament();
                     ConsoleService.GetKeyFromUser();
                     break;
 
@@ -253,12 +260,14 @@ public class TournamentGamePlayManager
             {
                 if (Tournament.GamePlaySystem == "Group")
                 {
-                    playSystem = new GroupPlaySystem(Tournament, _tournamentsManager, _singlePlayerDuelManager);
+                    playSystem = new GroupPlaySystem(Tournament, _tournamentsManager, _singlePlayerDuelManager, _playersToTournament);
                 }
                 else
                 {
-                    playSystem = new TwoKOPlaySystem(Tournament, _tournamentsManager, _singlePlayerDuelManager);
+                    playSystem = new TwoKOPlaySystem(Tournament, _tournamentsManager, _singlePlayerDuelManager, _playersToTournament);
                 }
+
+                _tournamentsManager.UpdateTournament(Tournament);
             }
         }
     }
@@ -297,35 +306,39 @@ public class TournamentGamePlayManager
         }
     }
 
-    private void ChangeRaceTo()
-    {
-        var duels = _singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id).ToList();
-        var round = duels.First(d => d.EndGame == DateTime.MinValue).Round;
+    //private void ChangeRaceTo()
+    //{
+    //    var duels = _singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id).ToList();
+    //    var round = duels.First(d => d.EndGame == DateTime.MinValue).Round;
 
-        if (duels.Any(p => p.Round == round && p.EndGame != DateTime.MinValue))
-        {
-            ConsoleService.WriteLineErrorMessage("Changing the number of games in this round is impossible because \n\r" +
-                "the matches have already ended.");
-            return;
-        }
-        ConsoleService.WriteTitle("Change Race To");
-        var raceTo = ConsoleService.GetIntNumberFromUser("Enter To Many frame Min 3 Max 20:");
-        if (raceTo == null || raceTo < 3 || raceTo > 20)
-        {
-            return;
-        }
+    //    if (duels.Any(p => p.Round == round && p.EndGame != DateTime.MinValue))
+    //    {
+    //        ConsoleService.WriteLineErrorMessage("Changing the number of games in this round is impossible because \n\r" +
+    //            "the matches have already ended.");
+    //        return;
+    //    }
+    //    else if (duels == null)
+    //    {
+    //        return;
+    //    }
+    //    ConsoleService.WriteTitle("Change Race To");
+    //    var raceTo = ConsoleService.GetIntNumberFromUser("Enter To Many frame Min 3 Max 20:");
+    //    if (raceTo == null || raceTo < 3 || raceTo > 20)
+    //    {
+    //        return;
+    //    }
 
-        if (!string.IsNullOrEmpty(round))
-        {
-            duels = duels.Where(d => d.Round == round).ToList();
-        }
+    //    if (!string.IsNullOrEmpty(round))
+    //    {
+    //        duels = duels.Where(d => d.Round == round).ToList();
+    //    }
 
-        foreach (var duel in duels)
-        {
-            duel.RaceTo = (int)raceTo;
-            _singlePlayerDuelManager.UpdateSinglePlayerDuel(duel);
-        }
-    }
+    //    foreach (var duel in duels)
+    //    {
+    //        duel.RaceTo = (int)raceTo;
+    //        _singlePlayerDuelManager.UpdateSinglePlayerDuel(duel);
+    //    }
+    //}
 
     public void StartTournament()
     {
@@ -335,7 +348,7 @@ public class TournamentGamePlayManager
     {
         if (Tournament.NumberOfTables == 0)
         {
-            ChangeNumberOfTable(Tournament, playersToTournament);
+            ChangeNumberOfTable(Tournament, _playersToTournament);
             return;
         }
 
@@ -553,8 +566,8 @@ public class TournamentGamePlayManager
             player.TwoKO = (randomList.Count + 1).ToString();
             player.Position = randomList.Count + 1;
         }
-        playersToTournament.ListPlayersToTournament = playersToTournament.ListPlayersToTournament.OrderBy(p => p.Position).ToList();
-        playersToTournament.SavePlayersToTournament();
+        _playersToTournament.ListPlayersToTournament = _playersToTournament.ListPlayersToTournament.OrderBy(p => p.Position).ToList();
+        _playersToTournament.SavePlayersToTournament();
     }
 
     //public void AddPlayersToTournament()
@@ -710,35 +723,6 @@ public class TournamentGamePlayManager
     //    }
     //}
 
-    public void ViewListPlayersToTournament()
-    {
-        string formatText = string.Empty;
-        if (PLayersList.Any())
-        {
-            ConsoleService.WriteTitle($"List Players Of {Tournament.Name}");
-            foreach (var player in PLayersList)
-            {
-                formatText = $"{player.Position}. {player.TinyFulName} {player.Country}";
-                ConsoleService.WriteLineMessage(formatText);
-            }
-        }
-        else
-        {
-            ConsoleService.WriteTitle($"List Players Of {Tournament.Name}");
-            ConsoleService.WriteLineErrorMessage("Empty List");
-        }
-    }
-
-    public string ViewPlayerToTournamentDetail(PlayerToTournament playerToTournament)
-    {
-        string formatText = string.Empty;
-        if (playerToTournament != null)
-        {
-            formatText = $"Position: {playerToTournament.Position}.  {playerToTournament.TinyFulName} ";
-        }
-        return formatText;
-    }
-
     private void MovePlayer()
     {
         List<Player> players = new List<Player>();
@@ -768,7 +752,7 @@ public class TournamentGamePlayManager
             if (playerToMove != null)
             {
                 ConsoleService.WriteTitle("Move Player");
-                ConsoleService.WriteLineMessage(playSystem.ViewTournamentBracket(playersToTournament));
+                ConsoleService.WriteLineMessage(playSystem.ViewTournamentBracket());
 
                 if (Tournament.GamePlaySystem == "Group")
                 {
@@ -811,7 +795,7 @@ public class TournamentGamePlayManager
                     {
                         playerToMove.Round = string.Empty;
                         _singlePlayerDuelManager.RemoveTournamentDuel(Tournament, playerToMove.IdPLayer);
-                        CreateDuelsToTournament(Tournament, playersToTournament);
+                        CreateDuelsToTournament(Tournament, _playersToTournament);
                     }
                 }
                 else
@@ -822,8 +806,8 @@ public class TournamentGamePlayManager
                         return;
                     }
                     ConsoleService.WriteTitle("Move Player");
-                    ConsoleService.WriteLineMessage(playSystem.ViewTournamentBracket(playersToTournament));
-                    var newPosition = ConsoleService.GetIntNumberFromUser("Enter New Position", $"\n\r{ViewPlayerToTournamentDetail(playerToMove)}");
+                    ConsoleService.WriteLineMessage(playSystem.ViewTournamentBracket());
+                    var newPosition = ConsoleService.GetIntNumberFromUser("Enter New Position", $"\n\r{_playersToTournament.ViewPlayerToTournamentDetail(playerToMove)}");
 
                     if (newPosition > 0 && newPosition != null && newPosition <= PLayersList.Count)
                     {
@@ -863,7 +847,7 @@ public class TournamentGamePlayManager
                     }
                 }
             }
-            playersToTournament.SavePlayersToTournament();
+            _playersToTournament.SavePlayersToTournament();
         }
     }
 

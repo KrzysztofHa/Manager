@@ -1217,14 +1217,7 @@ public class TournamentsManager : ITournamentsManager
 
         ITournamentsManager tournamentsManager = this;
         TournamentGamePlayManager tournamentGamePlaySystem = new(tournament, tournamentsManager, _actionService, _playerManager, _playerService, _singlePlayerDuelManager);
-        tournament.GamePlaySystem = tournamentGamePlaySystem.GetGamePlaySystemFromUser();
 
-        if (string.IsNullOrEmpty(tournament.GamePlaySystem))
-        {
-            return null;
-        }
-        PlayersToTournament playersToTournament = new PlayersToTournament(tournament, tournamentsManager, _playerManager, _playerService);
-        playersToTournament.AddPlayersToTournament();
         _tournamentsService.UpdateItem(tournament);
         _tournamentsService.SaveList();
 
