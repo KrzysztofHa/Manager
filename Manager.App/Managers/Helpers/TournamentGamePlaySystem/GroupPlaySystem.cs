@@ -9,46 +9,46 @@ namespace Manager.App.Managers.Helpers.GamePlaySystem;
 
 public class GroupPlaySystem : PlaySystems
 {
-    public GroupPlaySystem(Tournament tournament, ITournamentsManager tournamentsManager, ISinglePlayerDuelManager singlePlayerDuelManager, PlayersToTournament playersToTournament) : base(tournament, tournamentsManager, singlePlayerDuelManager, playersToTournament)
+    public GroupPlaySystem(Tournament tournament, ITournamentsManager tournamentsManager, ISinglePlayerDuelManager singlePlayerDuelManager, PlayersToTournament playersToTournament, IPlayerService playerService, IPlayerManager playerManager) : base(tournament, tournamentsManager, singlePlayerDuelManager, playersToTournament, playerService, playerManager)
     {
     }
 
-    public void SetGroups(Tournament tournament, PlayersToTournament playersToTournament)
+    public void SetGroups()
     {
         int numberOfGroups = 0;
         int? enterNumber = 0;
-        if (tournament.GamePlaySystem == "2KO")
+        if (Tournament.GamePlaySystem == "2KO")
         {
             ConsoleService.WriteLineErrorMessage("2KO Game System Set. Change To Group");
             return;
         }
-        else if (tournament.NumberOfPlayer < 8)
+        else if (Tournament.NumberOfPlayer < 8)
         {
             ConsoleService.WriteLineErrorMessage("Add More Players");
             return;
         }
-        ConsoleService.WriteTitle($"{tournament.NumberOfPlayer} Players allows the tournament to start:");
-        if (string.IsNullOrEmpty(tournament.GamePlaySystem))
+        ConsoleService.WriteTitle($"{Tournament.NumberOfPlayer} Players allows the tournament to start:");
+        if (string.IsNullOrEmpty(Tournament.GamePlaySystem))
         {
-            tournament.GamePlaySystem = "Group";
+            Tournament.GamePlaySystem = "Group";
         }
-        if (tournament.GamePlaySystem == "Group")
+        if (Tournament.GamePlaySystem == "Group")
         {
-            if (tournament.NumberOfPlayer >= 8 && tournament.NumberOfPlayer < 10)
+            if (Tournament.NumberOfPlayer >= 8 && Tournament.NumberOfPlayer < 10)
             {
                 ConsoleService.WriteLineMessage("Created 2 groups:\n\r" +
                     "4 players will advance from the group to the knockout round\n\rPress Any Key ...");
                 ConsoleService.GetKeyFromUser();
                 numberOfGroups = 2;
             }
-            else if (tournament.NumberOfPlayer >= 10 && tournament.NumberOfPlayer < 12)
+            else if (Tournament.NumberOfPlayer >= 10 && Tournament.NumberOfPlayer < 12)
             {
                 ConsoleService.WriteLineMessage("Created 2 groups:\n\r" +
                     "4 players will advance from the group to the knockout round\n\rPress Any Key ...");
                 ConsoleService.GetKeyFromUser();
                 numberOfGroups = 2;
             }
-            else if (tournament.NumberOfPlayer >= 12 && tournament.NumberOfPlayer < 16)
+            else if (Tournament.NumberOfPlayer >= 12 && Tournament.NumberOfPlayer < 16)
             {
                 ConsoleService.WriteLineMessage("2 groups:\n\r" +
                     "4 players will advance from the group to the knockout round\n\r----\n\r");
@@ -60,9 +60,9 @@ public class GroupPlaySystem : PlaySystems
                     return;
                 }
             }
-            else if (tournament.NumberOfPlayer >= 16 && tournament.NumberOfPlayer < 24)
+            else if (Tournament.NumberOfPlayer >= 16 && Tournament.NumberOfPlayer < 24)
             {
-                if (tournament.NumberOfPlayer == 16)
+                if (Tournament.NumberOfPlayer == 16)
                 {
                     ConsoleService.WriteLineMessage("2 groups, maximum 8 players per group:" +
                                 "\n\r4 players will advance from the group to the knockout round\n\r----\r\n");
@@ -79,9 +79,9 @@ public class GroupPlaySystem : PlaySystems
                     numberOfGroups = 4;
                 }
             }
-            else if (tournament.NumberOfPlayer >= 24 && tournament.NumberOfPlayer < 32)
+            else if (Tournament.NumberOfPlayer >= 24 && Tournament.NumberOfPlayer < 32)
             {
-                if (tournament.NumberOfPlayer == 24)
+                if (Tournament.NumberOfPlayer == 24)
                 {
                     ConsoleService.WriteLineMessage("4 groups,maximum 6 players per group:" +
                                 "\n\r2 players will advance from the group to the knockout round\n\r----\n\r");
@@ -94,14 +94,14 @@ public class GroupPlaySystem : PlaySystems
                     numberOfGroups = 8;
                 }
             }
-            else if (tournament.NumberOfPlayer >= 32 && tournament.NumberOfPlayer < 49)
+            else if (Tournament.NumberOfPlayer >= 32 && Tournament.NumberOfPlayer < 49)
             {
                 ConsoleService.WriteLineMessage("Eight groups" +
                     "\n\r2 players will advance from the group to the knockout round\n\r----\n\rPress Any Key ...");
                 ConsoleService.GetKeyFromUser();
                 numberOfGroups = 8;
             }
-            else if (tournament.NumberOfPlayer >= 49)
+            else if (Tournament.NumberOfPlayer >= 49)
             {
                 ConsoleService.WriteLineMessage("Maximum 48 players");
             }
@@ -117,7 +117,7 @@ public class GroupPlaySystem : PlaySystems
             return;
         }
 
-        tournament.NumberOfGroups = numberOfGroups;
+        Tournament.NumberOfGroups = numberOfGroups;
     }
 
     private void DetermineTheOrderOfDuelsToStartInGroup()

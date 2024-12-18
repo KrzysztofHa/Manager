@@ -45,11 +45,11 @@ public class TournamentGamePlayManager
         {
             if (tournament.GamePlaySystem == "Group")
             {
-                playSystem = new GroupPlaySystem(Tournament, _tournamentsManager, _singlePlayerDuelManager, _playersToTournament);
+                playSystem = new GroupPlaySystem(Tournament, _tournamentsManager, _singlePlayerDuelManager, _playersToTournament, _playerService, _playerManager);
             }
             else
             {
-                playSystem = new TwoKOPlaySystem(Tournament, _tournamentsManager, _singlePlayerDuelManager, _playersToTournament);
+                playSystem = new TwoKOPlaySystem(Tournament, _tournamentsManager, _singlePlayerDuelManager, _playersToTournament, _playerService, _playerManager);
             }
         }
 
@@ -260,11 +260,11 @@ public class TournamentGamePlayManager
             {
                 if (Tournament.GamePlaySystem == "Group")
                 {
-                    playSystem = new GroupPlaySystem(Tournament, _tournamentsManager, _singlePlayerDuelManager, _playersToTournament);
+                    playSystem = new GroupPlaySystem(Tournament, _tournamentsManager, _singlePlayerDuelManager, _playersToTournament, _playerService, _playerManager);
                 }
                 else
                 {
-                    playSystem = new TwoKOPlaySystem(Tournament, _tournamentsManager, _singlePlayerDuelManager, _playersToTournament);
+                    playSystem = new TwoKOPlaySystem(Tournament, _tournamentsManager, _singlePlayerDuelManager, _playersToTournament, _playerService, _playerManager);
                 }
 
                 _tournamentsManager.UpdateTournament(Tournament);
@@ -566,7 +566,7 @@ public class TournamentGamePlayManager
             player.TwoKO = (randomList.Count + 1).ToString();
             player.Position = randomList.Count + 1;
         }
-        _playersToTournament.ListPlayersToTournament = _playersToTournament.ListPlayersToTournament.OrderBy(p => p.Position).ToList();
+
         _playersToTournament.SavePlayersToTournament();
     }
 

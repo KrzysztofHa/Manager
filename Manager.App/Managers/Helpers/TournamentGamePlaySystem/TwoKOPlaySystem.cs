@@ -12,7 +12,7 @@ namespace Manager.App.Managers.Helpers.GamePlaySystem;
 
 public class TwoKOPlaySystem : PlaySystems
 {
-    public TwoKOPlaySystem(Tournament tournament, ITournamentsManager tournamentsManager, ISinglePlayerDuelManager singlePlayerDuelManager, PlayersToTournament playersToTournament) : base(tournament, tournamentsManager, singlePlayerDuelManager, playersToTournament)
+    public TwoKOPlaySystem(Tournament tournament, ITournamentsManager tournamentsManager, ISinglePlayerDuelManager singlePlayerDuelManager, PlayersToTournament playersToTournament, IPlayerService playerService, IPlayerManager playerManager) : base(tournament, tournamentsManager, singlePlayerDuelManager, playersToTournament, playerService, playerManager)
     {
     }
 
@@ -51,5 +51,9 @@ public class TwoKOPlaySystem : PlaySystems
 
     protected override void RemovePlayers(PlayerToTournament playerToRemove)
     {
+        if (playerToRemove != null)
+        {
+            _singlePlayerDuelManager.RemoveTournamentDuel(Tournament, playerToRemove.IdPLayer);
+        }
     }
 }

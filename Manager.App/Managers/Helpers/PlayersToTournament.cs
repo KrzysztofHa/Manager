@@ -12,8 +12,10 @@ public class PlayersToTournament
     private readonly IPlayerManager _playerManager;
     private readonly IPlayerService _playerService;
     private List<PlayerToTournament> _listPlayersToTournament { get; set; }
+
     public List<PlayerToTournament> ListPlayersToTournament
     { get { return _listPlayersToTournament; } }
+
     public int IdTournament { get; set; }
     private Tournament _tournament;
 
@@ -60,7 +62,7 @@ public class PlayersToTournament
     {
         IBaseService<PlayersToTournament> baseService = new BaseOperationService<PlayersToTournament>();
         var listPlayer = baseService.ListOfElements.FirstOrDefault(p => p.IdTournament == this.IdTournament);
-        listPlayer._listPlayersToTournament = _listPlayersToTournament;
+        listPlayer._listPlayersToTournament = _listPlayersToTournament.OrderBy(p => p.Position).ToList();
         baseService.SaveListToBase();
     }
 
