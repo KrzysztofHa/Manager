@@ -27,6 +27,7 @@ public abstract class PlaySystems
         _singlePlayerDuelManager = singlePlayerDuelManager;
         _playerService = playerService;
         _playerManager = playerManager;
+        _tournamentsManager = tournamentsManager;
     }
 
     protected abstract void RemovePlayers(PlayerToTournament playerToRemove);
@@ -46,7 +47,7 @@ public abstract class PlaySystems
             }
         }
 
-        if (PlayersToTournament.ListPlayersToTournament.Count > 8)
+        if (PlayersToTournament.ListPlayersToTournament.Count < 8)
         {
             ConsoleService.WriteLineErrorMessage("You cannot remove a player. \n\rThe minimum number of players is 8.");
             return;
@@ -85,6 +86,8 @@ public abstract class PlaySystems
                 else
                 {
                     PlayersToTournament.RemovePlayerInTournament(playerToRemove);
+                    Tournament.NumberOfPlayer = PlayersToTournament.ListPlayersToTournament.Count;
+                    _tournamentsManager.UpdateTournament(Tournament);
                 }
             }
         }
@@ -129,6 +132,40 @@ public abstract class PlaySystems
         {
             duel.RaceTo = (int)raceTo;
             _singlePlayerDuelManager.UpdateSinglePlayerDuel(duel);
+        }
+    }
+
+    public void ChangeNumberOfTable()
+    {
+        ConsoleService.WriteTitle("Chenge Number Of Table\n\r");
+
+        string textToDisplayIfNoDuelsIsStarted = "After entering the number of Tables,\n\r" +
+           " the system manages the start of the next match.\n\r" +
+           "The user enters the result of the duel\n\r" +
+           " and if one of the players reaches the required number of points,\n\r" +
+           "the match will end on a given table and a new one will start.\n\r" +
+           "After the first round of matches begins,\n\r" +
+           "the user can still make changes to the tournament settings,\n\r" +
+           "but they are limited depending on the matches being played.";
+
+        if (_singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id).Any(d => d.StartGame != DateTime.MinValue))
+        {
+            textToDisplayIfNoDuelsIsStarted = $"Current number of tables {Tournament.NumberOfTables}";
+        }
+
+        var numberOfTable = ConsoleService.GetIntNumberFromUser("Enter Number Of Table", textToDisplayIfNoDuelsIsStarted);
+
+        if (numberOfTable == null || numberOfTable <= 0 || Tournament.NumberOfTables == numberOfTable)
+        {
+            ConsoleService.WriteLineErrorMessage("Number Of Tables Not Change");
+            return;
+        }
+        else
+        {
+            Tournament.NumberOfTables = (int)numberOfTable;
+            _tournamentsManager.UpdateTournament(Tournament);
+
+            //StartAndInterruptedTournamentDuel(tournament, playersToTournament);
         }
     }
 }

@@ -61,6 +61,7 @@ public class MenuActionService : BaseService<MenuAction>
         AddItem(new MenuAction(4393, "Tournament View", "Start Tournament"));
         AddItem(new MenuAction(4394, "All Duels", "Start Tournament"));
         AddItem(new MenuAction(4394, "Chenge Race To", "Start Tournament"));
+        AddItem(new MenuAction(4394, "Change Number Of Table", "Start Tournament"));
 
         AddItem(new MenuAction(5100, "Change Display Name", "Settings"));
 

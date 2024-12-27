@@ -11,10 +11,8 @@ public class PlayersToTournament
     private readonly ITournamentsManager _tournamentsManager;
     private readonly IPlayerManager _playerManager;
     private readonly IPlayerService _playerService;
-    private List<PlayerToTournament> _listPlayersToTournament { get; set; }
 
-    public List<PlayerToTournament> ListPlayersToTournament
-    { get { return _listPlayersToTournament; } }
+    public List<PlayerToTournament> ListPlayersToTournament { get; set; }
 
     public int IdTournament { get; set; }
     private Tournament _tournament;
@@ -30,7 +28,7 @@ public class PlayersToTournament
             return;
         }
         _tournamentsManager = tournamentsManager;
-        _listPlayersToTournament = new List<PlayerToTournament>();
+        ListPlayersToTournament = new List<PlayerToTournament>();
         IdTournament = tournament.Id;
         LoadList(tournament);
         _tournament = tournament;
@@ -55,14 +53,14 @@ public class PlayersToTournament
             tournament.NumberOfPlayer = checkList.Count;
             _tournamentsManager.UpdateTournament(tournament);
         }
-        _listPlayersToTournament = checkList;
+        ListPlayersToTournament = checkList;
     }
 
     public void SavePlayersToTournament()
     {
         IBaseService<PlayersToTournament> baseService = new BaseOperationService<PlayersToTournament>();
         var listPlayer = baseService.ListOfElements.FirstOrDefault(p => p.IdTournament == this.IdTournament);
-        listPlayer._listPlayersToTournament = _listPlayersToTournament.OrderBy(p => p.Position).ToList();
+        listPlayer.ListPlayersToTournament = ListPlayersToTournament.OrderBy(p => p.Position).ToList();
         baseService.SaveListToBase();
     }
 
@@ -147,6 +145,11 @@ public class PlayersToTournament
         if (playerToRemove != null)
         {
             ListPlayersToTournament.Remove(playerToRemove);
+            for (int i = 0; i < ListPlayersToTournament.Count; i++)
+            {
+                ListPlayersToTournament[i].Position = i + 1;
+            }
+
             SavePlayersToTournament();
         }
     }
