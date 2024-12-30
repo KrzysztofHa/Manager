@@ -7,7 +7,8 @@ public class PlayerToTournament
 {
     public string FirstName { get; set; }
     public string LastName { get; set; }
-    public string TinyFulName { get { return $"{FirstName,-1}".Remove(1) + $".{LastName,-30}".Remove(29); } }
+    public string TinyFulName
+    { get { return $"{FirstName,-1}".Remove(1) + $".{LastName,-30}".Remove(29); } }
     public string Country { get; set; }
     public string Group { get; set; }
     public string TwoKO { get; set; }
@@ -23,7 +24,7 @@ public class PlayerToTournament
     public PlayerToTournament(Player player, string country)
     {
         FirstName = player.FirstName;
-        LastName = player.LastName;        
+        LastName = player.LastName;
         IdPLayer = player.Id;
         Country = country;
     }
