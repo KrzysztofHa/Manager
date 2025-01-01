@@ -46,7 +46,7 @@ public class GroupPlaySystem : PlaySystems
             ConsoleService.WriteLineMessage("4 groups:\n\r" +
                 "2 players will advance from the group to the knockout round\n\r----\n\r");
             enterNumber = ConsoleService.GetIntNumberFromUser("Enter number of groups 2 or 4");
-            if (enterNumber != 4 || enterNumber != 2)
+            if (enterNumber != 4 && enterNumber != 2)
             {
                 return;
             }
@@ -60,7 +60,7 @@ public class GroupPlaySystem : PlaySystems
                 ConsoleService.WriteLineMessage("4 groups:\n\r" +
                     "2 players will advance from the group to the knockout round\n\r----\n\r");
                 enterNumber = ConsoleService.GetIntNumberFromUser("Enter number of groups 2 or 4");
-                if (enterNumber != 4 || enterNumber != 2)
+                if (enterNumber != 4 && enterNumber != 2)
                 {
                     return;
                 }
@@ -97,7 +97,7 @@ public class GroupPlaySystem : PlaySystems
             ConsoleService.WriteLineMessage("Maximum 48 players");
         }
 
-        if (numberOfGroups == 0 && enterNumber == 2 || enterNumber == 4 || enterNumber == 8)
+        if (numberOfGroups == 0 && (enterNumber == 2 || enterNumber == 4 || enterNumber == 8))
         {
             numberOfGroups = (int)enterNumber;
         }
@@ -108,6 +108,11 @@ public class GroupPlaySystem : PlaySystems
         }
 
         Tournament.NumberOfGroups = numberOfGroups;
+        _tournamentsManager.UpdateTournament(Tournament);
+    }
+
+    private void AssignPlayersToGroups()
+    {
     }
 
     private void DetermineTheOrderOfDuelsToStartInGroup()
