@@ -5,6 +5,7 @@ using Manager.Domain.Entity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -18,7 +19,7 @@ public class TwoKOPlaySystem : PlaySystems
 
     public override void AddPlayers()
     {
-        var newPlayers = PlayersToTournament.AddPlayersToTournament();
+        var newPlayers = PlayersToTournamentInPlaySystem.AddPlayersToTournament();
 
         if (newPlayers.Count > 0 && Tournament.Start != DateTime.MinValue)
         {
@@ -28,7 +29,7 @@ public class TwoKOPlaySystem : PlaySystems
     protected override void MovePlayer()
     {
         List<Player> players = new List<Player>();
-        foreach (var playerToTournament in PlayersToTournament.ListPlayersToTournament)
+        foreach (var playerToTournament in PlayersToTournamentInPlaySystem.ListPlayersToTournament)
         {
             var player = _playerService.GetItemById(playerToTournament.IdPLayer);
             bool isPlayerEndDuelOrPlay = _singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id)
@@ -49,37 +50,27 @@ public class TwoKOPlaySystem : PlaySystems
                 return;
             }
 
-            var playerToMove = PlayersToTournament.ListPlayersToTournament.FirstOrDefault(p => p.IdPLayer == player.Id);
+            var playerToMove = PlayersToTournamentInPlaySystem.ListPlayersToTournament.FirstOrDefault(p => p.IdPLayer == player.Id);
 
             if (playerToMove != null)
             {
                 ConsoleService.WriteTitle("Move Player");
                 ConsoleService.WriteLineMessage(ViewTournamentBracket());
+                var newPosition = ConsoleService.GetIntNumberFromUser("Enter New Position", $"\n\r{PlayersToTournamentInPlaySystem.ViewPlayerToTournamentDetail(playerToMove)}");
 
-                if (_singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id) != null)
-                {
-                    ConsoleService.WriteLineErrorMessage("Transferring a player is impossible");
-                    return;
-                }
-                ConsoleService.WriteTitle("Move Player");
-                ConsoleService.WriteLineMessage(ViewTournamentBracket());
-                var newPosition = ConsoleService.GetIntNumberFromUser("Enter New Position", $"\n\r{PlayersToTournament.ViewPlayerToTournamentDetail(playerToMove)}");
-
-                if (newPosition > 0 && newPosition != null && newPosition <= PlayersToTournament.ListPlayersToTournament.Count)
+                if (newPosition > 0 && newPosition != null && newPosition <= PlayersToTournamentInPlaySystem.ListPlayersToTournament.Count)
                 {
                     if (newPosition > playerToMove.Position)
                     {
                         for (int i = playerToMove.Position + 1; i <= (int)newPosition; i++)
                         {
-                            var playerToChange = PlayersToTournament.ListPlayersToTournament
+                            var playerToChange = PlayersToTournamentInPlaySystem.ListPlayersToTournament
                             .First(p => p.Position == i);
                             playerToChange.Position = i - 1;
-                            playerToChange.TwoKO = playerToChange.Position.ToString();
 
                             if (i == newPosition)
                             {
                                 playerToMove.Position = (int)newPosition;
-                                playerToMove.TwoKO = playerToMove.Position.ToString();
                             }
                         }
                     }
@@ -87,52 +78,104 @@ public class TwoKOPlaySystem : PlaySystems
                     {
                         for (int i = playerToMove.Position - 1; i >= (int)newPosition; i--)
                         {
-                            var playerToChange = PlayersToTournament.ListPlayersToTournament
+                            var playerToChange = PlayersToTournamentInPlaySystem.ListPlayersToTournament
                             .First(p => p.Position == i);
 
                             playerToChange.Position = i + 1;
-                            playerToChange.TwoKO = playerToChange.Position.ToString();
 
                             if (i == newPosition)
                             {
                                 playerToMove.Position = (int)newPosition;
-                                playerToMove.TwoKO = playerToMove.Position.ToString();
                             }
                         }
                     }
                 }
             }
-            PlayersToTournament.SavePlayersToTournament();
         }
     }
 
     protected override void StartTournament()
     {
-        throw new NotImplementedException();
     }
 
     public override string ViewTournamentBracket()
     {
         var formatText = string.Empty;
-        if (PlayersToTournament.ListPlayersToTournament.Any(p => !string.IsNullOrEmpty(p.TwoKO)))
+
+        string lineOne = string.Empty;
+        string lineTwo = string.Empty;
+        int numberItemOfLine = 6;
+        int item = 0;
+
+        if (PlayersToTournamentInPlaySystem.ListPlayersToTournament.Count > 0)
         {
-            formatText = $"\n\rStart List 2KO System\n\r\n\r";
-            foreach (var player in PlayersToTournament.ListPlayersToTournament.OrderBy(p => p.Position))
+            formatText += $"\n\rStart List 2KO System\n\r\n\r";
+            foreach (var player in PlayersToTournamentInPlaySystem.ListPlayersToTournament.OrderBy(p => p.Position))
             {
-                formatText += $" {PlayersToTournament.ListPlayersToTournament.IndexOf(player) + 1}. {player.FirstName} {player.LastName} {player.Country}\n\r";
+                if (player.Position % 2 != 0)
+                {
+                    lineOne += $" {player.Position}. {player.TinyFulName}".Remove(20);
+                }
+                else
+                {
+                    lineTwo += $" {player.Position}. {player.TinyFulName}".Remove(20);
+                }
+
+                item++;
+
+                if (item == numberItemOfLine * 2 ||
+                    player.Position == PlayersToTournamentInPlaySystem.ListPlayersToTournament.Count)
+                {
+                    if (player.Position % 2 != 0)
+                    {
+                        lineTwo += $"{" Free Win ",-30}";
+                    }
+                    formatText += lineOne + "\n\r" + lineTwo + "\n\r\n\r";
+                    lineOne = string.Empty;
+                    lineTwo = string.Empty;
+                    item = 0;
+                }
             }
         }
+
         return formatText;
     }
 
     protected override void ExecuteExtendedAction(MenuAction menuAction)
     {
-        throw new NotImplementedException();
+        var swichOption = menuAction.Id;
+        switch (swichOption)
+        {
+            case 1:
+                if (Tournament.Start == DateTime.MinValue)
+                {
+                    ConsoleService.WriteTitle($"Start Tournament {Tournament.Name}");
+                    if (ConsoleService.AnswerYesOrNo("Before you proceed, make sure is correct everything."))
+                    {
+                        StartTournament();
+                    }
+                }
+                break;
+
+            default:
+                ConsoleService.WriteLineErrorMessage("Enter a valid operation ID");
+                break;
+        }
     }
 
     protected override List<MenuAction> GetExtendedMenuAction()
     {
-        return new List<MenuAction>();
+        List<MenuAction> actions =
+        [
+               new MenuAction(1, "  <-----  Start Tournament", "GroupPlaySystem")
+        ];
+
+        if (Tournament.NumberOfPlayer < 8 && actions.Exists(a => a.Name == "  <-----  Start Tournament"))
+        {
+            actions.Remove(actions.First(a => a.Name == "  <-----  Start Tournament"));
+        }
+
+        return actions;
     }
 
     protected override void RemovePlayers(PlayerToTournament playerToRemove)

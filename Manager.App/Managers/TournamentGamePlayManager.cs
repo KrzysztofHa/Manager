@@ -68,66 +68,37 @@ public class TournamentGamePlayManager
         }
 
         var firstDuel = _singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id).FirstOrDefault();
-        var optionPlayerMenuList = playSystem.menuActions;
-        optionPlayerMenuList.AddRange(_actionService.GetMenuActionsByName("Go To Tournament"));
-
+        var playSystemMenuList = playSystem.ListMenuActions;
+        var optionTournamentGamePlayMenuList = _actionService.GetMenuActionsByName("Go To Tournament");
+        optionTournamentGamePlayMenuList.InsertRange(0, playSystemMenuList);
         while (true)
         {
-            string messageToDo = "\n\rTo Do List:";
+            string message = string.Empty;
             ConsoleService.WriteTitle($"Tournaments {Tournament.Name} | Game System: {Tournament.GamePlaySystem} ");
             ConsoleService.WriteLineMessage($"Number of PLayers: {Tournament.NumberOfPlayer} | Number Of Groups: {Tournament.NumberOfGroups} | " +
                 $"Type Name Of Game: {firstDuel.TypeNameOfGame} | " +
                 $"Group Race To: {firstDuel.RaceTo}\n\r");
 
-            var message = string.Empty;
             if (Tournament.NumberOfPlayer < 8)
             {
                 ConsoleService.WriteLineMessage("-> Minimum 8 players to start the tournament\n\r");
             }
 
-            for (int i = 0; i < optionPlayerMenuList.Count; i++)
+            for (int i = 0; i < optionTournamentGamePlayMenuList.Count; i++)
             {
-                if (optionPlayerMenuList[i].Name == "Add Players" && Tournament.NumberOfPlayer < 8)
+                if (optionTournamentGamePlayMenuList[i].Name == "Chenge The Game System" && Tournament.Start != DateTime.MinValue)
                 {
-                    message = " <---------- Add More Players";
-                    messageToDo += "\n\r    Add More Players";
-                }
-                else if (Tournament.NumberOfGroups == 0 && Tournament.GamePlaySystem == "Group" && optionPlayerMenuList[i].Name == "Set Number Of Groups")
-                {
-                    message = "  <--- Set";
-                    messageToDo += $"\n\r    Set Number Of Groups";
-                }
-                else if (optionPlayerMenuList[i].Name == "Start Tournament" && Tournament.Start == DateTime.MinValue)
-                {
-                    message = " <----- Start Tournament";
-                    messageToDo += $"\n\r    Start Tournament";
-                }
-                else if (optionPlayerMenuList[i].Name == "Chenge The Game System" && Tournament.Start != DateTime.MinValue)
-                {
-                    optionPlayerMenuList.Remove(optionPlayerMenuList[i]);
-                    i--;
-                    continue;
-                }
-                else if (optionPlayerMenuList[i].Name == "Start Tournament" && Tournament.Start != DateTime.MinValue)
-                {
-                    optionPlayerMenuList.Remove(optionPlayerMenuList[i]);
-                    i--;
-                    continue;
-                }
-                else if (optionPlayerMenuList[i].Name == "Random Selection Of Players" && _singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id).Any(d => d.StartGame != DateTime.MinValue))
-                {
-                    optionPlayerMenuList.Remove(optionPlayerMenuList[i]);
+                    optionTournamentGamePlayMenuList.Remove(optionTournamentGamePlayMenuList[i]);
                     i--;
                     continue;
                 }
 
-                ConsoleService.WriteLineMessage($"{$"{i + 1}.",-3} {optionPlayerMenuList[i].Name} {message}");
-                message = string.Empty;
+                ConsoleService.WriteLineMessage($"{$"{i + 1}.",-3} {optionTournamentGamePlayMenuList[i].Name}");
             }
 
-            if (Tournament.Start != DateTime.MinValue)
+            if (Tournament.Start == DateTime.MinValue)
             {
-                messageToDo = playSystem.ViewTournamentBracket();
+                message = playSystem.ViewTournamentBracket();
             }
             else
             {
@@ -135,24 +106,22 @@ public class TournamentGamePlayManager
                .Where(d => d.StartGame != DateTime.MinValue && d.EndGame == DateTime.MinValue).Where(s => s.Interrupted.Equals(DateTime.MinValue)).ToList();
                 if (allStartedDuels.Count > 0)
                 {
-                    messageToDo = _singlePlayerDuelManager.ConvertListSinglePlayerDuelsToText(allStartedDuels);
+                    message = _singlePlayerDuelManager.ConvertListSinglePlayerDuelsToText(allStartedDuels);
                 }
             }
 
-            var operation = ConsoleService.GetIntNumberFromUser("Enter Option", messageToDo);
+            var operation = ConsoleService.GetIntNumberFromUser("Enter Option", message);
             var swichOption = string.Empty;
 
-            if (operation >= 0 && operation < optionPlayerMenuList.Count)
+            if (operation >= 0 && operation <= optionTournamentGamePlayMenuList.Count)
             {
-                swichOption = optionPlayerMenuList[(int)operation - 1].Name;
+                swichOption = optionTournamentGamePlayMenuList[(int)operation - 1].Name;
             }
 
             switch (swichOption)
             {
                 case "Chenge The Game System":
                     ChangeGamePlaySystem();
-                    optionPlayerMenuList = playSystem.menuActions;
-                    optionPlayerMenuList.AddRange(_actionService.GetMenuActionsByName("Go To Tournament"));
                     break;
 
                 case "Exit":
@@ -168,9 +137,9 @@ public class TournamentGamePlayManager
                         }
                         operation = 0;
                     }
-                    else if (optionPlayerMenuList.Any(o => o.Name == swichOption))
+                    else if (optionTournamentGamePlayMenuList.Any(o => o.Name == swichOption))
                     {
-                        playSystem.ExecuteAction(optionPlayerMenuList.First(a => a.Name == swichOption));
+                        playSystem.ExecuteAction(optionTournamentGamePlayMenuList.First(a => a.Name == swichOption));
                     }
                     else
                     {
@@ -185,6 +154,10 @@ public class TournamentGamePlayManager
                 _tournamentsManager.InterruptTournament(Tournament);
                 break;
             }
+            optionTournamentGamePlayMenuList.Clear();
+            optionTournamentGamePlayMenuList = _actionService.GetMenuActionsByName("Go To Tournament");
+            playSystemMenuList = playSystem.ListMenuActions;
+            optionTournamentGamePlayMenuList.InsertRange(0, playSystemMenuList);
         }
     }
 

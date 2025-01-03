@@ -118,12 +118,10 @@ public class PlayersToTournament
             if (ListPlayersToTournament.Any())
             {
                 newPlayer.Position = ListPlayersToTournament.Max(p => p.Position) + 1;
-                newPlayer.TwoKO = newPlayer.Position.ToString();
             }
             else
             {
                 newPlayer.Position = 1;
-                newPlayer.TwoKO = newPlayer.Position.ToString();
             }
 
             ListPlayersToTournament.Add(newPlayer);
@@ -145,6 +143,7 @@ public class PlayersToTournament
         if (playerToRemove != null)
         {
             ListPlayersToTournament.Remove(playerToRemove);
+            ListPlayersToTournament = ListPlayersToTournament.OrderBy(p => p.Position).ToList();
             for (int i = 0; i < ListPlayersToTournament.Count; i++)
             {
                 ListPlayersToTournament[i].Position = i + 1;
@@ -160,7 +159,7 @@ public class PlayersToTournament
         if (ListPlayersToTournament.Any())
         {
             ConsoleService.WriteTitle($"List Players Of {_tournament.Name}");
-            foreach (var player in ListPlayersToTournament)
+            foreach (var player in ListPlayersToTournament.OrderBy(p => p.Position))
             {
                 formatText = $"{player.Position}. {player.TinyFulName} {player.Country}";
                 ConsoleService.WriteLineMessage(formatText);

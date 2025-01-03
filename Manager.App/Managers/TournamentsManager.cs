@@ -43,7 +43,13 @@ public class TournamentsManager : ITournamentsManager
             switch (operation)
             {
                 case 1:
-                    CreateNewTournament();
+                    var newTournament = CreateNewTournament();
+                    if (newTournament != null)
+                    {
+                        ITournamentsManager tournamentsManager = this;
+                        TournamentGamePlayManager tournamentGamePlayManager = new TournamentGamePlayManager(newTournament, tournamentsManager, _actionService, _playerManager, _playerService, _singlePlayerDuelManager);
+                        tournamentGamePlayManager.GoToTournament();
+                    }
                     break;
 
                 case 2:
