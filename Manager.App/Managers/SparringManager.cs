@@ -2,7 +2,6 @@
 using Manager.App.Common;
 using Manager.App.Concrete;
 
-
 using Manager.Consol.Concrete;
 using Manager.Domain.Entity;
 
@@ -75,7 +74,6 @@ public class SparringManager
 
     public void AllSparring()
     {
-
         _singlePlayerDuelManager.VievAllSparring();
         ConsoleService.WriteLineMessageActionSuccess("Press Any Key..");
     }
@@ -193,7 +191,6 @@ public class SparringManager
                 }
                 else if (inputKey.Key == ConsoleKey.Escape)
                 {
-
                     if (ConsoleService.AnswerYesOrNo("You want to leave the game?"))
                     {
                         _singlePlayerDuelManager.InterruptDuel(singlePlayerDuel);
@@ -202,7 +199,6 @@ public class SparringManager
                     }
                     break;
                 }
-t
             } while (frame.IdPlayerWinner == 0);
             frame = new Frame();
             frameService.AddItem(frame);
