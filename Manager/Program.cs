@@ -1,4 +1,4 @@
-﻿using Manager.App;
+using Manager.App;
 using Manager.App.Abstract;
 using Manager.App.Concrete;
 using Manager.App.Managers;
@@ -19,9 +19,11 @@ internal class Program
         }
         var settings = new Settings(userService);
         MenuActionService actionService = new();
+
         IPlayerManager playerManager = new PlayerManager(actionService, playerService);
         SparringManager sparringManager = new(actionService, playerManager, playerService);
         TournamentsManager turnamentsManager = new(actionService, playerManager, playerService);
+
 
         var mainMenu = actionService.GetMenuActionsByName("Main");
 

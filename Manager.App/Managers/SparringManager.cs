@@ -1,6 +1,8 @@
 ﻿using Manager.App.Abstract;
 using Manager.App.Common;
 using Manager.App.Concrete;
+
+
 using Manager.Consol.Concrete;
 using Manager.Domain.Entity;
 
@@ -9,19 +11,23 @@ namespace Manager.App.Managers;
 public class SparringManager
 {
     private readonly MenuActionService _actionService;
+
     private readonly IPlayerManager _playerManager;
     private readonly IPlayerService _playerService;
     private readonly SinglePlayerDuelManager _singlePlayerDuelManager;
 
     public SparringManager(MenuActionService actionService, IPlayerManager playerManager, IPlayerService playerService)
+
     {
         _playerService = playerService;
         _actionService = actionService;
         _playerManager = playerManager;
+
         _singlePlayerDuelManager = new SinglePlayerDuelManager(_playerManager, _playerService);
     }
 
     public void SparringOptionsView()
+
     {
         var optionPlayerMenu = _actionService.GetMenuActionsByName("Sparring");
         while (true)
@@ -36,6 +42,7 @@ public class SparringManager
             switch (operation)
             {
                 case 1:
+
                     StartSparring();
                     break;
 
@@ -68,6 +75,7 @@ public class SparringManager
 
     public void AllSparring()
     {
+
         _singlePlayerDuelManager.VievAllSparring();
         ConsoleService.WriteLineMessageActionSuccess("Press Any Key..");
     }
@@ -96,6 +104,7 @@ public class SparringManager
         }
 
         var players = _playerService.ListOfActivePlayers().Where(p => p.Id == singlePlayerDuel.IdFirstPlayer || p.Id == singlePlayerDuel.IdSecondPlayer).ToList();
+
         string[] tinyFulNamePlayers = {players.Where(p => players.IndexOf(p) == 0)
             .Select(p => ($"{p.FirstName.Remove(1)}.{p.LastName}")).First(),
         players.Where(p => players.IndexOf(p) == 1)
@@ -184,13 +193,16 @@ public class SparringManager
                 }
                 else if (inputKey.Key == ConsoleKey.Escape)
                 {
+
                     if (ConsoleService.AnswerYesOrNo("You want to leave the game?"))
                     {
                         _singlePlayerDuelManager.InterruptDuel(singlePlayerDuel);
+
                         return;
                     }
                     break;
                 }
+t
             } while (frame.IdPlayerWinner == 0);
             frame = new Frame();
             frameService.AddItem(frame);

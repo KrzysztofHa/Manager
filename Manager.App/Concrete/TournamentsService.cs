@@ -3,10 +3,12 @@ using Manager.App.Common;
 using Manager.App.Managers;
 using Manager.Domain.Entity;
 
+
 namespace Manager.App.Concrete;
 
 public class TournamentsService : BaseService<Tournament>, ITournamentsService
 {
+
     public void AddNewTournament(Tournament tournament)
     {
         AddItem(tournament);
@@ -104,3 +106,4 @@ public class TournamentsService : BaseService<Tournament>, ITournamentsService
         }
     }
 }
+

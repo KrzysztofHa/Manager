@@ -8,6 +8,7 @@ public class Tournament : BaseEntity
     public DateTime Interrupt { get; set; }
     public string Name { get; set; }
     public int IdClub { get; set; }
+
     public string GamePlaySystem { get; set; }
     public int? IdLeague { get; set; }
     public DateTime Start { get; set; }
@@ -16,3 +17,8 @@ public class Tournament : BaseEntity
     public int NumberOfTables { get; set; }
     public int NumberOfGroups { get; set; }
 }
+=======
+    public string GameplaySystem { get; set; }
+    public int IdLeague { get; set; }
+}
+

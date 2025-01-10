@@ -4,21 +4,25 @@ using Manager.App.Managers.Helpers;
 using Manager.App.Managers.Helpers.TypeOfGame;
 using Manager.Consol.Concrete;
 using Manager.Domain.Entity;
+
 using Manager.Helpers;
 using System.Text;
 using System.Text.RegularExpressions;
+
 
 namespace Manager.App.Managers;
 
 public class SinglePlayerDuelManager : ISinglePlayerDuelManager
 {
     private readonly ISinglePlayerDuelService _singlePlayerDuelService = new SinglePlayerDuelService();
+
     private readonly IPlayerManager _playerManager;
     private readonly IPlayerService _playerService;
 
     public SinglePlayerDuelManager(IPlayerManager playerManager, IPlayerService playerService)
     {
         _playerManager = playerManager;
+
         _playerService = playerService;
     }
 
@@ -27,6 +31,7 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
         var duel = new SinglePlayerDuel();
         if (idFirstPlayer == 0 || idSecondPlayer == 0)
         {
+
             AddPlayerToDuel(duel);
             if (duel.IdSecondPlayer == 0 || duel.IdSecondPlayer == 0)
             {
@@ -38,10 +43,12 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
             duel.IdFirstPlayer = idFirstPlayer;
             if (duel.IdFirstPlayer == 0)
             {
+
                 return null;
             }
             duel.IdSecondPlayer = idSecondPlayer;
         }
+
 
         if (string.IsNullOrEmpty(duel.TypeNameOfGame))
         {
@@ -62,6 +69,7 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
         if (duel.IdFirstPlayer == 0 && ConsoleService.AnswerYesOrNo("User is the player?"))
         {
             var idUserOfPlayer = ActiveUserNameOrId.IdActiveUser;
+
             if (idUserOfPlayer <= 0)
             {
                 var searchPlayer = _playerManager.SearchPlayer();
@@ -74,9 +82,11 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
                     }
                 }
                 idUserOfPlayer = searchPlayer.Id;
+
             }
             userService.SetIdPlayerToActiveUser(idUserOfPlayer);
             duel.IdFirstPlayer = idUserOfPlayer;
+
         }
         else
         {
@@ -96,14 +106,17 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
         ConsoleService.WriteTitle("Add First Player");
         ConsoleService.WriteLineMessageActionSuccess("Succes\r\nPress Any Key");
 
+
         var secondPlayer = _playerManager.SearchPlayer();
         if (secondPlayer != null && duel.IdFirstPlayer == secondPlayer.Id)
         {
             while (duel.IdFirstPlayer == secondPlayer.Id)
+
             {
                 ConsoleService.WriteLineErrorMessage("The selected player is already added.");
                 ConsoleService.WriteTitle("Add Second Player\r\n Press Any Key..");
                 ConsoleService.GetKeyFromUser();
+
 
                 secondPlayer = _playerManager.SearchPlayer();
                 if (secondPlayer == null)
@@ -117,15 +130,19 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
         {
             secondPlayer = _playerManager.AddNewPlayer();
             if (secondPlayer == null)
+
             {
                 return;
             }
         }
+
         duel.IdSecondPlayer = secondPlayer.Id;
+
 
         ConsoleService.WriteTitle("Add Second Player");
         ConsoleService.WriteLineMessageActionSuccess("Succes\r\nPress Any Key");
     }
+
 
     private bool AddSettingsRaceAndTypeGame(SinglePlayerDuel singlePlayerDuel)
     {
@@ -188,6 +205,7 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
         return true;
     }
 
+
     public SinglePlayerDuel NewTournamentSinglePlayerDuel(int idTournament, int idFirstPlayer, int idSecondPlayer, string round = "Eliminations")
     {
         SinglePlayerDuel templateSinglePlayerDuel = _singlePlayerDuelService.GetAllSinglePlayerDuel()
@@ -243,10 +261,12 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
         {
             listSinglesPlayerDuels = _singlePlayerDuelService.GetAllSinglePlayerDuel()
                 .Where(s => s.IdPlayerTournament == null && s.IsActive == true).ToList();
+
         }
         else
         {
             listSinglesPlayerDuels = _singlePlayerDuelService.GetAllSinglePlayerDuel()
+
              .Where(s => s.IdPlayerTournament == idTournament && s.IsActive == true).ToList();
         }
         return listSinglesPlayerDuels;
@@ -270,12 +290,14 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
             SecondPleyer = duel.IdFirstPlayer != -1 && duel.IdSecondPlayer == -1 ? "Free Win" : listPlayers.Where(p => p.Id == duel.IdSecondPlayer)
             .Select(n => new { FulNamen = n.FirstName + " " + n.LastName }).First().FulNamen,
             duel.NumberDuelOfTournament,
+
             duel.TypeNameOfGame,
             duel.RaceTo,
             duel.CreatedDateTime,
             duel.ScoreFirstPlayer,
             duel.ScoreSecondPlayer,
             duel.IdPlayerTournament,
+
             duel.Group,
             StartGame = duel.StartGame.Equals(DateTime.MinValue) ? "Waiting" : duel.StartGame.ToShortTimeString(),
             Inrerrupted = !duel.Interrupted.Equals(DateTime.MinValue) ? "Interrtupted" : "In Progress",
@@ -313,6 +335,7 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
         }
     }
 
+
     public void EndSinglePlayerDuel(SinglePlayerDuel duel)
     {
         _singlePlayerDuelService.EndSinglePlayerDuel(duel);
@@ -322,6 +345,7 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
     {
         _singlePlayerDuelService.UpdateSinglePlayerDuel(duel);
     }
+
 
     public void InterruptDuel(SinglePlayerDuel duel)
     {
@@ -562,3 +586,4 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
         return _singlePlayerDuelService.GetSinglePlayerDuelDetailsView(duel);
     }
 }
+

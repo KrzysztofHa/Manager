@@ -1,3 +1,4 @@
+
 ﻿using Manager.App.Managers;
 using Manager.Domain.Entity;
 
