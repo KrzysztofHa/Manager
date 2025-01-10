@@ -1,15 +1,11 @@
-
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Manager.App.Tests.ManagerAppTest.TurnamentsServiceTest;
+namespace Manager.App.Managers.Helpers.TournamentGamePlaySystem;
 
-public class TournamentsServiceTest
+public class CupPlaySystem
 {
-
-
 }
-

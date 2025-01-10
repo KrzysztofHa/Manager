@@ -7,6 +7,7 @@ namespace Manager.Infrastructure.Common;
 public class BaseOperationService<T> : IBaseService<T>
 {
     public List<T> ListOfElements { get; set; }
+
     public BaseOperationService()
     {
         ListOfElements = new List<T>();
@@ -22,6 +23,7 @@ public class BaseOperationService<T> : IBaseService<T>
         PathToFile = _basePathsService.GetPathToFileOfTypeName(PathName);
         return PathToFile;
     }
+
     public List<T> LoadListInBase()
     {
         if (File.Exists(PathToFile))
@@ -36,6 +38,7 @@ public class BaseOperationService<T> : IBaseService<T>
 
         return ListOfElements;
     }
+
     public bool SaveListToBase()
     {
         try
@@ -54,6 +57,4 @@ public class BaseOperationService<T> : IBaseService<T>
 
         return true;
     }
-
 }
-

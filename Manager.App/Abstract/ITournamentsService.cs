@@ -1,15 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
+﻿using Manager.App.Managers;
+using Manager.Domain.Entity;
 
 namespace Manager.App.Abstract
 {
-    internal interface ITournamentsService
+    public interface ITournamentsService : IService<Tournament>
     {
-        void AddNewTurnament();
-        void StartTurnament();
-        void EndTurnament();
+        void AddNewTournament(Tournament tournament);
+
+        void StartTournament(Tournament tournament, ISinglePlayerDuelManager singlePlayerDuelManager);
+
+        void EndTournament(Tournament tournament);
+
+        List<Tournament> SearchTournament(string searchString);
+
+        string GetTournamentDetailView(Tournament tournament);
+
+        void InterruptTournament(Tournament tournament, ISinglePlayerDuelManager singlePlayerDuelManager);
     }
 }

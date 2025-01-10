@@ -1,6 +1,5 @@
 ﻿using Manager.Infrastructure.Common;
 using Manager.Infrastructure.Entity;
-using Newtonsoft.Json;
 
 namespace Manager.Infrastructure.Concrete;
 
@@ -8,6 +7,7 @@ public class BasePathsService : BaseOperationService<BasePaths>
 {
     public string PathToBaseCurrent = Directory.GetCurrentDirectory() + @"\base\";
     public string FileExtensions = ".manager.json";
+
     public BasePathsService()
     {
         if (File.Exists(PathToBaseCurrent + nameof(BasePaths) + FileExtensions))
@@ -19,6 +19,7 @@ public class BasePathsService : BaseOperationService<BasePaths>
             AddNewEntryToPathsList(nameof(BasePaths));
         }
     }
+
     public string AddNewEntryToPathsList(string pathName)
     {
         ListOfElements.Add(new BasePaths()

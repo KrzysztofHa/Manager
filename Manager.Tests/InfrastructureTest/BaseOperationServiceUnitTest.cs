@@ -16,16 +16,14 @@ public class BaseOperationServiceUnitTest
         //Act
         var resultiBaseService = iBaseService.LoadListInBase();
 
-        //Assert            
+        //Assert
         resultiBaseService.Should().BeEmpty();
-
     }
-
 
     //[Fact]
     //public void CanSaveListToBase()
     //{
-    //    //Arrange                       
+    //    //Arrange
     //    List<Player> playerList = new List<Player>();
     //    for (int i = 1; i <= 10; i++)
     //    {
@@ -39,9 +37,7 @@ public class BaseOperationServiceUnitTest
     //    //Act
     //    var resultiBaseService = iBaseService.SaveListToBase();
 
-    //    //Assert            
+    //    //Assert
     //    Assert.True(resultiBaseService);
     //}
-
-
 }

@@ -1,29 +1,111 @@
-﻿using System.Text;
+﻿using System.Security.Cryptography.X509Certificates;
+using System.Text;
 
 namespace Manager.Consol.Concrete;
 
 public static class ConsoleService
 {
-    public static int? GetIntNumberFromUser(string message)
+    public static string SizeWindowAllert = "The application window is too small, \n\rwhich makes it difficult to use. "
+                + "\n\rChange the size of the application window, \n\rminimum width 120 and height 30 " +
+                "\n\ror you can close the window exit the application \n\rand the changes made may not be saved.\n\r";
+
+    public static bool CheckAndSetSizeWindow()
     {
-        if (int.TryParse(GetStringFromUser(message), out int inputUserInt))
+        if (Console.WindowHeight < 30 || Console.WindowWidth < 120)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.Clear();
+            Console.WriteLine(SizeWindowAllert);
+            var startCursorPosition = Console.GetCursorPosition();
+            Console.CursorVisible = false;
+            do
+            {
+                Thread.Sleep(200);
+                if (startCursorPosition.Left + 5 >= Console.BufferWidth || startCursorPosition.Top + 5 >= Console.BufferHeight)
+                {
+                    Console.WriteLine("Window is Too small exit aplication");
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.WriteLine("Press Any Key...");
+                    Console.ReadKey();
+                    System.Environment.Exit(0);
+                }
+                Console.SetCursorPosition(startCursorPosition.Left, startCursorPosition.Top);
+                Console.Write(string.Empty.PadRight(Console.BufferWidth));
+                Console.SetCursorPosition(startCursorPosition.Left, startCursorPosition.Top);
+                Console.ForegroundColor = ConsoleColor.Red;
+                if (Console.WindowHeight >= 30)
+                {
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.Write($"Height: {Console.WindowHeight}");
+                    Console.ForegroundColor = ConsoleColor.Red;
+                }
+                else
+                {
+                    Console.Write($"Height: {Console.WindowHeight}");
+                }
+
+                if (Console.WindowWidth >= 120)
+                {
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.Write($"  Width: {Console.WindowWidth}");
+                    Console.ForegroundColor = ConsoleColor.Red;
+                }
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.Write($"  Width: {Console.WindowWidth}");
+                }
+
+                if (Console.WindowHeight >= 30 && Console.WindowWidth >= 120)
+                {
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.SetCursorPosition(startCursorPosition.Left, startCursorPosition.Top + 3);
+                    Console.Write("The window size is just right." +
+                        "\n\rYou can continue working with the application. \n\rPress Any Key...\n\r And Have fun!");
+                    Console.ReadKey();
+                }
+            } while (Console.WindowHeight < 30 || Console.WindowWidth < 120);
+
+            Console.Write(string.Empty.PadRight(Console.BufferWidth));
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.CursorVisible = true;
+            return false;
+        }
+
+        return true;
+    }
+
+    public static int? GetIntNumberFromUser(string message, string messageBack = " ")
+    {
+        if (!CheckAndSetSizeWindow())
+        {
+            return null;
+        }
+
+        if (int.TryParse(GetStringFromUser(message, messageBack), out int inputUserInt))
         {
             return inputUserInt;
         }
         return null;
     }
-    public static string GetStringFromUser(string message)
+
+    public static string GetStringFromUser(string message, string messageBack = " ")
     {
+        if (!CheckAndSetSizeWindow())
+        {
+            return null;
+        }
         ConsoleKeyInfo inputKey;
         var inputString = new StringBuilder();
-        Console.WriteLine($"{message}\n");
+        Console.WriteLine($"{message}\n\r");
         int customCursorLeft = Console.CursorLeft;
         int customCursorTop = Console.CursorTop;
 
         Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine("\nExit Press Escape (Esc)");
+        Console.WriteLine("\n\rExit Press Escape (Esc)");
         var endBuferPosition = Console.GetCursorPosition();
         Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.WriteLine(messageBack);
 
         do
         {
@@ -49,7 +131,6 @@ public static class ConsoleService
                 inputString.Remove(inputString.Length - 1, 1);
                 Console.SetCursorPosition(customCursorLeft, customCursorTop);
                 Console.Write(inputString.ToString().PadRight(Console.BufferWidth));
-
             }
 
             if (inputKey.Key == ConsoleKey.Escape)
@@ -65,12 +146,19 @@ public static class ConsoleService
         Console.ForegroundColor = ConsoleColor.White;
         return inputString.ToString();
     }
-    public static string GetRequiredStringFromUser(string message)
+
+    public static string GetRequiredStringFromUser(string message, string messageBack = " ")
     {
+        if (!CheckAndSetSizeWindow())
+        {
+            return null;
+        }
+
         var startCursorPosition = Console.GetCursorPosition();
+
         do
         {
-            var inputRequiredString = GetStringFromUser(message);
+            var inputRequiredString = GetStringFromUser(message, messageBack);
             if (inputRequiredString == string.Empty)
             {
                 WriteLineErrorMessage("This field is required");
@@ -83,16 +171,24 @@ public static class ConsoleService
             {
                 return inputRequiredString;
             }
-            Console.SetCursorPosition(startCursorPosition.Left, startCursorPosition.Top);
 
+            Console.SetCursorPosition(startCursorPosition.Left, startCursorPosition.Top);
         } while (true);
     }
+
     public static void WriteLineMessage(string message)
     {
+        if (!CheckAndSetSizeWindow())
+        {
+            return;
+        }
+
         Console.WriteLine(message);
     }
+
     public static bool AnswerYesOrNo(string message)
     {
+        CheckAndSetSizeWindow();
         var startCursorTop = Console.CursorTop;
         var startCursorLeft = Console.CursorLeft;
         Console.ForegroundColor = ConsoleColor.Magenta;
@@ -123,15 +219,19 @@ public static class ConsoleService
             }
         } while (true);
     }
+
     public static void WriteTitle(string title)
     {
+        CheckAndSetSizeWindow();
         Console.Clear();
         Console.ForegroundColor = ConsoleColor.Green;
         Console.WriteLine($"{title}\n");
         Console.ForegroundColor = ConsoleColor.White;
     }
+
     public static void WriteLineMessageActionSuccess(string message)
     {
+        CheckAndSetSizeWindow();
         var startCursorPosition = Console.GetCursorPosition();
         Console.CursorVisible = false;
         Console.ForegroundColor = ConsoleColor.Cyan;
@@ -152,8 +252,10 @@ public static class ConsoleService
         Console.Write(string.Empty.PadLeft(Console.BufferWidth));
         Console.CursorVisible = true;
     }
+
     public static void WriteLineErrorMessage(string errorMessage)
     {
+        CheckAndSetSizeWindow();
         Console.CursorVisible = false;
         Console.ForegroundColor = ConsoleColor.Red;
         var startCursorPosition = Console.GetCursorPosition();
@@ -164,20 +266,39 @@ public static class ConsoleService
         Thread.Sleep(250);
         Console.SetCursorPosition(startCursorPosition.Left, startCursorPosition.Top);
         Console.WriteLine(errorMessage);
-        Thread.Sleep(500);
+        Thread.Sleep(250);
+        Console.SetCursorPosition(startCursorPosition.Left, startCursorPosition.Top);
+        Console.WriteLine(string.Empty.PadLeft(Console.BufferWidth));
+        Thread.Sleep(250);
+        Console.SetCursorPosition(startCursorPosition.Left, startCursorPosition.Top);
+        Console.WriteLine(errorMessage);
+        Thread.Sleep(1300);
         Console.ForegroundColor = ConsoleColor.White;
         Console.SetCursorPosition(startCursorPosition.Left, startCursorPosition.Top);
         Console.WriteLine(string.Empty.PadLeft(Console.BufferWidth));
+        while (Console.KeyAvailable == true)
+        {
+            Console.ReadKey(true);
+        }
         Console.CursorVisible = true;
     }
-    public static ConsoleKeyInfo GetKeyFromUser()
+
+    public static ConsoleKeyInfo GetKeyFromUser(string messageBack = " ")
     {
+        CheckAndSetSizeWindow();
+
         var startCursorPosition = Console.GetCursorPosition();
         Console.CursorVisible = false;
         Console.ForegroundColor = ConsoleColor.Blue;
+        Console.WriteLine("\n\r" + messageBack);
         Console.SetCursorPosition(startCursorPosition.Left, startCursorPosition.Top);
         Console.WriteLine(string.Empty.PadLeft(Console.BufferWidth));
         Console.CursorVisible = false;
         return Console.ReadKey(true);
+    }
+
+    public static void WriteMessage(string message)
+    {
+        Console.Write(message);
     }
 }

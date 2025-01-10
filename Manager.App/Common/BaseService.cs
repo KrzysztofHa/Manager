@@ -1,7 +1,6 @@
 ﻿using Manager.App.Abstract;
-using Manager.App.Concrete;
 using Manager.Domain.Common;
-using Manager.Domain.Entity;
+using Manager.Helpers;
 using Manager.Infrastructure.Abstract;
 using Manager.Infrastructure.Common;
 
@@ -20,20 +19,19 @@ public class BaseService<T> : IService<T> where T : BaseEntity
 
     public int AddItem(T item)
     {
-        if (!Items.Contains(item))
+        if (Items.Any())
         {
-            if (Items.Any())
-            {
-                item.Id = Items.Count + 1;
-            }
-            else
-            {
-                item.Id = 1;
-            }
-            item.IsActive = true;
-            item.CreatedDateTime = DateTime.Now;
-            Items.Add(item);
+            item.Id = Items.Count + 1;
         }
+        else
+        {
+            item.Id = 1;
+        }
+        item.CreatedById = ActiveUserNameOrId.IdActiveUser;
+        item.IsActive = true;
+        item.CreatedDateTime = DateTime.Now;
+        Items.Add(item);
+
         return item.Id;
     }
 
@@ -44,8 +42,13 @@ public class BaseService<T> : IService<T> where T : BaseEntity
 
     public void RemoveItem(T item)
     {
-        item.ModifiedDateTime = DateTime.Now;
-        item.IsActive = false;
+        if (Items.Any() && item != null)
+        {
+            item.ModifiedById = ActiveUserNameOrId.IdActiveUser;
+            item.ModifiedDateTime = DateTime.Now;
+            item.ModifiedDateTime = DateTime.Now;
+            item.IsActive = false;
+        }
     }
 
     public int UpdateItem(T item)
@@ -55,18 +58,23 @@ public class BaseService<T> : IService<T> where T : BaseEntity
         {
             entity = item;
             entity.ModifiedDateTime = DateTime.Now;
+            entity.ModifiedById = ActiveUserNameOrId.IdActiveUser;
+            return entity.Id;
         }
-        return entity.Id;
+        return 0;
     }
+
     public T GetItemById(int id)
     {
         var findItem = Items.FirstOrDefault(p => p.Id == id);
         return findItem;
     }
+
     public void LoadList()
     {
         Items = _baseService.LoadListInBase();
     }
+
     public void SaveList()
     {
         _baseService.SaveListToBase();

@@ -12,20 +12,21 @@ public class SinglePlayerDuelTest
     {
         _singlePlayerDuelService = new SinglePlayerDuelService();
     }
+
     [Fact]
     public void CanStartSinglePlayerDuel()
     {
         //Arrenge
         var duel = new SinglePlayerDuel() { IdFirstPlayer = 1, IdSecondPlayer = 2, RaceTo = 4, TypeNameOfGame = "8 balls", ModifiedById = 1 };
 
-
         //Act
         _singlePlayerDuelService.StartSinglePlayerDuel(duel);
 
-        //Assert        
+        //Assert
         duel.Id.Should().Be(1).Should().NotBeNull();
         duel.StartGame.Should().BeBefore(DateTime.Now);
     }
+
     [Fact]
     public void CanUpdateSinglePlayerDuel()
     {
@@ -38,10 +39,9 @@ public class SinglePlayerDuelTest
         //Act
         _singlePlayerDuelService.UpdateSinglePlayerDuel(duel);
 
-        //Assert        
+        //Assert
         _singlePlayerDuelService.GetItemById(1).ScoreFirstPlayer.Should().Be(4);
     }
-
 
     [Fact]
     public void CanEndSinglePlayerDuel()
@@ -50,12 +50,10 @@ public class SinglePlayerDuelTest
         CanUpdateSinglePlayerDuel();
         var duel = _singlePlayerDuelService.GetItemById(1);
 
-
         //Act
         _singlePlayerDuelService.EndSinglePlayerDuel(duel);
 
-        //Assert        
+        //Assert
         _singlePlayerDuelService.GetItemById(1).EndGame.Should().BeAfter(duel.StartGame);
-
     }
 }

@@ -1,7 +1,8 @@
 ﻿using Manager.App.Abstract;
 using Manager.App.Common;
 using Manager.App.Concrete;
-using Manager.App.Concrete.Helpers;
+
+
 using Manager.Consol.Concrete;
 using Manager.Domain.Entity;
 
@@ -10,19 +11,23 @@ namespace Manager.App.Managers;
 public class SparringManager
 {
     private readonly MenuActionService _actionService;
-    private readonly PlayerManager _playerManager;
-    private readonly IUserService _userService;
+
+    private readonly IPlayerManager _playerManager;
     private readonly IPlayerService _playerService;
-    private SinglePlayerDuelManager _singlePlayerDuelManager;
-    public SparringManager(MenuActionService actionService, PlayerManager playerManager, IUserService userService, IPlayerService playerService)
+    private readonly SinglePlayerDuelManager _singlePlayerDuelManager;
+
+    public SparringManager(MenuActionService actionService, IPlayerManager playerManager, IPlayerService playerService)
+
     {
         _playerService = playerService;
         _actionService = actionService;
         _playerManager = playerManager;
-        _userService = userService;
-        _singlePlayerDuelManager = new SinglePlayerDuelManager(_playerManager, _userService, _playerService);
+
+        _singlePlayerDuelManager = new SinglePlayerDuelManager(_playerManager, _playerService);
     }
-    public void SparringOptionView()
+
+    public void SparringOptionsView()
+
     {
         var optionPlayerMenu = _actionService.GetMenuActionsByName("Sparring");
         while (true)
@@ -37,14 +42,22 @@ public class SparringManager
             switch (operation)
             {
                 case 1:
-                    StartNewSparring();
+
+                    StartSparring();
                     break;
+
                 case 2:
+                    StartSparring(_singlePlayerDuelManager.SelectInterruptedDuelBySparring());
+                    break;
+
+                case 3:
                     AllSparring();
                     break;
-                case 3:
+
+                case 4:
                     operation = null;
                     break;
+
                 default:
                     if (operation != null)
                     {
@@ -62,24 +75,36 @@ public class SparringManager
 
     public void AllSparring()
     {
-        _singlePlayerDuelManager.ListOfSinglePlayerDuelByTournamentOrSparring();
+
+        _singlePlayerDuelManager.VievAllSparring();
         ConsoleService.WriteLineMessageActionSuccess("Press Any Key..");
     }
 
-    public void StartNewSparring()
+    public void StartSparring(SinglePlayerDuel singlePlayerDuel = null)
     {
         IService<Frame> frameService = new BaseService<Frame>();
-        var players = _playerService.ListOfActivePlayers();
-        Frame frame = new Frame() { CreatedById = _userService.GetIdActiveUser() };
+        Frame frame = new Frame();
         frameService.AddItem(frame);
         frameService.SaveList();
-        var singlePlayerDuel = _singlePlayerDuelManager.NewSingleDuel();
-
         if (singlePlayerDuel == null)
         {
-            return;
+            ConsoleService.WriteTitle("");
+            if (ConsoleService.AnswerYesOrNo("Start New Sparring ?"))
+            {
+                singlePlayerDuel = _singlePlayerDuelManager.NewSingleDuel();
+                if (singlePlayerDuel == null)
+                {
+                    return;
+                }
+            }
+            else
+            {
+                return;
+            }
         }
-        
+
+        var players = _playerService.ListOfActivePlayers().Where(p => p.Id == singlePlayerDuel.IdFirstPlayer || p.Id == singlePlayerDuel.IdSecondPlayer).ToList();
+
         string[] tinyFulNamePlayers = {players.Where(p => players.IndexOf(p) == 0)
             .Select(p => ($"{p.FirstName.Remove(1)}.{p.LastName}")).First(),
         players.Where(p => players.IndexOf(p) == 1)
@@ -168,15 +193,18 @@ public class SparringManager
                 }
                 else if (inputKey.Key == ConsoleKey.Escape)
                 {
-                    if (ConsoleService.AnswerYesOrNo("you want to leave the game?"))
+
+                    if (ConsoleService.AnswerYesOrNo("You want to leave the game?"))
                     {
+                        _singlePlayerDuelManager.InterruptDuel(singlePlayerDuel);
+
                         return;
                     }
                     break;
                 }
-
+t
             } while (frame.IdPlayerWinner == 0);
-            frame = new Frame() { CreatedById = _userService.GetIdActiveUser() };
+            frame = new Frame();
             frameService.AddItem(frame);
         }
     }

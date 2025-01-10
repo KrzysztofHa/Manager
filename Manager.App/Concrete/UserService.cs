@@ -7,7 +7,8 @@ namespace Manager.App.Concrete;
 public class UserService : BaseService<User>, IUserService, IService<User>
 {
     public string UserName { get; }
-    public string DisplayUserName { get; set; }
+    public string DisplayUserName { get; }
+
     public UserService()
     {
         UserName = Environment.UserName;
@@ -29,6 +30,7 @@ public class UserService : BaseService<User>, IUserService, IService<User>
             SaveList();
         }
     }
+
     public int GetIdActiveUser()
     {
         var activeUser = GetAllItem().FirstOrDefault(p => p.UserName == UserName);
@@ -47,7 +49,6 @@ public class UserService : BaseService<User>, IUserService, IService<User>
 
     public string GetUserName()
     {
-
         return UserName;
     }
 

@@ -29,13 +29,11 @@ public class BasePathUnitTest
         var pathName = typeof(Player).Name;
         var basePathsService = new BasePathsService();
 
-        //Act 
+        //Act
         var resultBasePathsService = basePathsService.GetPathToFileOfTypeName(pathName);
 
         //Assert
         Assert.NotNull(resultBasePathsService);
         Assert.Equal(resultBasePathsService, basePathsService.ListOfElements[1].PathToFile);
     }
-
-
 }
