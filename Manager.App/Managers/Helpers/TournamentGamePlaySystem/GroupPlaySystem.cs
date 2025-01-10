@@ -1,4 +1,5 @@
 ﻿using Manager.App.Abstract;
+using Manager.App.Concrete;
 using Manager.App.Managers.Helpers.TournamentGamePlaySystem;
 using Manager.Consol.Concrete;
 using Manager.Domain.Entity;
@@ -116,8 +117,7 @@ public class GroupPlaySystem : PlaySystems
 
     private void AssignPlayersToGroups()
     {
-        List<PlayerToTournament> randomList = new List<PlayerToTournament>();
-        randomList.AddRange(PlayersToTournamentInPlaySystem.ListPlayersToTournament);
+        List<PlayerToTournament> randomList = [.. PlayersToTournamentInPlaySystem.ListPlayersToTournament];
 
         char group = (char)65;
         if (Tournament.GamePlaySystem == "Group" && Tournament.NumberOfGroups != 0)
@@ -235,9 +235,14 @@ public class GroupPlaySystem : PlaySystems
     {
         var formatText = string.Empty;
 
-        if (PlayersToTournamentInPlaySystem.ListPlayersToTournament.Any(p => string.IsNullOrEmpty(p.Group)))
+        if (Tournament.NumberOfGroups == 0)
         {
-            return formatText = "Set Number Of Groups";
+            return formatText;
+        }
+
+        if (PlayersToTournamentInPlaySystem.ListPlayersToTournament.Any(p => string.IsNullOrEmpty(p.Group)) && Tournament.Start == DateTime.MinValue)
+        {
+            AssignPlayersToGroups();
         }
         var groupingPlayer = PlayersToTournamentInPlaySystem.ListPlayersToTournament
             .GroupBy(group => group.Group, group => group).OrderBy(g => g.Key).ToList();
@@ -275,36 +280,90 @@ public class GroupPlaySystem : PlaySystems
 
     protected override void StartTournament()
     {
-        if (Tournament.NumberOfPlayer < 8)
+        if (Tournament.NumberOfPlayer < 8 || Tournament.End != DateTime.MinValue)
         {
             return;
         }
-        throw new NotImplementedException();
+
+        _tournamentsManager.StartTournament(Tournament);
+        CreateDuelsToTournament();
+    }
+
+    private void CreateDuelsToTournament(string round = "Eliminations")
+    {
+        var listPlayerToBeAssignedToTheDuel = PlayersToTournamentInPlaySystem.ListPlayersToTournament.Where(p => p.Round != round).ToList();
+
+        if (listPlayerToBeAssignedToTheDuel.Count == 0)
+        {
+            return;
+        }
+
+        if (PlayersToTournamentInPlaySystem.ListPlayersToTournament.Any(p => string.IsNullOrEmpty(p.Group)))
+        {
+            return;
+        }
+
+        var groupingPlayers = PlayersToTournamentInPlaySystem.ListPlayersToTournament.GroupBy(p => p.Group);
+
+        foreach (var group in groupingPlayers)
+        {
+            var listPlayersOfGroup = group.ToList();
+            if (group.Any(p => p.Round == round))
+            {
+                listPlayersOfGroup = listPlayersOfGroup.OrderBy(p => p.Round).ToList();
+            }
+
+            for (int i = 0; i < listPlayersOfGroup.Count; i++)
+            {
+                if (!listPlayerToBeAssignedToTheDuel.Contains(listPlayersOfGroup[i]) && listPlayersOfGroup.Any(p => p.Round == round))
+                {
+                    continue;
+                }
+
+                if (string.IsNullOrEmpty(listPlayersOfGroup[i].Round) || !listPlayersOfGroup[i].Round.Equals(round) || listPlayersOfGroup.LastIndexOf(listPlayersOfGroup[i]) == 0)
+                {
+                    listPlayersOfGroup[i].Round = round;
+                }
+
+                for (int j = i + 1; j < listPlayersOfGroup.Count; j++)
+                {
+                    _singlePlayerDuelManager.NewTournamentSinglePlayerDuel(
+                    Tournament.Id,
+                    listPlayersOfGroup[i].IdPLayer,
+                    listPlayersOfGroup[j].IdPLayer,
+                    round);
+                }
+            }
+        }
+
+        PlayersToTournamentInPlaySystem.SavePlayersToTournament();
+        DetermineTheOrderOfDuelsToStartInGroup();
     }
 
     public override void AddPlayers()
     {
-        var newPlayers = PlayersToTournamentInPlaySystem.AddPlayersToTournament();
-        if (newPlayers.Count > 0 && PlayersToTournamentInPlaySystem.ListPlayersToTournament.Any(p => !string.IsNullOrEmpty(p.Group)))
+        var newplayers = PlayersToTournamentInPlaySystem.AddPlayersToTournament();
+        if (newplayers.Count > 0 && PlayersToTournamentInPlaySystem.ListPlayersToTournament.Any(p => !string.IsNullOrEmpty(p.Group)))
         {
             var groupingPlayers = PlayersToTournamentInPlaySystem.ListPlayersToTournament.Where(p => !string.IsNullOrEmpty(p.Group))
            .GroupBy(group => group.Group, group => group).OrderBy(g => g.Count()).Select(g => new { g.Key }).ToList();
 
-            for (var i = 0; i < newPlayers.Count; i++)
+            for (var i = 0; i < newplayers.Count; i++)
             {
                 if (i == groupingPlayers.Count)
                 {
                     i = -1;
                     continue;
                 }
-                newPlayers.First().Group = groupingPlayers[i].Key;
-                newPlayers.Remove(newPlayers.First());
+                newplayers.First().Group = groupingPlayers[i].Key;
+                newplayers.Remove(newplayers.First());
             }
             PlayersToTournamentInPlaySystem.SavePlayersToTournament();
         }
 
-        if (newPlayers.Count > 0 && Tournament.Start != DateTime.MinValue)
+        if (Tournament.Start != DateTime.MinValue)
         {
+            CreateDuelsToTournament();
         }
     }
 
@@ -390,16 +449,19 @@ public class GroupPlaySystem : PlaySystems
                     }
                 }
 
-                //var duelsPlayerToMove = _singlePlayerDuelManager
-                //    .GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id)
-                //    .Where(p => p.IdFirstPlayer == playerToMove.IdPLayer || p.IdSecondPlayer == playerToMove.IdPLayer).ToList();
+                if (Tournament.Start != DateTime.MinValue)
+                {
+                    var duelsPlayerToMove = _singlePlayerDuelManager
+                        .GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id)
+                        .Where(p => p.IdFirstPlayer == playerToMove.IdPLayer || p.IdSecondPlayer == playerToMove.IdPLayer).ToList();
 
-                //if (duelsPlayerToMove.Count > 0)
-                //{
-                //    playerToMove.Round = string.Empty;
-                //    _singlePlayerDuelManager.RemoveTournamentDuel(Tournament, playerToMove.IdPLayer);
-                //    CreateDuelsToTournament();
-                //}
+                    if (duelsPlayerToMove.Count > 0)
+                    {
+                        playerToMove.Round = string.Empty;
+                        _singlePlayerDuelManager.RemoveTournamentDuel(Tournament, playerToMove.IdPLayer);
+                        CreateDuelsToTournament();
+                    }
+                }
             }
             else
             {
@@ -419,8 +481,8 @@ public class GroupPlaySystem : PlaySystems
 
         if (Tournament.NumberOfGroups == 0)
         {
-            actions.First(a => a.Name == "Set Number Of Groups").Name = "  <-----  Start Tournament";
-            actions.Remove(actions.First(a => a.Name == "  <-----Start Tournament"));
+            actions.First(a => a.Name == "Set Number Of Groups").Name = "  <-----  Set Number Of Groups";
+            actions.Remove(actions.First(a => a.Name == "  <-----  Start Tournament"));
         }
 
         if (Tournament.NumberOfPlayer < 8 && actions.Exists(a => a.Name == "  <-----  Start Tournament"))

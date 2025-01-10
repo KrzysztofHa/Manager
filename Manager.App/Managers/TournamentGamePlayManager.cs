@@ -77,7 +77,7 @@ public class TournamentGamePlayManager
             ConsoleService.WriteTitle($"Tournaments {Tournament.Name} | Game System: {Tournament.GamePlaySystem} ");
             ConsoleService.WriteLineMessage($"Number of PLayers: {Tournament.NumberOfPlayer} | Number Of Groups: {Tournament.NumberOfGroups} | " +
                 $"Type Name Of Game: {firstDuel.TypeNameOfGame} | " +
-                $"Group Race To: {firstDuel.RaceTo}\n\r");
+                $"Race To: {firstDuel.RaceTo}\n\r");
 
             if (Tournament.NumberOfPlayer < 8)
             {

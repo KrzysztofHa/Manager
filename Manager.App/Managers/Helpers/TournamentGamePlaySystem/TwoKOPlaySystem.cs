@@ -23,6 +23,7 @@ public class TwoKOPlaySystem : PlaySystems
 
         if (newPlayers.Count > 0 && Tournament.Start != DateTime.MinValue)
         {
+            CreateDuelsToTournament();
         }
     }
 
@@ -90,12 +91,111 @@ public class TwoKOPlaySystem : PlaySystems
                         }
                     }
                 }
+
+                if (Tournament.Start != DateTime.MinValue)
+                {
+                    var duelsPlayerToMove = _singlePlayerDuelManager
+                        .GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id)
+                        .Where(p => p.IdFirstPlayer == playerToMove.IdPLayer || p.IdSecondPlayer == playerToMove.IdPLayer).ToList();
+
+                    if (duelsPlayerToMove.Count > 0)
+                    {
+                        playerToMove.Round = string.Empty;
+                        _singlePlayerDuelManager.RemoveTournamentDuel(Tournament, playerToMove.IdPLayer);
+                        CreateDuelsToTournament();
+                    }
+                }
             }
         }
     }
 
     protected override void StartTournament()
     {
+        if (Tournament.NumberOfPlayer < 8 || Tournament.End != DateTime.MinValue)
+        {
+            return;
+        }
+
+        _tournamentsManager.StartTournament(Tournament);
+        CreateDuelsToTournament();
+    }
+
+    private void CreateDuelsToTournament(string round = "Eliminations")
+    {
+        var listNewPlayer = PlayersToTournamentInPlaySystem.ListPlayersToTournament.Where(p => p.Round != round).ToList();
+
+        if (listNewPlayer.Count == 0)
+        {
+            return;
+        }
+
+        if (listNewPlayer.Count == 1 && round == "Eliminations")
+        {
+            if (_singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id).Any(d => d.IdFirstPlayer != -1 || d.IdSecondPlayer == -1))
+            {
+                var duelToNewPlayer = _singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id)
+                    .First(d => d.IdFirstPlayer > 1 && d.IdSecondPlayer == -1);
+                duelToNewPlayer.IdSecondPlayer = listNewPlayer.First().IdPLayer;
+                duelToNewPlayer.ScoreFirstPlayer = 0;
+                duelToNewPlayer.ScoreSecondPlayer = 0;
+                listNewPlayer.First().Round = round;
+                duelToNewPlayer.Round = round;
+                _singlePlayerDuelManager.UpdateSinglePlayerDuel(duelToNewPlayer);
+            }
+            else
+            {
+                var newDuel = _singlePlayerDuelManager.NewTournamentSinglePlayerDuel(
+                       Tournament.Id,
+                       listNewPlayer.First().IdPLayer,
+                       -1,
+                       round);
+                newDuel.ScoreFirstPlayer = 3;
+                newDuel.ScoreSecondPlayer = 0;
+                listNewPlayer.First().Round = round;
+            }
+        }
+        else
+        {
+            for (int i = 0; i < listNewPlayer.Count; i += 2)
+            {
+                if (((PlayersToTournamentInPlaySystem.ListPlayersToTournament.Count - listNewPlayer.Count) % 2 != 0
+                    || PlayersToTournamentInPlaySystem.ListPlayersToTournament.Count - listNewPlayer.Count == 0)
+                    && listNewPlayer[i].Equals(listNewPlayer.Last()))
+                {
+                    _singlePlayerDuelManager.NewTournamentSinglePlayerDuel(
+                        Tournament.Id,
+                        listNewPlayer.Last().IdPLayer,
+                        -1,
+                        round);
+                    listNewPlayer.Last().Round = round;
+                    break;
+                }
+                else if (_singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id)
+                    .Any(d => d.IdFirstPlayer != -1 && d.IdSecondPlayer == -1))
+                {
+                    var duelToupdate = _singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id)
+                        .First(d => d.IdFirstPlayer != -1 && d.IdSecondPlayer == -1);
+                    duelToupdate.Round = round;
+                    duelToupdate.IdSecondPlayer = listNewPlayer[i].IdPLayer;
+                    listNewPlayer[i].Round = round;
+                    _singlePlayerDuelManager.UpdateSinglePlayerDuel(duelToupdate);
+                    i--;
+                    continue;
+                }
+                else
+                {
+                    listNewPlayer[i].Round = round;
+                    listNewPlayer[i + 1].Round = round;
+                }
+
+                _singlePlayerDuelManager.NewTournamentSinglePlayerDuel(
+                        Tournament.Id,
+                        listNewPlayer[i].IdPLayer,
+                        listNewPlayer[i + 1].IdPLayer,
+                        round);
+            }
+        }
+        PlayersToTournamentInPlaySystem.SavePlayersToTournament();
     }
 
     public override string ViewTournamentBracket()
