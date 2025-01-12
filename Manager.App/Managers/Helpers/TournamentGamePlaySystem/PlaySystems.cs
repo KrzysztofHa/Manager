@@ -384,8 +384,7 @@ public abstract class PlaySystems
         {
             Tournament.NumberOfTables = (int)numberOfTable;
             _tournamentsManager.UpdateTournament(Tournament);
-
-            //StartAndInterruptedTournamentDuel(tournament, playersToTournament);
+            StartOrInterruptedTournamentDuel();
         }
     }
 
@@ -486,7 +485,7 @@ public abstract class PlaySystems
                 }
                 else if (startedDuels.Count < Tournament.NumberOfTables)
                 {
-                    var duelsToStart = duelsOfTournament.Except(startedDuels).Except(completedDuels).OrderBy(d => d.StartNumberInGroup).ToList();
+                    var duelsToStart = duelsOfTournament.Except(startedDuels).Except(completedDuels).OrderBy(d => d.StartNumberInTournament).ToList();
 
                     if (duelsToStart.Any())
                     {
@@ -556,43 +555,21 @@ public abstract class PlaySystems
         }
         else
         {
-            if (Tournament.GamePlaySystem == "Group")
+            var tableNumber = 0;
+            foreach (var duel in duelsOfTournament.OrderBy(d => d.NumberDuelOfTournament))
             {
-                var tableNumber = 1;
-                foreach (var duelToStart in duelsOfTournament.OrderBy(d => d.StartNumberInGroup))
+                if (tableNumber <= Tournament.NumberOfTables)
                 {
-                    if (tableNumber <= Tournament.NumberOfTables)
-                    {
-                        tableNumber++;
-                    }
-                    else
-                    {
-                        break;
-                    }
-
-                    duelToStart.TableNumber = tableNumber;
-                    _singlePlayerDuelManager.UpdateSinglePlayerDuel(duelToStart);
-                    _singlePlayerDuelManager.StartSingleDuel(duelToStart);
+                    tableNumber++;
                 }
-            }
-            else
-            {
-                var tableNumber = 0;
-                foreach (var duel in duelsOfTournament)
+                else
                 {
-                    if (tableNumber <= Tournament.NumberOfTables)
-                    {
-                        tableNumber++;
-                    }
-                    else
-                    {
-                        break;
-                    }
-
-                    duel.TableNumber = tableNumber;
-                    _singlePlayerDuelManager.UpdateSinglePlayerDuel(duel);
-                    _singlePlayerDuelManager.StartSingleDuel(duel);
+                    break;
                 }
+
+                duel.TableNumber = tableNumber;
+                _singlePlayerDuelManager.UpdateSinglePlayerDuel(duel);
+                _singlePlayerDuelManager.StartSingleDuel(duel);
             }
         }
     }

@@ -156,78 +156,87 @@ public class GroupPlaySystem : PlaySystems
     {
         var allTournamentDuels = _singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id)
             .Where(d => d.IsActive == true && d.IdFirstPlayer != -1);
-
-        var groupingPlayers = PlayersToTournamentInPlaySystem.ListPlayersToTournament.GroupBy(p => p.Group);
-        List<SinglePlayerDuel> duelsOfGroup = new();
-        foreach (var groupPlayers in groupingPlayers)
+        if (allTournamentDuels.Count() > 0)
         {
-            List<int[]> queueDuels = new List<int[]>();
-            var numberOfPlayerInGroup = groupPlayers.Count();
-
-            List<int> firstSequenceNumberOfDuel = new List<int>();
-            List<int> secondSequenceNumberOfDuel = new List<int>();
-            int numberDuelsInRound = numberOfPlayerInGroup / 2;
-
-            var addDuelsToQueue = (List<int> firstSequence, List<int> secondSequence) =>
+            var groupingPlayers = PlayersToTournamentInPlaySystem.ListPlayersToTournament.GroupBy(p => p.Group);
+            List<SinglePlayerDuel> duelsOfGroup = new();
+            foreach (var groupPlayers in groupingPlayers)
             {
-                queueDuels.AddRange(firstSequence
-                .Zip(secondSequence, (first, second) => new int[2] { first, second }));
-            };
+                List<int[]> queueDuels = new List<int[]>();
+                var numberOfPlayerInGroup = groupPlayers.Count();
 
-            if (numberOfPlayerInGroup % 2 != 0)
-            {
-                numberDuelsInRound++;
-            }
+                List<int> firstSequenceNumberOfDuel = new List<int>();
+                List<int> secondSequenceNumberOfDuel = new List<int>();
+                int numberDuelsInRound = numberOfPlayerInGroup / 2;
 
-            for (int i = 1; i <= numberDuelsInRound; i++)
-            {
-                firstSequenceNumberOfDuel.Add(i);
-                secondSequenceNumberOfDuel.Add(numberDuelsInRound + i);
-            }
-
-            for (int i = 1; i <= numberDuelsInRound; i++)
-            {
-                addDuelsToQueue(firstSequenceNumberOfDuel, secondSequenceNumberOfDuel);
-                secondSequenceNumberOfDuel.Add(secondSequenceNumberOfDuel.First());
-                secondSequenceNumberOfDuel.Remove(secondSequenceNumberOfDuel.First());
-            }
-
-            for (int i = 1; i < numberDuelsInRound; i++)
-            {
-                for (int j = i + 1; j <= numberDuelsInRound; j++)
+                var addDuelsToQueue = (List<int> firstSequence, List<int> secondSequence) =>
                 {
-                    queueDuels.Add([i, j]);
-                    queueDuels.Add([numberDuelsInRound + i, numberDuelsInRound + j]);
-                }
-            }
+                    queueDuels.AddRange(firstSequence
+                    .Zip(secondSequence, (first, second) => new int[2] { first, second }));
+                };
 
-            if (numberOfPlayerInGroup % 2 != 0)
-            {
-                var intToRemove = queueDuels.Where(d => d[1] == numberOfPlayerInGroup + 1).ToList();
-                foreach (var intRe in intToRemove)
+                if (numberOfPlayerInGroup % 2 != 0)
                 {
-                    queueDuels.Remove(intRe);
+                    numberDuelsInRound++;
                 }
+
+                for (int i = 1; i <= numberDuelsInRound; i++)
+                {
+                    firstSequenceNumberOfDuel.Add(i);
+                    secondSequenceNumberOfDuel.Add(numberDuelsInRound + i);
+                }
+
+                for (int i = 1; i <= numberDuelsInRound; i++)
+                {
+                    addDuelsToQueue(firstSequenceNumberOfDuel, secondSequenceNumberOfDuel);
+                    secondSequenceNumberOfDuel.Add(secondSequenceNumberOfDuel.First());
+                    secondSequenceNumberOfDuel.Remove(secondSequenceNumberOfDuel.First());
+                }
+
+                for (int i = 1; i < numberDuelsInRound; i++)
+                {
+                    for (int j = i + 1; j <= numberDuelsInRound; j++)
+                    {
+                        queueDuels.Add([i, j]);
+                        queueDuels.Add([numberDuelsInRound + i, numberDuelsInRound + j]);
+                    }
+                }
+
+                if (numberOfPlayerInGroup % 2 != 0)
+                {
+                    var intToRemove = queueDuels.Where(d => d[1] == numberOfPlayerInGroup + 1).ToList();
+                    foreach (var intRe in intToRemove)
+                    {
+                        queueDuels.Remove(intRe);
+                    }
+                }
+
+                foreach (var player in groupPlayers)
+                {
+                    duelsOfGroup.AddRange(allTournamentDuels
+                        .Where(d => d.IdFirstPlayer == player.IdPLayer || d.IdSecondPlayer == player.IdPLayer)
+                        .Except(duelsOfGroup));
+                }
+                var listGroupingPlayers = groupPlayers.ToList();
+
+                foreach (var duel in duelsOfGroup)
+                {
+                    duel.Group = groupPlayers.Key;
+                    duel.StartNumberInGroup = queueDuels
+                        .FindIndex(d => d[0] == listGroupingPlayers.FindIndex(p => p.IdPLayer == duel.IdFirstPlayer) + 1 && d[1] == listGroupingPlayers.FindIndex(p => p.IdPLayer == duel.IdSecondPlayer) + 1
+                         || d[0] == listGroupingPlayers.FindIndex(p => p.IdPLayer == duel.IdSecondPlayer) + 1 && d[1] == listGroupingPlayers.FindIndex(p => p.IdPLayer == duel.IdFirstPlayer) + 1) + 1;
+                    _singlePlayerDuelManager.UpdateSinglePlayerDuel(duel);
+                }
+
+                duelsOfGroup.Clear();
             }
 
-            foreach (var player in groupPlayers)
+            var sortedDuels = allTournamentDuels.OrderBy(d => d.StartNumberInGroup).ToList();
+            foreach (var duel in sortedDuels)
             {
-                duelsOfGroup.AddRange(allTournamentDuels
-                    .Where(d => d.IdFirstPlayer == player.IdPLayer || d.IdSecondPlayer == player.IdPLayer)
-                    .Except(duelsOfGroup));
-            }
-            var listGroupingPlayers = groupPlayers.ToList();
-
-            foreach (var duel in duelsOfGroup)
-            {
-                duel.Group = groupPlayers.Key;
-                duel.StartNumberInGroup = queueDuels
-                    .FindIndex(d => d[0] == listGroupingPlayers.FindIndex(p => p.IdPLayer == duel.IdFirstPlayer) + 1 && d[1] == listGroupingPlayers.FindIndex(p => p.IdPLayer == duel.IdSecondPlayer) + 1
-                     || d[0] == listGroupingPlayers.FindIndex(p => p.IdPLayer == duel.IdSecondPlayer) + 1 && d[1] == listGroupingPlayers.FindIndex(p => p.IdPLayer == duel.IdFirstPlayer) + 1) + 1;
+                duel.NumberDuelOfTournament = sortedDuels.IndexOf(duel) + 1;
                 _singlePlayerDuelManager.UpdateSinglePlayerDuel(duel);
             }
-
-            duelsOfGroup.Clear();
         }
     }
 

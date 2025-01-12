@@ -129,17 +129,20 @@ public class TwoKOPlaySystem : PlaySystems
             return;
         }
 
+        var allDuelInRound = _singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id)
+                 .Where(d => d.Round == round && d.IdFirstPlayer != 0 && d.IdSecondPlayer != 0);
+
         if (listNewPlayer.Count == 1 && round == "Eliminations")
         {
-            if (_singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id).Any(d => d.IdFirstPlayer != -1 || d.IdSecondPlayer == -1))
+            if (allDuelInRound.Any(d => d.IdSecondPlayer == -1))
             {
-                var duelToNewPlayer = _singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id)
-                    .First(d => d.IdFirstPlayer > 1 && d.IdSecondPlayer == -1);
+                var duelToNewPlayer = allDuelInRound.First(d => d.IdSecondPlayer == -1);
                 duelToNewPlayer.IdSecondPlayer = listNewPlayer.First().IdPLayer;
                 duelToNewPlayer.ScoreFirstPlayer = 0;
                 duelToNewPlayer.ScoreSecondPlayer = 0;
                 listNewPlayer.First().Round = round;
                 duelToNewPlayer.Round = round;
+                duelToNewPlayer.NumberDuelOfTournament = allDuelInRound.Max(d => d.NumberDuelOfTournament) + 1;
                 _singlePlayerDuelManager.UpdateSinglePlayerDuel(duelToNewPlayer);
             }
             else
@@ -151,10 +154,11 @@ public class TwoKOPlaySystem : PlaySystems
                        round);
                 newDuel.ScoreFirstPlayer = 3;
                 newDuel.ScoreSecondPlayer = 0;
+                newDuel.NumberDuelOfTournament = allDuelInRound.Max(d => d.NumberDuelOfTournament) + 1;
                 listNewPlayer.First().Round = round;
             }
         }
-        else
+        else if (listNewPlayer.Count > 1 && round == "Eliminations")
         {
             for (int i = 0; i < listNewPlayer.Count; i += 2)
             {
@@ -194,8 +198,20 @@ public class TwoKOPlaySystem : PlaySystems
                         listNewPlayer[i + 1].IdPLayer,
                         round);
             }
+
+            PlayersToTournamentInPlaySystem.SavePlayersToTournament();
+            var allNewDuelInRound = _singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id)
+                .Where(d => d.Round == round && d.IdFirstPlayer != 0 && d.IdSecondPlayer != 0).Where(d => d.NumberDuelOfTournament == 0).ToList();
+
+            foreach (var duel in allNewDuelInRound)
+            {
+                if (duel.NumberDuelOfTournament == 0)
+                {
+                    duel.NumberDuelOfTournament = allNewDuelInRound.Max(d => d.NumberDuelOfTournament) + 1;
+                    _singlePlayerDuelManager.UpdateSinglePlayerDuel(duel);
+                }
+            }
         }
-        PlayersToTournamentInPlaySystem.SavePlayersToTournament();
     }
 
     public override string ViewTournamentBracket()
