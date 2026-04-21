@@ -54,6 +54,8 @@ public abstract class PlaySystems
 
     public abstract void AddPlayers();
 
+    protected abstract void CreateDuelsToTournament(string round = "Eliminations");
+
     private void EditBracket()
     {
         List<MenuAction> optionPlayerMenu =
@@ -82,12 +84,6 @@ public abstract class PlaySystems
                 ConsoleService.WriteLineErrorMessage("Empty List Of Player");
                 return;
             }
-            else if (Tournament.NumberOfGroups == 0)
-            {
-                ConsoleService.GetKeyFromUser("Press Any Key...");
-
-                return;
-            }
             ConsoleService.WriteLineMessage("\n\r=====================");
 
             for (int i = 0; i < optionPlayerMenu.Count; i++)
@@ -96,17 +92,23 @@ public abstract class PlaySystems
             }
 
             var operation = ConsoleService.GetIntNumberFromUser("\n\rEnter Option");
-            switch (operation)
+            var action = string.Empty;
+            if (operation >= 1 || operation <= optionPlayerMenu.Count)
             {
-                case 1:
+                action = optionPlayerMenu[(int)operation - 1].Name;
+            }
+
+            switch (action)
+            {
+                case "Move Player":
                     MovePlayer();
                     break;
 
-                case 2:
+                case "Reset":
                     PlayersToTournamentInPlaySystem.LoadList(Tournament);
                     break;
 
-                case 3:
+                case "Random Selection Of Player":
                     ConsoleService.WriteTitle("");
                     ConsoleService.WriteLineErrorMessage("Attention!");
                     if (ConsoleService.AnswerYesOrNo("It will be impossible to reset the changes made.\r\nDo you want to perform this action?"))
@@ -115,7 +117,7 @@ public abstract class PlaySystems
                     }
                     break;
 
-                case 4:
+                case "Exit":
                     operation = null;
                     break;
 
@@ -137,6 +139,7 @@ public abstract class PlaySystems
                 {
                     PlayersToTournamentInPlaySystem.ListPlayersToTournament.OrderBy(p => p.Position);
                     PlayersToTournamentInPlaySystem.SavePlayersToTournament();
+                    CreateDuelsToTournament();
                     return;
                 }
                 else
@@ -463,7 +466,7 @@ public abstract class PlaySystems
 
         if (duelsOfTournament.Any(d => d.StartGame != DateTime.MinValue))
         {
-            if (duelsOfTournament.Count - completedDuels.Count > startedDuels.Count)
+            if (duelsOfTournament.Count - completedDuels.Count > 0)
             {
                 if (startedDuels.Count == Tournament.NumberOfTables)
                 {
@@ -496,7 +499,7 @@ public abstract class PlaySystems
                                 d => d.IdFirstPlayer != started.IdFirstPlayer
                                 && d.IdFirstPlayer != started.IdSecondPlayer
                                 && d.IdSecondPlayer != started.IdFirstPlayer
-                                && d.IdSecondPlayer != started.IdSecondPlayer).ToList(); ;
+                                && d.IdSecondPlayer != started.IdSecondPlayer).ToList();
                         }
 
                         List<int> freeTables = new List<int>();
@@ -552,13 +555,16 @@ public abstract class PlaySystems
                     }
                 }
             }
+            else
+            {
+            }
         }
         else
         {
             var tableNumber = 0;
-            foreach (var duel in duelsOfTournament.OrderBy(d => d.NumberDuelOfTournament))
+            foreach (var duel in duelsOfTournament.OrderBy(d => d.StartNumberInTournament))
             {
-                if (tableNumber <= Tournament.NumberOfTables)
+                if (tableNumber < Tournament.NumberOfTables)
                 {
                     tableNumber++;
                 }

@@ -234,7 +234,7 @@ public class GroupPlaySystem : PlaySystems
             var sortedDuels = allTournamentDuels.OrderBy(d => d.StartNumberInGroup).ToList();
             foreach (var duel in sortedDuels)
             {
-                duel.NumberDuelOfTournament = sortedDuels.IndexOf(duel) + 1;
+                duel.StartNumberInTournament = sortedDuels.IndexOf(duel) + 1;
                 _singlePlayerDuelManager.UpdateSinglePlayerDuel(duel);
             }
         }
@@ -246,7 +246,7 @@ public class GroupPlaySystem : PlaySystems
 
         if (Tournament.NumberOfGroups == 0)
         {
-            return formatText;
+            return "Set Groups";
         }
 
         if (PlayersToTournamentInPlaySystem.ListPlayersToTournament.Any(p => string.IsNullOrEmpty(p.Group)) && Tournament.Start == DateTime.MinValue)
@@ -298,7 +298,7 @@ public class GroupPlaySystem : PlaySystems
         CreateDuelsToTournament();
     }
 
-    private void CreateDuelsToTournament(string round = "Eliminations")
+    protected override void CreateDuelsToTournament(string round = "Eliminations")
     {
         var listPlayerToBeAssignedToTheDuel = PlayersToTournamentInPlaySystem.ListPlayersToTournament.Where(p => p.Round != round).ToList();
 
@@ -468,7 +468,7 @@ public class GroupPlaySystem : PlaySystems
                     {
                         playerToMove.Round = string.Empty;
                         _singlePlayerDuelManager.RemoveTournamentDuel(Tournament, playerToMove.IdPLayer);
-                        CreateDuelsToTournament();
+                        DetermineTheOrderOfDuelsToStartInGroup();
                     }
                 }
             }
@@ -479,6 +479,45 @@ public class GroupPlaySystem : PlaySystems
             }
         }
     }
+
+    //private void RemoveTournamentDuel(PlayerToTournament playerToTournament)
+    //{
+    //    var duelsToRemove = _singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id)
+    //        .Where(d => d.IdFirstPlayer == playerToTournament.IdPLayer || d.IdSecondPlayer == playerToTournament.IdPLayer).ToList();
+    //    if (duelsToRemove.Any(d => d.EndGame != DateTime.MinValue && (d.StartGame != DateTime.MinValue && d.Interrupted == DateTime.MinValue)))
+    //    {
+    //        return;
+    //    }
+    //    if (Tournament.GamePlaySystem == "2KO")
+    //    {
+    //        if (duelsToRemove.First().IdFirstPlayer == playerToTournament.IdPLayer && duelsToRemove.First().IdSecondPlayer == -1)
+    //        {
+    //            foreach (var duel in duelsToRemove)
+    //            {
+    //                _singlePlayerDuelManager.RemoveTournamentDuel(Tournament, duel.Id);
+    //            }
+    //        }
+    //        else
+    //        {
+    //            if (duelsToRemove.First().IdFirstPlayer == playerToTournament.IdPLayer)
+    //            {
+    //                duelsToRemove.First().IdFirstPlayer = duelsToRemove.First().IdSecondPlayer;
+    //                duelsToRemove.First().IdSecondPlayer = -1;
+    //            }
+    //            else
+    //            {
+    //                duelsToRemove.First().IdSecondPlayer = -1;
+    //            }
+    //        }
+    //    }
+    //    else
+    //    {
+    //        foreach (var duel in duelsToRemove)
+    //        {
+    //            _singlePlayerDuelManager.RemoveItem(duel);
+    //        }
+    //    }
+    //}
 
     protected override List<MenuAction> GetExtendedMenuAction()
     {

@@ -24,7 +24,6 @@ internal class Program
         SparringManager sparringManager = new(actionService, playerManager, playerService);
         TournamentsManager turnamentsManager = new(actionService, playerManager, playerService);
 
-
         var mainMenu = actionService.GetMenuActionsByName("Main");
 
         while (true)
@@ -42,22 +41,18 @@ internal class Program
                     break;
 
                 case 2:
-                    //Global Ranking
-                    break;
-
-                case 3:
                     sparringManager.SparringOptionsView();
                     break;
 
-                case 4:
+                case 3:
                     turnamentsManager.TournamentOptionsView();
                     break;
 
-                case 5:
+                case 4:
                     settings.ChangeSettings();
                     break;
 
-                case 6:
+                case 5:
                     operation = null;
                     break;
 

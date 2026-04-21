@@ -120,7 +120,7 @@ public class TwoKOPlaySystem : PlaySystems
         CreateDuelsToTournament();
     }
 
-    private void CreateDuelsToTournament(string round = "Eliminations")
+    protected override void CreateDuelsToTournament(string round = "Eliminations")
     {
         var listNewPlayer = PlayersToTournamentInPlaySystem.ListPlayersToTournament.Where(p => p.Round != round).ToList();
 
@@ -301,4 +301,16 @@ public class TwoKOPlaySystem : PlaySystems
             _singlePlayerDuelManager.RemoveTournamentDuel(Tournament, playerToRemove.IdPLayer);
         }
     }
+
+    //private void RemoveTournamentDuel(PlayerToTournament playerToTournament)
+    //{
+    //    var duels = _singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id)
+    //        .Where(d => (d.IdFirstPlayer == playerToTournament.IdPLayer || d.IdSecondPlayer == playerToTournament.IdPLayer)).ToList();
+    //    foreach (var duel in duels)
+    //    {
+    //        _singlePlayerDuelManager.RemoveSinglePlayerDuel(duel);
+    //    }
+
+    //    CreateDuelsToTournament();
+    //}
 }
