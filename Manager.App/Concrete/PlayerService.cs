@@ -46,7 +46,7 @@ public class PlayerService : BaseService<Player>, IPlayerService, IService<Playe
         return GetAllItem().FindAll(p => p.IsActive == true);
     }
 
-    public string GetPlayerDetailView(Player player)
+    public string GetPlayerDetailToView(Player player)
     {
         if (player != null)
         {
@@ -92,5 +92,17 @@ public class PlayerService : BaseService<Player>, IPlayerService, IService<Playe
         }
         RemoveItem(player);
         SaveList();
+    }
+
+    public string GetFirtLastNameById(int Id)
+    {
+        string firstLastName = string.Empty;
+        Player player = ListOfActivePlayers().FirstOrDefault(i => i.Id == Id);
+        if (player != null)
+        {
+            firstLastName = player.FirstName + " " + player.LastName;
+        }
+
+        return firstLastName;
     }
 }

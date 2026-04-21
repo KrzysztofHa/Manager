@@ -6,6 +6,7 @@ using Manager.Consol.Concrete;
 using Manager.Domain.Entity;
 
 using Manager.Helpers;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -95,9 +96,10 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
             }
 
             duel.IdFirstPlayer = findPlayer.Id;
+            ConsoleService.WriteTitle(findPlayer.FirstName);
         }
 
-        ConsoleService.WriteTitle("Add First Player");
+        ConsoleService.WriteTitle("Add First Player\r\n" + _playerService.GetFirtLastNameById(duel.IdFirstPlayer));
         ConsoleService.WriteLineMessageActionSuccess("Succes\r\nPress Any Key");
 
         var secondPlayer = _playerManager.SearchPlayer();
@@ -130,7 +132,7 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
 
         duel.IdSecondPlayer = secondPlayer.Id;
 
-        ConsoleService.WriteTitle("Add Second Player");
+        ConsoleService.WriteTitle("Add Second Player\r\n" + _playerService.GetFirtLastNameById(duel.IdSecondPlayer));
         ConsoleService.WriteLineMessageActionSuccess("Succes\r\nPress Any Key");
     }
 

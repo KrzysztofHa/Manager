@@ -89,8 +89,6 @@ public class PlayerManager : IPlayerManager
         return -1;
     }
 
-
-
     public Player AddNewPlayer()
     {
         var player = new Player();
@@ -125,12 +123,11 @@ public class PlayerManager : IPlayerManager
 
         _playerService.AddItem(player);
         _playerService.SaveList();
-        ConsoleService.WriteTitle(_playerService.GetPlayerDetailView(player));
+        ConsoleService.WriteTitle(_playerService.GetPlayerDetailToView(player));
         ConsoleService.WriteLineMessageActionSuccess($"Add Player Success !");
 
         return player;
     }
-
 
     public Player UpdatePlayer()
     {
@@ -176,7 +173,7 @@ public class PlayerManager : IPlayerManager
         }
         _playerService.UpdateItem(player);
         _playerService.SaveList();
-        ConsoleService.WriteTitle(_playerService.GetPlayerDetailView(player));
+        ConsoleService.WriteTitle(_playerService.GetPlayerDetailToView(player));
         ConsoleService.WriteLineMessageActionSuccess($"Update Player Success !");
 
         return player;
@@ -197,7 +194,6 @@ public class PlayerManager : IPlayerManager
             {
                 playerAddress = new();
                 player.IdAddress = playerAddress.Id;
-
             }
         }
         else
@@ -295,7 +291,6 @@ public class PlayerManager : IPlayerManager
                         }
                         else if (countryName.Name.Contains("Exit"))
                         {
-
                             break;
                         }
                     }
@@ -303,9 +298,7 @@ public class PlayerManager : IPlayerManager
                     {
                         if (inputInt == null && isUpdatePlayer)
                         {
-
                             break;
-
                         }
                         ConsoleService.WriteLineErrorMessage($"No option nr: " + inputInt);
                     }
@@ -313,10 +306,8 @@ public class PlayerManager : IPlayerManager
             }
         }
 
-
         _playerService.AddPlayerAddress(player, playerAddress);
         return player;
-
     }
 
     public bool ListOfActivePlayersView()
@@ -328,7 +319,7 @@ public class PlayerManager : IPlayerManager
                     $"{"Street",-11}{"Number",-11}{"City",-11}{"Country",-11}{"zip",-6}");
             foreach (var player in activePlayer)
             {
-                ConsoleService.WriteLineMessage(_playerService.GetPlayerDetailView(player));
+                ConsoleService.WriteLineMessage(_playerService.GetPlayerDetailToView(player));
             }
             return true;
         }
@@ -338,7 +329,6 @@ public class PlayerManager : IPlayerManager
             return false;
         }
     }
-
 
     public Player? SearchPlayer(string title = "", List<Player>? playersList = null, List<Player>? exeptPlayersList = null)
 
@@ -396,8 +386,8 @@ public class PlayerManager : IPlayerManager
                 foreach (var player in findPlayersToView)
                 {
                     var formmatStringToView = findPlayers.IndexOf(player) == indexSelectedPlayer ?
-                        "\r\n---> " + $"{findPlayers.IndexOf(player) + 1,-5}".Remove(5) + _playerService.GetPlayerDetailView(player) + $" <----\r\n" :
-                        "     " + $"{findPlayers.IndexOf(player) + 1,-5}".Remove(5) + _playerService.GetPlayerDetailView(player);
+                        "\r\n---> " + $"{findPlayers.IndexOf(player) + 1,-5}".Remove(5) + _playerService.GetPlayerDetailToView(player) + $" <----\r\n" :
+                        "     " + $"{findPlayers.IndexOf(player) + 1,-5}".Remove(5) + _playerService.GetPlayerDetailToView(player);
 
                     ConsoleService.WriteLineMessage(formmatStringToView);
                 }
@@ -529,13 +519,11 @@ public class PlayerManager : IPlayerManager
             {
                 var findPlayersToSelect = findPlayers.First(p => findPlayers.IndexOf(p) == indexSelectedPlayer);
                 ConsoleService.WriteTitle(headTableToview);
-                ConsoleService.WriteLineMessage($"{_playerService.GetPlayerDetailView(findPlayersToSelect),106}");
+                ConsoleService.WriteLineMessage($"{_playerService.GetPlayerDetailToView(findPlayersToSelect),106}");
 
                 if (ConsoleService.AnswerYesOrNo("Selected Player"))
                 {
-
                     return findPlayersToSelect;
-
                 }
             }
             else if (keyFromUser.Key == ConsoleKey.Escape)
