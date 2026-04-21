@@ -349,7 +349,7 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
     public SinglePlayerDuel? SelectInterruptedDuelBySparring(string title = "Sparring", string backText = " ")
     {
         List<SinglePlayerDuel> foundDuels = _singlePlayerDuelService.GetAllSinglePlayerDuel()
-          .Where(d => d.Interrupted != DateTime.MinValue && d.IdPlayerTournament == null).ToList();
+          .Where(d => (d.Interrupted != DateTime.MinValue || d.Interrupted == DateTime.MinValue && d.EndGame == DateTime.MinValue) && d.IdPlayerTournament == null).ToList();
         return SelectDuel(foundDuels, title, backText);
     }
 
