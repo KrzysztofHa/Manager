@@ -185,6 +185,11 @@ public abstract class PlaySystems
         if (Tournament.Start != DateTime.MinValue)
         {
             listAction.Remove(listAction.First(a => a.Name == "Random Selection Of Players"));
+            listAction.Remove(listAction.First(a => a.Name == "Chenge Race To"));
+            listAction.Remove(listAction.First(a => a.Name == "Change Number Of Table"));
+            listAction.Remove(listAction.First(a => a.Name == "Add Players"));
+            listAction.Remove(listAction.First(a => a.Name == "Delete Player"));
+            listAction.Remove(listAction.First(a => a.Name == "Edit Tournament Bracket"));
 
             if (!_singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id).Any(d => d.StartGame != DateTime.MinValue))
             {
@@ -419,6 +424,8 @@ public abstract class PlaySystems
 
         if (duelToUpdate != null && PlayersToTournamentInPlaySystem.ListPlayersToTournament.Count != 0)
         {
+            var firstPlayer = duelToUpdate.ScoreFirstPlayer;
+            var secondPlayer = duelToUpdate.ScoreSecondPlayer;
             do
             {
                 ConsoleService.WriteTitle("Update Duel");
@@ -427,26 +434,40 @@ public abstract class PlaySystems
                 var resultFirstPlayer = ConsoleService.GetIntNumberFromUser($"\n\rEnter Result For {PlayersToTournamentInPlaySystem.ListPlayersToTournament
                     .First(p => p.IdPLayer == duelToUpdate.IdFirstPlayer).TinyFulName} ");
 
-                if (resultFirstPlayer != null && resultFirstPlayer > 0 && resultFirstPlayer <= duelToUpdate.RaceTo)
+                if (resultFirstPlayer != null && resultFirstPlayer > -1 && resultFirstPlayer <= duelToUpdate.RaceTo)
                 {
                     duelToUpdate.ScoreFirstPlayer = (int)resultFirstPlayer;
+                }
+                else
+                {
+                    ConsoleService.WriteLineErrorMessage("Enter The Correct Result");
+                    continue;
                 }
 
                 var resultSecondPlayer = ConsoleService.GetIntNumberFromUser($"\n\rEnter Result For {PlayersToTournamentInPlaySystem.ListPlayersToTournament
                     .First(p => p.IdPLayer == duelToUpdate.IdSecondPlayer).TinyFulName}");
 
-                if (resultSecondPlayer != null && resultSecondPlayer > 0 && resultSecondPlayer <= duelToUpdate.RaceTo)
+                if (resultSecondPlayer != null && resultSecondPlayer > -1 && resultSecondPlayer <= duelToUpdate.RaceTo)
                 {
                     duelToUpdate.ScoreSecondPlayer = (int)resultSecondPlayer;
+                }
+                else
+                {
+                    ConsoleService.WriteLineErrorMessage("Enter The Correct Result");
                 }
             }
             while (ConsoleService.AnswerYesOrNo("You Want To Correct Entered Results?"));
 
             _singlePlayerDuelManager.UpdateSinglePlayerDuel(duelToUpdate);
-            if (duelToUpdate.ScoreFirstPlayer == duelToUpdate.RaceTo || duelToUpdate.ScoreSecondPlayer == duelToUpdate.RaceTo)
+            if ((duelToUpdate.ScoreFirstPlayer == duelToUpdate.RaceTo || duelToUpdate.ScoreSecondPlayer == duelToUpdate.RaceTo) && duelToUpdate.ScoreSecondPlayer != duelToUpdate.ScoreFirstPlayer)
             {
                 _singlePlayerDuelManager.EndSinglePlayerDuel(duelToUpdate);
                 StartOrInterruptedTournamentDuel();
+            }
+            else if (duelToUpdate.ScoreSecondPlayer == duelToUpdate.ScoreFirstPlayer && duelToUpdate.ScoreFirstPlayer == duelToUpdate.RaceTo)
+            {
+                duelToUpdate.ScoreFirstPlayer = firstPlayer;
+                duelToUpdate.ScoreSecondPlayer = secondPlayer;
             }
         }
     }

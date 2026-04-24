@@ -480,45 +480,6 @@ public class GroupPlaySystem : PlaySystems
         }
     }
 
-    //private void RemoveTournamentDuel(PlayerToTournament playerToTournament)
-    //{
-    //    var duelsToRemove = _singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id)
-    //        .Where(d => d.IdFirstPlayer == playerToTournament.IdPLayer || d.IdSecondPlayer == playerToTournament.IdPLayer).ToList();
-    //    if (duelsToRemove.Any(d => d.EndGame != DateTime.MinValue && (d.StartGame != DateTime.MinValue && d.Interrupted == DateTime.MinValue)))
-    //    {
-    //        return;
-    //    }
-    //    if (Tournament.GamePlaySystem == "2KO")
-    //    {
-    //        if (duelsToRemove.First().IdFirstPlayer == playerToTournament.IdPLayer && duelsToRemove.First().IdSecondPlayer == -1)
-    //        {
-    //            foreach (var duel in duelsToRemove)
-    //            {
-    //                _singlePlayerDuelManager.RemoveTournamentDuel(Tournament, duel.Id);
-    //            }
-    //        }
-    //        else
-    //        {
-    //            if (duelsToRemove.First().IdFirstPlayer == playerToTournament.IdPLayer)
-    //            {
-    //                duelsToRemove.First().IdFirstPlayer = duelsToRemove.First().IdSecondPlayer;
-    //                duelsToRemove.First().IdSecondPlayer = -1;
-    //            }
-    //            else
-    //            {
-    //                duelsToRemove.First().IdSecondPlayer = -1;
-    //            }
-    //        }
-    //    }
-    //    else
-    //    {
-    //        foreach (var duel in duelsToRemove)
-    //        {
-    //            _singlePlayerDuelManager.RemoveItem(duel);
-    //        }
-    //    }
-    //}
-
     protected override List<MenuAction> GetExtendedMenuAction()
     {
         List<MenuAction> actions =

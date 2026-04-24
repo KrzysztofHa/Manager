@@ -45,6 +45,8 @@ public class MenuActionService : BaseService<MenuAction>
 
         AddItem(new MenuAction(4100, "Change Display Name", "Settings"));
 
+        AddItem(new MenuAction(5100, "Chenge The Game System", "Go To Tournament"));
+
         for (int i = 0; i <= menuCountry.CountryList.Count - 1; i++)
         {
             AddItem(new MenuAction(i + 1, menuCountry.CountryList[i], "Country"));
