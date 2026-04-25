@@ -243,16 +243,18 @@ public class GroupPlaySystem : PlaySystems
     public override string ViewTournamentBracket()
     {
         var formatText = string.Empty;
+        if (_singlePlayerDuelManager != null)
 
-        if (Tournament.NumberOfGroups == 0)
-        {
-            return "Set Groups";
-        }
+            if (Tournament.NumberOfGroups == 0)
+            {
+                return "Set Groups";
+            }
 
         if (PlayersToTournamentInPlaySystem.ListPlayersToTournament.Any(p => string.IsNullOrEmpty(p.Group)) && Tournament.Start == DateTime.MinValue)
         {
             AssignPlayersToGroups();
         }
+
         var groupingPlayer = PlayersToTournamentInPlaySystem.ListPlayersToTournament
             .GroupBy(group => group.Group, group => group).OrderBy(g => g.Key).ToList();
 
