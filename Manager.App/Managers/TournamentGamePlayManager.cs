@@ -108,6 +108,10 @@ public class TournamentGamePlayManager
                 {
                     message = _singlePlayerDuelManager.ConvertListSinglePlayerDuelsToText(allStartedDuels);
                 }
+                else if (!_singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id).Any(d => d.StartGame == DateTime.MinValue && d.Interrupted != DateTime.MinValue))
+                {
+                    message = playSystem.ViewGroupStatisticOfText();
+                }
             }
 
             var operation = ConsoleService.GetIntNumberFromUser("Enter Option", message);

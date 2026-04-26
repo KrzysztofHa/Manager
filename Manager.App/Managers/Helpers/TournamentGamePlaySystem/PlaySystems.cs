@@ -50,6 +50,8 @@ public abstract class PlaySystems
 
     public abstract string ViewTournamentBracket();
 
+    public abstract string ViewGroupStatisticOfText();
+
     protected abstract void StartTournament();
 
     public abstract void AddPlayers();

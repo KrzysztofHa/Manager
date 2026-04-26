@@ -302,6 +302,11 @@ public class TwoKOPlaySystem : PlaySystems
         }
     }
 
+    public override string ViewGroupStatisticOfText()
+    {
+        throw new NotImplementedException();
+    }
+
     //private void RemoveTournamentDuel(PlayerToTournament playerToTournament)
     //{
     //    var duels = _singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id)

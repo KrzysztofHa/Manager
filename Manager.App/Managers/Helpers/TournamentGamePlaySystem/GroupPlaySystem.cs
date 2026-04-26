@@ -3,6 +3,8 @@ using Manager.App.Concrete;
 using Manager.App.Managers.Helpers.TournamentGamePlaySystem;
 using Manager.Consol.Concrete;
 using Manager.Domain.Entity;
+using System.Runtime.CompilerServices;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Manager.App.Managers.Helpers.GamePlaySystem;
 
@@ -240,21 +242,118 @@ public class GroupPlaySystem : PlaySystems
         }
     }
 
-    public override string ViewTournamentBracket()
+    public List<Tuple<PlayerToTournament, int, int, int, List<Tuple<int, bool>>>> GetStatistic()
+    {
+        var statisticsList = new List<Tuple<PlayerToTournament, int, int, int, List<Tuple<int, bool>>>>();
+        Tuple<PlayerToTournament, int, int, int, List<Tuple<int, bool>>> statistic;
+        var allDuel = _singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id);
+        int winMatch, pointWin, pointLost;
+        var directDuels = new List<Tuple<int, bool>>();
+        Tuple<int, bool> result;
+        foreach (var player in PlayersToTournamentInPlaySystem.ListPlayersToTournament)
+        {
+            winMatch = 0;
+            pointWin = 0;
+            pointLost = 0;
+            bool dirctDuel = false;
+            foreach (var duel in allDuel.Where(d => (d.IdFirstPlayer == player.IdPLayer || d.IdSecondPlayer == player.IdPLayer) && d.Round == "Eliminations" && d.EndGame != DateTime.MinValue))
+            {
+                if (duel.IdFirstPlayer == player.IdPLayer)
+                {
+                    pointWin += duel.ScoreFirstPlayer;
+                    pointLost += duel.ScoreSecondPlayer;
+                    if (duel.ScoreFirstPlayer == duel.RaceTo)
+                    {
+                        winMatch++;
+                        dirctDuel = true;
+                    }
+                    result = Tuple.Create(duel.IdSecondPlayer, dirctDuel);
+                    directDuels.Add(result);
+                }
+                else
+                {
+                    pointWin += duel.ScoreSecondPlayer;
+                    pointLost += duel.ScoreFirstPlayer;
+                    if (duel.ScoreSecondPlayer == duel.RaceTo)
+                    {
+                        winMatch++;
+                        dirctDuel = true;
+                    }
+                    result = Tuple.Create(duel.IdFirstPlayer, dirctDuel);
+                    directDuels.Add(result);
+                }
+            }
+            statistic = new Tuple<PlayerToTournament, int, int, int, List<Tuple<int, bool>>>(player, winMatch, pointWin, pointLost, directDuels);
+            statisticsList.Add(statistic);
+            directDuels.Clear();
+        }
+        return statisticsList;
+    }
+
+    public override string ViewGroupStatisticOfText()
     {
         var formatText = string.Empty;
-        if (_singlePlayerDuelManager != null)
+        var statisticList = GetStatistic();
 
-            if (Tournament.NumberOfGroups == 0)
-            {
-                return "Set Groups";
-            }
+        if (Tournament.NumberOfGroups == 0)
+        {
+            return "Set Groups";
+        }
 
         if (PlayersToTournamentInPlaySystem.ListPlayersToTournament.Any(p => string.IsNullOrEmpty(p.Group)) && Tournament.Start == DateTime.MinValue)
         {
             AssignPlayersToGroups();
         }
+        var groupingPlayer = PlayersToTournamentInPlaySystem.ListPlayersToTournament
+            .GroupBy(group => group.Group, group => group).OrderBy(g => g.Key).ToList();
 
+        for (int i = 0; i < Tournament.NumberOfGroups; i++)
+        {
+            formatText += $"Group: {groupingPlayer[i].Key,-21}   Win | Pt.win | Pt.Lost ";
+
+            formatText += "\n\r";
+            foreach (var player in groupingPlayer[i])
+            {
+                if (player != null)
+                {
+                    var statistic = statisticList.FirstOrDefault(p => p.Item1.IdPLayer == player.IdPLayer);
+                    formatText += $"{player.TinyFulName}  {statistic.Item2,-5} {statistic.Item3,-8} {statistic.Item4}\n\r";
+                }
+            }
+        }
+
+        formatText += "\n\r";
+        for (int i = 0; i < Tournament.NumberOfGroups; i++)
+        {
+            formatText += $"Group: {groupingPlayer[i].Key,-21}   Win | Pt.win | Pt.Lost ";
+
+            formatText += "\n\r";
+            foreach (var player in groupingPlayer[i])
+            {
+                if (player != null)
+                {
+                    var statistic = statisticList.FirstOrDefault(p => p.Item1.IdPLayer == player.IdPLayer);
+                    formatText += $"{player.TinyFulName}  {statistic.Item2,-5} {statistic.Item3,-8} {statistic.Item4}\n\r";
+                }
+            }
+        }
+
+        return formatText;
+    }
+
+    public override string ViewTournamentBracket()
+    {
+        var formatText = string.Empty;
+
+        if (Tournament.NumberOfGroups == 0)
+        {
+            return "Set Groups";
+        }
+
+        if (PlayersToTournamentInPlaySystem.ListPlayersToTournament.Any(p => string.IsNullOrEmpty(p.Group)) && Tournament.Start == DateTime.MinValue)
+        {
+            AssignPlayersToGroups();
+        }
         var groupingPlayer = PlayersToTournamentInPlaySystem.ListPlayersToTournament
             .GroupBy(group => group.Group, group => group).OrderBy(g => g.Key).ToList();
 
