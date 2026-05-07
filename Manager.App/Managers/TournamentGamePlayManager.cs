@@ -110,7 +110,7 @@ public class TournamentGamePlayManager
                 }
                 else if (!_singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id).Any(d => d.StartGame == DateTime.MinValue && d.Interrupted != DateTime.MinValue))
                 {
-                    message = playSystem.ViewGroupStatisticOfText();
+                    message = playSystem.ViewStatisticOfText();
                 }
             }
 

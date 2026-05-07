@@ -302,7 +302,7 @@ public class TwoKOPlaySystem : PlaySystems
         }
     }
 
-    public override string ViewGroupStatisticOfText()
+    public override string ViewStatisticOfText()
     {
         throw new NotImplementedException();
     }

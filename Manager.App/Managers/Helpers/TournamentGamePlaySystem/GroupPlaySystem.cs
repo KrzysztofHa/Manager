@@ -1,10 +1,7 @@
 ﻿using Manager.App.Abstract;
-using Manager.App.Concrete;
 using Manager.App.Managers.Helpers.TournamentGamePlaySystem;
 using Manager.Consol.Concrete;
 using Manager.Domain.Entity;
-using System.Runtime.CompilerServices;
-using System.Security.Cryptography.X509Certificates;
 
 namespace Manager.App.Managers.Helpers.GamePlaySystem;
 
@@ -242,55 +239,93 @@ public class GroupPlaySystem : PlaySystems
         }
     }
 
-    public List<Tuple<PlayerToTournament, int, int, int, List<Tuple<int, bool>>>> GetStatistic()
+    public List<Tuple<string, List<Tuple<PlayerToTournament, List<Tuple<string, int>>, List<Tuple<int, bool>>>>>> GetStatistic()
     {
-        var statisticsList = new List<Tuple<PlayerToTournament, int, int, int, List<Tuple<int, bool>>>>();
-        Tuple<PlayerToTournament, int, int, int, List<Tuple<int, bool>>> statistic;
+        var statisticsList = new List<Tuple<string, List<Tuple<PlayerToTournament, List<Tuple<string, int>>, List<Tuple<int, bool>>>>>>();
+        var statisticsListOfGroup = new List<Tuple<PlayerToTournament, List<Tuple<string, int>>, List<Tuple<int, bool>>>>();
+        Tuple<PlayerToTournament, List<Tuple<string, int>>, List<Tuple<int, bool>>> duelsStatistic;
         var allDuel = _singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id);
         int winMatch, pointWin, pointLost;
         var directDuels = new List<Tuple<int, bool>>();
-        Tuple<int, bool> result;
-        foreach (var player in PlayersToTournamentInPlaySystem.ListPlayersToTournament)
+        Tuple<int, bool> singleDirectDuelstatistic;
+        var allMatchesStatistics = new List<Tuple<string, int>>();
+        var groupingPlayerByGroup = PlayersToTournamentInPlaySystem.ListPlayersToTournament.GroupBy(p => p.Group);
+        foreach (var key in groupingPlayerByGroup)
         {
-            winMatch = 0;
-            pointWin = 0;
-            pointLost = 0;
-            bool dirctDuel = false;
-            foreach (var duel in allDuel.Where(d => (d.IdFirstPlayer == player.IdPLayer || d.IdSecondPlayer == player.IdPLayer) && d.Round == "Eliminations" && d.EndGame != DateTime.MinValue))
+            foreach (var player in key)
             {
-                if (duel.IdFirstPlayer == player.IdPLayer)
+                winMatch = 0;
+                pointWin = 0;
+                pointLost = 0;
+                bool dirctDuel = false;
+                var duelOfPlayer = allDuel.Where(d => (d.IdFirstPlayer == player.IdPLayer || d.IdSecondPlayer == player.IdPLayer) && d.Round == "Eliminations" && d.EndGame != DateTime.MinValue);
+                allMatchesStatistics.Add(new Tuple<string, int>("Played", duelOfPlayer.Count()));
+                foreach (var duel in duelOfPlayer)
                 {
-                    pointWin += duel.ScoreFirstPlayer;
-                    pointLost += duel.ScoreSecondPlayer;
-                    if (duel.ScoreFirstPlayer == duel.RaceTo)
+                    if (duel.IdFirstPlayer == player.IdPLayer)
                     {
-                        winMatch++;
-                        dirctDuel = true;
+                        pointWin += duel.ScoreFirstPlayer;
+                        pointLost += duel.ScoreSecondPlayer;
+                        if (duel.ScoreFirstPlayer == duel.RaceTo)
+                        {
+                            winMatch++;
+                            dirctDuel = true;
+                        }
+                        singleDirectDuelstatistic = Tuple.Create(duel.IdSecondPlayer, dirctDuel);
+                        directDuels.Add(singleDirectDuelstatistic);
                     }
-                    result = Tuple.Create(duel.IdSecondPlayer, dirctDuel);
-                    directDuels.Add(result);
+                    else
+                    {
+                        pointWin += duel.ScoreSecondPlayer;
+                        pointLost += duel.ScoreFirstPlayer;
+                        if (duel.ScoreSecondPlayer == duel.RaceTo)
+                        {
+                            winMatch++;
+                            dirctDuel = true;
+                        }
+                        singleDirectDuelstatistic = Tuple.Create(duel.IdFirstPlayer, dirctDuel);
+                        directDuels.Add(singleDirectDuelstatistic);
+                    }
+                    dirctDuel = false;
+                }
+                allMatchesStatistics.Add(new Tuple<string, int>("Win", winMatch));
+                allMatchesStatistics.Add(new Tuple<string, int>("Pt.Win", pointWin));
+                allMatchesStatistics.Add(new Tuple<string, int>("Pt.Lost", pointLost));
+                duelsStatistic = new Tuple<PlayerToTournament, List<Tuple<string, int>>, List<Tuple<int, bool>>>(player, allMatchesStatistics, directDuels);
+                var listOfDirectDuelsOfPlayer = statisticsListOfGroup.Where(e => e.Item2.Any(t => t.Item1 == "Win" && t.Item2 == winMatch) && e.Item2.Any(t => t.Item1 == "Pt.Win" && t.Item2 == pointWin) && e.Item2.Any(t => t.Item1 == "Pt.Lost" && t.Item2 == pointLost)).ToList();
+
+                if (listOfDirectDuelsOfPlayer.Count() > 0)
+                {
+                    foreach (var duel in listOfDirectDuelsOfPlayer)
+                    {
+                        var directDuelResult = duel.Item3.FirstOrDefault(d => d.Item1 == player.IdPLayer).Item2;
+                        if (!directDuelResult)
+                        {
+                            var index = statisticsListOfGroup.IndexOf(duel);
+                            statisticsListOfGroup.Insert(index, duelsStatistic);
+                        }
+                    }
                 }
                 else
                 {
-                    pointWin += duel.ScoreSecondPlayer;
-                    pointLost += duel.ScoreFirstPlayer;
-                    if (duel.ScoreSecondPlayer == duel.RaceTo)
-                    {
-                        winMatch++;
-                        dirctDuel = true;
-                    }
-                    result = Tuple.Create(duel.IdFirstPlayer, dirctDuel);
-                    directDuels.Add(result);
+                    statisticsListOfGroup.Add(duelsStatistic);
                 }
+
+                statisticsListOfGroup = statisticsListOfGroup.OrderByDescending(s => s.Item2.FirstOrDefault(t => t.Item1 == "Win").Item2)
+                    .ThenByDescending(s => s.Item2.FirstOrDefault(t => t.Item1 == "Pt.Win").Item2)
+                    .ThenBy(s => s.Item2.FirstOrDefault(t => t.Item1 == "Pt.Lost").Item2).ToList();
+                directDuels = new List<Tuple<int, bool>>();
+                allMatchesStatistics = new List<Tuple<string, int>>();
             }
-            statistic = new Tuple<PlayerToTournament, int, int, int, List<Tuple<int, bool>>>(player, winMatch, pointWin, pointLost, directDuels);
-            statisticsList.Add(statistic);
-            directDuels.Clear();
+
+            statisticsList.Add(new Tuple<string, List<Tuple<PlayerToTournament, List<Tuple<string, int>>, List<Tuple<int, bool>>>>>(key.Key, statisticsListOfGroup));
+            statisticsListOfGroup = new List<Tuple<PlayerToTournament, List<Tuple<string, int>>, List<Tuple<int, bool>>>>();
         }
+
         return statisticsList;
     }
 
-    public override string ViewGroupStatisticOfText()
+    public override string ViewStatisticOfText()
     {
         var formatText = string.Empty;
         var statisticList = GetStatistic();
@@ -304,40 +339,32 @@ public class GroupPlaySystem : PlaySystems
         {
             AssignPlayersToGroups();
         }
-        var groupingPlayer = PlayersToTournamentInPlaySystem.ListPlayersToTournament
-            .GroupBy(group => group.Group, group => group).OrderBy(g => g.Key).ToList();
+        //var groupingPlayer = PlayersToTournamentInPlaySystem.ListPlayersToTournament
+        //  .GroupBy(group => group.Group, group => group).OrderBy(g => g.Key).ToList();
+        //tu dopisać if-a jeżeli wszystkie mecze eliminacyjne skończone ustawić pozycję w grupie i posortować grupy
+
+        if (_singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id).Any(d => d.EndGame != DateTime.MinValue))
+        {
+        }
 
         for (int i = 0; i < Tournament.NumberOfGroups; i++)
         {
-            formatText += $"Group: {groupingPlayer[i].Key,-21}   Win | Pt.win | Pt.Lost ";
-
-            formatText += "\n\r";
-            foreach (var player in groupingPlayer[i])
-            {
-                if (player != null)
-                {
-                    var statistic = statisticList.FirstOrDefault(p => p.Item1.IdPLayer == player.IdPLayer);
-                    formatText += $"{player.TinyFulName}  {statistic.Item2,-5} {statistic.Item3,-8} {statistic.Item4}\n\r";
-                }
-            }
         }
-
-        formatText += "\n\r";
-        for (int i = 0; i < Tournament.NumberOfGroups; i++)
+        foreach (var group in statisticList)
         {
-            formatText += $"Group: {groupingPlayer[i].Key,-21}   Win | Pt.win | Pt.Lost ";
+            formatText += "\n\r";
+
+            formatText += $"Group: {group.Item1,-21} {group.Item2[0].Item2[0].Item1} {group.Item2[0].Item2[1].Item1} {group.Item2[0].Item2[2].Item1} {group.Item2[0].Item2[3].Item1}";
 
             formatText += "\n\r";
-            foreach (var player in groupingPlayer[i])
+            foreach (var playerStatistic in group.Item2)
             {
-                if (player != null)
+                if (playerStatistic != null)
                 {
-                    var statistic = statisticList.FirstOrDefault(p => p.Item1.IdPLayer == player.IdPLayer);
-                    formatText += $"{player.TinyFulName}  {statistic.Item2,-5} {statistic.Item3,-8} {statistic.Item4}\n\r";
+                    formatText += $"{playerStatistic.Item1.TinyFulName}  {playerStatistic.Item2[0].Item2,-4} {playerStatistic.Item2[1].Item2,-5} {playerStatistic.Item2[2].Item2,-5} {playerStatistic.Item2[3].Item2}\n\r";
                 }
             }
         }
-
         return formatText;
     }
 
