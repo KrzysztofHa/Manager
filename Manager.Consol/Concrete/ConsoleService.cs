@@ -105,7 +105,7 @@ public static class ConsoleService
         Console.WriteLine("\n\rExit Press Escape (Esc)");
         var endBuferPosition = Console.GetCursorPosition();
         Console.ForegroundColor = ConsoleColor.Yellow;
-        Console.WriteLine(messageBack);
+        Console.WriteLine("\n\r \n\r \n\r" + messageBack);
 
         do
         {

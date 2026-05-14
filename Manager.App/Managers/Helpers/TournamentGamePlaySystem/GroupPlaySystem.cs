@@ -151,6 +151,18 @@ public class GroupPlaySystem : PlaySystems
         PlayersToTournamentInPlaySystem.SavePlayersToTournament();
     }
 
+    private void SetPositionInGroup(List<Tuple<PlayerToTournament, List<Tuple<string, int>>, List<Tuple<int, bool>>>> statistics)
+    {
+        statistics = statistics.OrderByDescending(s => s.Item2.FirstOrDefault(t => t.Item1 == "Win").Item2)
+            .ThenByDescending(s => s.Item2.FirstOrDefault(t => t.Item1 == "Pt.Win").Item2)
+            .ThenBy(s => s.Item2.FirstOrDefault(t => t.Item1 == "Pt.Lost").Item2).ToList();
+        foreach (var player in statistics)
+        {
+            player.Item1.GroupPosition = statistics.IndexOf(player);
+            PlayersToTournamentInPlaySystem.SavePlayersToTournament();
+        }
+    }
+
     private void DetermineTheOrderOfDuelsToStartInGroup()
     {
         var allTournamentDuels = _singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id)
@@ -303,17 +315,17 @@ public class GroupPlaySystem : PlaySystems
                         {
                             var index = statisticsListOfGroup.IndexOf(duel);
                             statisticsListOfGroup.Insert(index, duelsStatistic);
+                            SetPositionInGroup(statisticsListOfGroup);
                         }
                     }
                 }
                 else
                 {
                     statisticsListOfGroup.Add(duelsStatistic);
+                    SetPositionInGroup(statisticsListOfGroup);
                 }
 
-                statisticsListOfGroup = statisticsListOfGroup.OrderByDescending(s => s.Item2.FirstOrDefault(t => t.Item1 == "Win").Item2)
-                    .ThenByDescending(s => s.Item2.FirstOrDefault(t => t.Item1 == "Pt.Win").Item2)
-                    .ThenBy(s => s.Item2.FirstOrDefault(t => t.Item1 == "Pt.Lost").Item2).ToList();
+                statisticsListOfGroup = statisticsListOfGroup.OrderBy(s => s.Item1.GroupPosition).ToList();
                 directDuels = new List<Tuple<int, bool>>();
                 allMatchesStatistics = new List<Tuple<string, int>>();
             }
@@ -339,17 +351,7 @@ public class GroupPlaySystem : PlaySystems
         {
             AssignPlayersToGroups();
         }
-        //var groupingPlayer = PlayersToTournamentInPlaySystem.ListPlayersToTournament
-        //  .GroupBy(group => group.Group, group => group).OrderBy(g => g.Key).ToList();
-        //tu dopisać if-a jeżeli wszystkie mecze eliminacyjne skończone ustawić pozycję w grupie i posortować grupy
 
-        if (_singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id).Any(d => d.EndGame != DateTime.MinValue))
-        {
-        }
-
-        for (int i = 0; i < Tournament.NumberOfGroups; i++)
-        {
-        }
         foreach (var group in statisticList)
         {
             formatText += "\n\r";
@@ -361,7 +363,7 @@ public class GroupPlaySystem : PlaySystems
             {
                 if (playerStatistic != null)
                 {
-                    formatText += $"{playerStatistic.Item1.TinyFulName}  {playerStatistic.Item2[0].Item2,-4} {playerStatistic.Item2[1].Item2,-5} {playerStatistic.Item2[2].Item2,-5} {playerStatistic.Item2[3].Item2}\n\r";
+                    formatText += $" {playerStatistic.Item1.GroupPosition + 1}. {playerStatistic.Item1.TinyFulName}  {playerStatistic.Item2[0].Item2,-4} {playerStatistic.Item2[1].Item2,-5} {playerStatistic.Item2[2].Item2,-5} {playerStatistic.Item2[3].Item2}\n\r";
                 }
             }
         }
@@ -381,8 +383,12 @@ public class GroupPlaySystem : PlaySystems
         {
             AssignPlayersToGroups();
         }
-        var groupingPlayer = PlayersToTournamentInPlaySystem.ListPlayersToTournament
-            .GroupBy(group => group.Group, group => group).OrderBy(g => g.Key).ToList();
+
+        var groupingPlayerAndSortingByGroupPosition = PlayersToTournamentInPlaySystem.ListPlayersToTournament
+            .GroupBy(p => p.Group)
+            .OrderBy(g => g.Key)
+            .Select(g => g.OrderBy(p => p.GroupPosition).ToList())
+            .ToList();
 
         List<PlayerToTournament> formatList = new List<PlayerToTournament>();
         decimal numberLine = PlayersToTournamentInPlaySystem.ListPlayersToTournament.Count / Tournament.NumberOfGroups;
@@ -390,7 +396,7 @@ public class GroupPlaySystem : PlaySystems
         formatText += "\n\r";
         for (int i = 0; i < Tournament.NumberOfGroups; i++)
         {
-            formatText += $"Group: {groupingPlayer[i].Key,-23}";
+            formatText += $"Group: {groupingPlayerAndSortingByGroupPosition[i][0].Group,-23}";
         }
 
         formatText += "\n\r";
@@ -399,11 +405,11 @@ public class GroupPlaySystem : PlaySystems
             formatText += "\n\r";
             for (var i = 0; i < Tournament.NumberOfGroups; i++)
             {
-                var player = groupingPlayer[i].Select(p => p).Except(formatList).FirstOrDefault();
+                var player = groupingPlayerAndSortingByGroupPosition[i].Select(p => p).Except(formatList).FirstOrDefault();
                 if (player != null)
                 {
                     formatList.Add(player);
-                    formatText += $"{player.TinyFulName}";
+                    formatText += $" {player.GroupPosition + 1}. {player.TinyFulName}";
                 }
                 else
                 {

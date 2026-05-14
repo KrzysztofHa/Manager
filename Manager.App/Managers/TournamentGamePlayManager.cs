@@ -103,12 +103,15 @@ public class TournamentGamePlayManager
             else
             {
                 var allStartedDuels = _singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id)
-               .Where(d => d.StartGame != DateTime.MinValue && d.EndGame == DateTime.MinValue).Where(s => s.Interrupted.Equals(DateTime.MinValue)).ToList();
+                    .Where(d => d.StartGame != DateTime.MinValue && d.EndGame == DateTime.MinValue)
+                    .Where(s => s.Interrupted.Equals(DateTime.MinValue)).ToList();
+
                 if (allStartedDuels.Count > 0)
                 {
                     message = _singlePlayerDuelManager.ConvertListSinglePlayerDuelsToText(allStartedDuels);
                 }
-                else if (!_singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id).Any(d => d.StartGame == DateTime.MinValue && d.Interrupted != DateTime.MinValue))
+                else if (_singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id)
+                    .Any(d => d.EndGame != DateTime.MinValue))
                 {
                     message = playSystem.ViewStatisticOfText();
                 }
