@@ -307,6 +307,16 @@ public class TwoKOPlaySystem : PlaySystems
         throw new NotImplementedException();
     }
 
+    protected override void EndTournament()
+    {
+        throw new NotImplementedException();
+    }
+
+    protected override void StartNextRound()
+    {
+        throw new NotImplementedException();
+    }
+
     //private void RemoveTournamentDuel(PlayerToTournament playerToTournament)
     //{
     //    var duels = _singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id)

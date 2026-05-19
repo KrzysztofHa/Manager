@@ -19,7 +19,6 @@ public class PlayerToTournament
     public int IdPLayer { get; set; }
     public int CupPosition { get; set; }
     public int GroupPosition { get; set; }
-    public int WinMatchInGroup { get; set; }
 
     public PlayerToTournament()
     {

@@ -159,9 +159,10 @@ public class PlayersToTournament
         if (ListPlayersToTournament.Any())
         {
             ConsoleService.WriteTitle($"List Players Of {_tournament.Name}");
-            foreach (var player in ListPlayersToTournament.OrderBy(p => p.Position))
+            var listPlayer = ListPlayersToTournament.OrderBy(p => p.CupPosition).ToList();
+            foreach (var player in listPlayer)
             {
-                formatText = $"{player.Position}. {player.TinyFulName} {player.Country}";
+                formatText = $"{listPlayer.IndexOf(player)+1}. {player.TinyFulName} {player.Country}";
                 ConsoleService.WriteLineMessage(formatText);
             }
         }

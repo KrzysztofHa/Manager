@@ -1,14 +1,11 @@
 ﻿using Manager.App.Abstract;
 using Manager.App.Concrete;
-using Manager.App.Managers.Helpers;
 using Manager.App.Managers.Helpers.TypeOfGame;
 using Manager.Consol.Concrete;
 using Manager.Domain.Entity;
 
 using Manager.Helpers;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using System.Text.RegularExpressions;
 
 namespace Manager.App.Managers;
 
@@ -209,9 +206,10 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
             duel.IdPlayerTournament = idTournament;
             duel.Round = round;
             _singlePlayerDuelService.CreateTournamentSinglePlayerDue(duel);
+            templateSinglePlayerDuel = duel;
         }
 
-        if (idFirstPlayer > 0 && (idSecondPlayer > 0 || idSecondPlayer == -1))
+        if (idFirstPlayer > 0 && (idSecondPlayer > 0 || idSecondPlayer == -1) && !templateSinglePlayerDuel.Equals(duel))
         {
             duel.TypeNameOfGame = templateSinglePlayerDuel.TypeNameOfGame;
             duel.RaceTo = templateSinglePlayerDuel.RaceTo;
@@ -366,7 +364,7 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
     {
         List<SinglePlayerDuel> foundDuels = _singlePlayerDuelService.GetAllSinglePlayerDuel()
             .Where(d => d.IdPlayerTournament == idTournament
-            && d.StartGame != DateTime.MinValue && d.Interrupted == DateTime.MinValue).ToList();
+            && d.StartGame != DateTime.MinValue && d.Interrupted == DateTime.MinValue || (d.IdFirstPlayer == -1 && d.IdSecondPlayer == -1)).ToList();
 
         return SelectDuel(_singlePlayerDuelService.GetAllSinglePlayerDuel().Where(d => d.IdPlayerTournament == idTournament).Except(foundDuels).ToList(), title, backText);
     }

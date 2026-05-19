@@ -3,9 +3,9 @@ using Manager.App.Concrete;
 using Manager.App.Managers.Helpers;
 using Manager.App.Managers.Helpers.GamePlaySystem;
 using Manager.App.Managers.Helpers.TournamentGamePlaySystem;
+using Manager.App.Managers.Helpers.TypeOfplayPlaySystem;
 using Manager.Consol.Concrete;
 using Manager.Domain.Entity;
-using System.Runtime.Intrinsics.X86;
 
 namespace Manager.App.Managers;
 
@@ -16,7 +16,8 @@ public class TournamentGamePlayManager
     private readonly IPlayerService _playerService;
     private readonly ISinglePlayerDuelManager _singlePlayerDuelManager;
     private readonly MenuActionService _actionService;
-    public readonly List<string> GamePlaySystemsList = new List<string>() { "Group", "2KO" };
+    public readonly TypeOfPlaySystem ListGamePlaySystem;
+    private readonly PlaySystemManager _playSystemManager;
 
     public Tournament Tournament { get; }
 
@@ -35,6 +36,8 @@ public class TournamentGamePlayManager
         _singlePlayerDuelManager = singlePlayerDuelManager;
         Tournament = tournament;
         _playersToTournament = new PlayersToTournament(tournament, _tournamentsManager, playerManager, playerService);
+        _playSystemManager = new PlaySystemManager(_tournamentsManager, _singlePlayerDuelManager, _playersToTournament, _playerService, _playerManager);
+        ListGamePlaySystem = _playSystemManager.ListGamePlaySystem;
 
         if (string.IsNullOrEmpty(tournament.GamePlaySystem))
         {
@@ -43,17 +46,8 @@ public class TournamentGamePlayManager
         }
         else
         {
-            if (tournament.GamePlaySystem == "Group")
-            {
-                playSystem = new GroupPlaySystem(Tournament, _tournamentsManager, _singlePlayerDuelManager, _playersToTournament, _playerService, _playerManager);
-            }
-            else
-            {
-                playSystem = new TwoKOPlaySystem(Tournament, _tournamentsManager, _singlePlayerDuelManager, _playersToTournament, _playerService, _playerManager);
-            }
+            playSystem = _playSystemManager.CreateNewPlaySystem(Tournament);
         }
-
-        CheckTournament();
     }
 
     public void GoToTournament()
@@ -74,8 +68,9 @@ public class TournamentGamePlayManager
         while (true)
         {
             string message = string.Empty;
-            ConsoleService.WriteTitle($"Tournaments {Tournament.Name} | Game System: {Tournament.GamePlaySystem} ");
-            ConsoleService.WriteLineMessage($"Number of PLayers: {Tournament.NumberOfPlayer} | Number Of Groups: {Tournament.NumberOfGroups} | " +
+            string messageBack = string.Empty;
+            ConsoleService.WriteTitle($"Tournaments {Tournament.Name} | Game System: {Tournament.GamePlaySystem} | Round: {firstDuel.Round}\n\r" +
+                $"Number of PLayers: {Tournament.NumberOfPlayer} | Number Of Groups: {Tournament.NumberOfGroups} | " +
                 $"Type Name Of Game: {firstDuel.TypeNameOfGame} | " +
                 $"Race To: {firstDuel.RaceTo} | Nr. of Tabes {Tournament.NumberOfTables}");
 
@@ -93,7 +88,7 @@ public class TournamentGamePlayManager
                     continue;
                 }
 
-                ConsoleService.WriteLineMessage($"{$"{i + 1}.",-3} {optionTournamentGamePlayMenuList[i].Name}");
+                messageBack += ($"{$"{i + 1}.",-3} {optionTournamentGamePlayMenuList[i].Name}\n\r");
             }
 
             if (Tournament.Start == DateTime.MinValue)
@@ -117,7 +112,7 @@ public class TournamentGamePlayManager
                 }
             }
 
-            var operation = ConsoleService.GetIntNumberFromUser("Enter Option", message);
+            var operation = ConsoleService.GetIntNumberFromUser("Enter Option\n\r" + message, messageBack);
             var swichOption = string.Empty;
 
             if (operation >= 0 && operation <= optionTournamentGamePlayMenuList.Count)
@@ -180,27 +175,22 @@ public class TournamentGamePlayManager
 
             if (string.IsNullOrEmpty(gamePlaySystem) && string.IsNullOrEmpty(Tournament.GamePlaySystem))
             {
-                gamePlaySystem = GamePlaySystemsList.First();
+                gamePlaySystem = ListGamePlaySystem.ListTypeOfPlaySystems.First();
             }
 
-            if (gamePlaySystem == GamePlaySystemsList[0] && Tournament.GamePlaySystem != gamePlaySystem)
+            if (gamePlaySystem == ListGamePlaySystem.ListTypeOfPlaySystems[0] && Tournament.GamePlaySystem != gamePlaySystem)
             {
                 Tournament.GamePlaySystem = gamePlaySystem;
                 _tournamentsManager.UpdateTournament(Tournament);
                 playSystem = new GroupPlaySystem(Tournament, _tournamentsManager, _singlePlayerDuelManager, _playersToTournament, _playerService, _playerManager);
             }
-            else if (gamePlaySystem == GamePlaySystemsList[1] && Tournament.GamePlaySystem != gamePlaySystem)
+            else if (gamePlaySystem == ListGamePlaySystem.ListTypeOfPlaySystems[1] && Tournament.GamePlaySystem != gamePlaySystem)
             {
                 Tournament.GamePlaySystem = gamePlaySystem;
                 _tournamentsManager.UpdateTournament(Tournament);
                 playSystem = new TwoKOPlaySystem(Tournament, _tournamentsManager, _singlePlayerDuelManager, _playersToTournament, _playerService, _playerManager);
             }
         }
-    }
-
-    public string CheckTournament()
-    {
-        return string.Empty;
     }
 
     public string GetGamePlaySystemFromUser()
@@ -220,9 +210,9 @@ public class TournamentGamePlayManager
                 do
                 {
                     ConsoleService.WriteTitle($"Add settings\r\n{setting}");
-                    foreach (var game in GamePlaySystemsList)
+                    foreach (var game in ListGamePlaySystem.ListTypeOfPlaySystems)
                     {
-                        var formatText = GamePlaySystemsList.IndexOf(game) == idSelectTypeOfGame ? $"> {game} <= Select Enter" :
+                        var formatText = ListGamePlaySystem.ListTypeOfPlaySystems.IndexOf(game) == idSelectTypeOfGame ? $"> {game} <= Select Enter" :
                             $"  {game}";
                         ConsoleService.WriteLineMessage(formatText);
                     }
@@ -231,13 +221,13 @@ public class TournamentGamePlayManager
                     {
                         idSelectTypeOfGame--;
                     }
-                    else if (inputKey.Key == ConsoleKey.DownArrow && idSelectTypeOfGame < GamePlaySystemsList.Count - 1)
+                    else if (inputKey.Key == ConsoleKey.DownArrow && idSelectTypeOfGame < ListGamePlaySystem.ListTypeOfPlaySystems.Count - 1)
                     {
                         idSelectTypeOfGame++;
                     }
                     else if (inputKey.Key == ConsoleKey.Enter)
                     {
-                        gamePlaySystem = GamePlaySystemsList[idSelectTypeOfGame];
+                        gamePlaySystem = ListGamePlaySystem.ListTypeOfPlaySystems[idSelectTypeOfGame];
                     }
                     else if (inputKey.Key == ConsoleKey.Escape)
                     {
