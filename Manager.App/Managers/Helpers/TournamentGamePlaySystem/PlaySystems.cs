@@ -95,7 +95,15 @@ public abstract class PlaySystems
                 ConsoleService.WriteLineMessage($"{i + 1}. {optionPlayerMenu[i].Name}");
             }
 
-            var operation = ConsoleService.GetIntNumberFromUser("\n\rEnter Option");
+            int? operation = null;
+            if (optionPlayerMenu.Count < 10)
+            {
+                operation = int.TryParse(ConsoleService.GetKeyFromUser("Enter Option").KeyChar.ToString(), out int parsedOperation) ? parsedOperation : null;
+            }
+            else
+            {
+                operation = ConsoleService.GetIntNumberFromUser("Enter Option");
+            }
             var action = string.Empty;
             if (operation >= 1 || operation <= optionPlayerMenu.Count)
             {
@@ -617,7 +625,7 @@ public abstract class PlaySystems
                 _singlePlayerDuelManager.StartSingleDuel(duel);
             }
         }
-        if (duelsOfTournament.All(d => d.EndGame != DateTime.MinValue))
+        if (duelsOfTournament.All(d => d.EndGame != DateTime.MinValue) && duelsOfTournament.Count > 1)
         {
             StartNextRound();
         }

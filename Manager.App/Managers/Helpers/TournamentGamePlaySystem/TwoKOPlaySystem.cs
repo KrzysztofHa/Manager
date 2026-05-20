@@ -286,7 +286,7 @@ public class TwoKOPlaySystem : PlaySystems
                new MenuAction(1, "  <-----  Start Tournament", "GroupPlaySystem")
         ];
 
-        if (Tournament.NumberOfPlayer < 8 && actions.Exists(a => a.Name == "  <-----  Start Tournament"))
+        if (Tournament.NumberOfPlayer <= 8 && actions.Exists(a => a.Name == "  <-----  Start Tournament"))
         {
             actions.Remove(actions.First(a => a.Name == "  <-----  Start Tournament"));
         }
