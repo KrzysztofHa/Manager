@@ -198,6 +198,12 @@ public abstract class PlaySystems
             {
                 listAction.First(a => a.Name == "Start Duel / Interrupt Duel").Name = "  <--------- Start Duel / Interrupt Duel";
             }
+            if (Tournament.End != DateTime.MinValue)
+            {
+                listAction.Remove(listAction.First(a => a.Name == "Start Duel / Interrupt Duel"));
+                listAction.Remove(listAction.First(a => a.Name == "Update Duel Result"));
+                listAction.Remove(listAction.First(a => a.Name == "Tournament View"));
+            }
         }
         listAction.AddRange(GetExtendedMenuAction());
 
@@ -220,7 +226,7 @@ public abstract class PlaySystems
                     break;
 
                 case 3:
-                    ConsoleService.WriteTitle($"All Duels Of Tournament {Tournament.Name}");
+                    ConsoleService.WriteTitle($"{$"Tournament Bracket {Tournament.Name}",72}");
                     ConsoleService.WriteLineMessage(ViewTournamentBracket());
                     ConsoleService.GetKeyFromUser("Press Any Key");
                     break;
@@ -612,7 +618,7 @@ public abstract class PlaySystems
             }
         }
         if (duelsOfTournament.All(d => d.EndGame != DateTime.MinValue))
-        {            
+        {
             StartNextRound();
         }
     }

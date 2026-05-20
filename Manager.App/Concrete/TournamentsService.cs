@@ -20,6 +20,7 @@ public class TournamentsService : BaseService<Tournament>, ITournamentsService
         if (tournament != null)
         {
             tournament.End = DateTime.Now;
+            SaveList();
         }
     }
 

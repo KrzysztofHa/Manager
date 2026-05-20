@@ -28,7 +28,15 @@ public class PlayerManager : IPlayerManager
                 ConsoleService.WriteLineMessage($"{i + 1}. {optionPlayerMenu[i].Name}");
             }
 
-            var operation = ConsoleService.GetIntNumberFromUser("Enter Option");
+            int? operation = null;
+            if (optionPlayerMenu.Count < 10)
+            {
+                operation = int.TryParse(ConsoleService.GetKeyFromUser("Enter Option").KeyChar.ToString(), out int parsedOperation) ? parsedOperation : null;
+            }
+            else
+            {
+                operation = ConsoleService.GetIntNumberFromUser("Enter Option");
+            }
             switch (operation)
             {
                 case 1:
@@ -212,7 +220,7 @@ public class PlayerManager : IPlayerManager
                $" {player.LastName,-20}".Remove(21) + formatAddressToView;
 
             ConsoleService.WriteTitle($"{title}\r\n{"ID",-6}{"First Name",-21}{"Last Name",-21}" +
-                   $"{"Street",-11}{"Number",-11}{"City",-11}{"Country",-11}{"zip",-6}");
+                   $"{"Street",-11}{"Building/Apartment",-11}{"City",-11}{"Country",-11}{"zip",-6}");
 
             ConsoleService.WriteLineMessage(formatPlayerDataToView);
 

@@ -52,11 +52,7 @@ public class TournamentGamePlayManager
 
     public void GoToTournament()
     {
-        if (Tournament.End != DateTime.MinValue)
-        {
-            return;
-        }
-        else if (Tournament.Start != DateTime.MinValue && Tournament.Interrupt != DateTime.MinValue)
+        if (Tournament.Start != DateTime.MinValue && Tournament.Interrupt != DateTime.MinValue)
         {
             _tournamentsManager.StartTournament(Tournament);
         }
@@ -67,17 +63,13 @@ public class TournamentGamePlayManager
         optionTournamentGamePlayMenuList.InsertRange(0, playSystemMenuList);
         while (true)
         {
+            var round = _singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id).LastOrDefault();
             string message = string.Empty;
             string messageBack = string.Empty;
-            ConsoleService.WriteTitle($"Tournaments {Tournament.Name} | Game System: {Tournament.GamePlaySystem} | Round: {firstDuel.Round}\n\r" +
+            string title = $"Tournaments {Tournament.Name} | Game System: {Tournament.GamePlaySystem} | Round: {round.Round}\n\r" +
                 $"Number of PLayers: {Tournament.NumberOfPlayer} | Number Of Groups: {Tournament.NumberOfGroups} | " +
                 $"Type Name Of Game: {firstDuel.TypeNameOfGame} | " +
-                $"Race To: {firstDuel.RaceTo} | Nr. of Tabes {Tournament.NumberOfTables}");
-
-            if (Tournament.NumberOfPlayer < 8)
-            {
-                ConsoleService.WriteLineMessage("-> Minimum 8 players to start the tournament\n\r");
-            }
+                $"Race To: {firstDuel.RaceTo} | Nr. of Tabes {Tournament.NumberOfTables}";
 
             for (int i = 0; i < optionTournamentGamePlayMenuList.Count; i++)
             {
@@ -103,16 +95,35 @@ public class TournamentGamePlayManager
 
                 if (allStartedDuels.Count > 0)
                 {
+                    title += $"\n\r\n\r{$"Currently Ongoing Duels",60}\n\r{$"-----------------------",60}";
                     message = _singlePlayerDuelManager.ConvertListSinglePlayerDuelsToText(allStartedDuels);
                 }
                 else if (_singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id)
-                    .Any(d => d.EndGame != DateTime.MinValue))
+                    .All(d => d.EndGame != DateTime.MinValue && d.Round == "Eliminations"))
                 {
                     message = playSystem.ViewStatisticOfText();
+                    ConsoleService.GetKeyFromUser("Press any key to continue...");
+                }
+                else
+                {
+                    message = playSystem.ViewTournamentBracket();
                 }
             }
+            ConsoleService.WriteTitle(title);
+            if (Tournament.NumberOfPlayer < 8)
+            {
+                ConsoleService.WriteLineMessage("-> Minimum 8 players to start the tournament\n\r");
+            }
+            int? operation = null;
+            if (optionTournamentGamePlayMenuList.Count < 10)
+            {
+                operation = int.TryParse(ConsoleService.GetKeyFromUser(message, "Enter Option\n\r" + messageBack).KeyChar.ToString(), out int parsedOperation) ? parsedOperation : null;
+            }
+            else
+            {
+                operation = ConsoleService.GetIntNumberFromUser(message, "Enter Option\n\r" + messageBack);
+            }
 
-            var operation = ConsoleService.GetIntNumberFromUser("Enter Option\n\r" + message, messageBack);
             var swichOption = string.Empty;
 
             if (operation >= 0 && operation <= optionTournamentGamePlayMenuList.Count)

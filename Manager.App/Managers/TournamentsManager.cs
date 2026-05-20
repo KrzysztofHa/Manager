@@ -39,7 +39,16 @@ public class TournamentsManager : ITournamentsManager
                 ConsoleService.WriteLineMessage($"{i + 1}. {optionPlayerMenu[i].Name}");
             }
 
-            var operation = ConsoleService.GetIntNumberFromUser("Enter Option");
+            int? operation = null;
+            if (optionPlayerMenu.Count < 10)
+            {
+                operation = int.TryParse(ConsoleService.GetKeyFromUser("Enter Option\n\r").KeyChar.ToString(), out int parsedOperation) ? parsedOperation : null;
+            }
+            else
+            {
+                operation = ConsoleService.GetIntNumberFromUser("Enter Option");
+            }
+
             switch (operation)
             {
                 case 1:
@@ -153,7 +162,7 @@ public class TournamentsManager : ITournamentsManager
     {
         StringBuilder inputString = new StringBuilder();
         List<Tournament> findTournamentTemp = _tournamentsService.SearchTournament(" ")
-            .Where(t => t.End == DateTime.MinValue && t.IsActive == true).ToList();
+            .Where(t => t.IsActive == true).ToList();
         List<Tournament> findTournament = [];
         List<Tournament> findTournamentToView = [];
         findTournament.AddRange(findTournamentTemp);
@@ -176,11 +185,11 @@ public class TournamentsManager : ITournamentsManager
         int indexSelectedTournament = 0;
         title = string.IsNullOrWhiteSpace(title) ? "Search Tournament" : title;
 
-        var headTableToview = title + $"\r\n    {" LP",-5}{"ID",-6}{"Name",-21}" +
+        var headTableToView = title + $"\r\n    {" LP",-5}{"ID",-6}{"Name",-21}" +
                     $"{"Game System",-16}{"Club Name",-21}{"Start",-15}{"End",-15}{"Players",-11}";
         do
         {
-            ConsoleService.WriteTitle(headTableToview);
+            ConsoleService.WriteTitle(headTableToView);
 
             foreach (var tournament in findTournamentToView)
             {
@@ -290,7 +299,7 @@ public class TournamentsManager : ITournamentsManager
             else if (keyFromUser.Key == ConsoleKey.Enter && findTournament.Any())
             {
                 var findTournamentToSelect = findTournament.First(p => findTournament.IndexOf(p) == indexSelectedTournament);
-                ConsoleService.WriteTitle(headTableToview);
+                ConsoleService.WriteTitle(headTableToView);
                 ConsoleService.WriteLineMessage($"{_tournamentsService.GetTournamentDetailView(findTournamentToSelect),107}");
 
                 if (ConsoleService.AnswerYesOrNo("Selected Player"))

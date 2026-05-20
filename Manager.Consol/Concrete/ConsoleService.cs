@@ -114,7 +114,7 @@ public static class ConsoleService
 
             inputKey = Console.ReadKey(true);
 
-            if (char.IsLetterOrDigit(inputKey.KeyChar))
+            if (!char.IsControl(inputKey.KeyChar))
             {
                 if (string.IsNullOrEmpty(inputString.ToString()))
                 {
@@ -283,17 +283,18 @@ public static class ConsoleService
         Console.CursorVisible = true;
     }
 
-    public static ConsoleKeyInfo GetKeyFromUser(string messageBack = " ")
+    public static ConsoleKeyInfo GetKeyFromUser(string message = " ", string messageBack = " ")
     {
         CheckAndSetSizeWindow();
-
+        Console.CursorVisible = false;        
+        Console.WriteLine("\n\r" + message);
         var startCursorPosition = Console.GetCursorPosition();
         Console.CursorVisible = false;
-        Console.ForegroundColor = ConsoleColor.Blue;
+        Console.ForegroundColor = ConsoleColor.Green;
         Console.WriteLine("\n\r" + messageBack);
         Console.SetCursorPosition(startCursorPosition.Left, startCursorPosition.Top);
         Console.WriteLine(string.Empty.PadLeft(Console.BufferWidth));
-        Console.CursorVisible = false;
+
         return Console.ReadKey(true);
     }
 

@@ -401,19 +401,27 @@ public class GroupPlaySystem : PlaySystems
                 allMatchesStatistics.Add(new Tuple<string, int>("Pt.Win", pointWin));
                 allMatchesStatistics.Add(new Tuple<string, int>("Pt.Lost", pointLost));
                 duelStatistic = new Tuple<PlayerToTournament, List<Tuple<string, int>>, List<Tuple<int, bool>>>(player, allMatchesStatistics, directDuels);
-                var listOfDirectDuelsOfPlayer = statisticsListOfGroup.Where(e => e.Item2.Any(t => t.Item1 == "Win" && t.Item2 == winMatch) && e.Item2.Any(t => t.Item1 == "Pt.Win" && t.Item2 == pointWin) && e.Item2.Any(t => t.Item1 == "Pt.Lost" && t.Item2 == pointLost)).ToList();
-
-                if (listOfDirectDuelsOfPlayer.Count() > 0)
+                var listOfDirectDuelsOfPlayer = statisticsListOfGroup
+                    .Where(e => e.Item2.Any(t => t.Item1 == "Win" && t.Item2 == winMatch) && e.Item2.Any(t => t.Item1 == "Pt.Win" && t.Item2 == pointWin) && e.Item2.Any(t => t.Item1 == "Pt.Lost" && t.Item2 == pointLost)).ToList();
+                if (allDuel.All(d => d.Round == "Eliminations" && d.EndGame != DateTime.MinValue))
                 {
-                    foreach (var duel in listOfDirectDuelsOfPlayer)
+                    if (listOfDirectDuelsOfPlayer.Count() > 0)
                     {
-                        var directDuelResult = duel.Item3.FirstOrDefault(d => d.Item1 == player.IdPLayer).Item2;
-                        if (!directDuelResult)
+                        foreach (var duel in listOfDirectDuelsOfPlayer)
                         {
-                            var index = statisticsListOfGroup.IndexOf(duel);
-                            statisticsListOfGroup.Insert(index, duelStatistic);
-                            SetPositionInGroup(statisticsListOfGroup);
+                            var directDuelResult = duel.Item3.FirstOrDefault(d => d.Item1 == player.IdPLayer).Item2;
+                            if (!directDuelResult)
+                            {
+                                var index = statisticsListOfGroup.IndexOf(duel);
+                                statisticsListOfGroup.Insert(index, duelStatistic);
+                                SetPositionInGroup(statisticsListOfGroup);
+                            }
                         }
+                    }
+                    else
+                    {
+                        statisticsListOfGroup.Add(duelStatistic);
+                        SetPositionInGroup(statisticsListOfGroup);
                     }
                 }
                 else
@@ -600,6 +608,8 @@ public class GroupPlaySystem : PlaySystems
     public override string ViewTournamentBracket()
     {
         var formatText = string.Empty;
+        var formatTextUp = string.Empty;
+        var formatTextDown = string.Empty;
 
         if (Tournament.NumberOfGroups == 0)
         {
@@ -621,48 +631,57 @@ public class GroupPlaySystem : PlaySystems
                 .ToList();
             var allDuelsInCup = _singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id)
                 .Where(d => d.Round == "CupQuarterFinal" || d.Round == "CupSemiFinal" || d.Round == "CupFinal").ToList();
-            foreach (var round in groupingByRound)
-            {
-                if (round.Key == "Winner")
-                {
-                    formatText += "\n\r";
-                    formatText += $"Winner: {round.FirstOrDefault(p => p.Round == "Winner").FirstName} {round.FirstOrDefault(p => p.Round == "Winner").LastName}\n\r";
-                }
-                if (round.Key == "CupFinal")
-                {
-                    formatText += $"{round.Key}\n\r\n\r";
-                    foreach (var duel in allDuelsInCup.Where(d => d.Round == "CupFinal"))
-                    {
-                        var firstPlayer = PlayersToTournamentInPlaySystem.ListPlayersToTournament.FirstOrDefault(p => p.IdPLayer == duel.IdFirstPlayer);
-                        var secondPlayer = PlayersToTournamentInPlaySystem.ListPlayersToTournament.FirstOrDefault(p => p.IdPLayer == duel.IdSecondPlayer);
-                        formatText += "\n\r";
-                        formatText += $" {firstPlayer.FirstName} {firstPlayer.LastName,-20}: {duel.ScoreFirstPlayer}\n\r {secondPlayer.FirstName} {secondPlayer.LastName}: {duel.ScoreSecondPlayer}\n\r";
-                    }
-                }
-                if (round.Key == "CupSemiFinal")
-                {
-                    formatText += $"{round.Key}\n\r";
-                    foreach (var duel in allDuelsInCup.Where(d => d.Round == "CupSemiFinal"))
-                    {
-                        var firstPlayer = PlayersToTournamentInPlaySystem.ListPlayersToTournament.FirstOrDefault(p => p.IdPLayer == duel.IdFirstPlayer);
-                        var secondPlayer = PlayersToTournamentInPlaySystem.ListPlayersToTournament.FirstOrDefault(p => p.IdPLayer == duel.IdSecondPlayer);
 
-                        formatText += $" {firstPlayer.FirstName} {firstPlayer.LastName}: {duel.ScoreFirstPlayer}\n\r{secondPlayer.FirstName} {secondPlayer.LastName}: {duel.ScoreSecondPlayer}     ";
-                    }
-                    formatText += "\n\r";
-                }
-                if (round.Key == "CupQuarterFinal")
+            if (listPlayerToTournamentSortedByCupPosition.Any(d => d.Round == "Winner"))
+            {
+                formatText += "\n\r";
+                formatText += $"{$"Winner: {listPlayerToTournamentSortedByCupPosition.FirstOrDefault(p => p.Round == "Winner").FirstName} {listPlayerToTournamentSortedByCupPosition.FirstOrDefault(p => p.Round == "Winner").LastName}\n\r",68}";
+                formatText += $"{"---------------",67}\n\r\n\r";
+            }
+            if (allDuelsInCup.Any(d => d.Round == "CupFinal"))
+            {
+                formatText += $"{"CupFinal",63}\n\r";
+                foreach (var duel in allDuelsInCup.Where(d => d.Round == "CupFinal"))
                 {
-                    formatText += $"{round.Key}\n\r";
-                    foreach (var duel in allDuelsInCup.Where(d => d.Round == "CupQuarterFinal"))
-                    {
-                        var firstPlayer = PlayersToTournamentInPlaySystem.ListPlayersToTournament.FirstOrDefault(p => p.IdPLayer == duel.IdFirstPlayer);
-                        var secondPlayer = PlayersToTournamentInPlaySystem.ListPlayersToTournament.FirstOrDefault(p => p.IdPLayer == duel.IdSecondPlayer);
-                        formatText += $" {firstPlayer.FirstName} {firstPlayer.LastName,-20}: {duel.ScoreFirstPlayer} vs {secondPlayer.FirstName} {secondPlayer.LastName}: {duel.ScoreSecondPlayer}     ";
-                        formatText += "\n\r";
-                    }
+                    var firstPlayer = PlayersToTournamentInPlaySystem.ListPlayersToTournament.FirstOrDefault(p => p.IdPLayer == duel.IdFirstPlayer);
+                    var secondPlayer = PlayersToTournamentInPlaySystem.ListPlayersToTournament.FirstOrDefault(p => p.IdPLayer == duel.IdSecondPlayer);
+                    formatText += $"{$""}" + "\n\r";
+                    formatText += $"{$" {firstPlayer.FirstName} {firstPlayer.LastName}: {duel.ScoreFirstPlayer}",67}\n\r";
+                    formatText += $"{$" {secondPlayer.FirstName} {secondPlayer.LastName}: {duel.ScoreSecondPlayer}",67}";
                     formatText += "\n\r\n\r";
                 }
+            }
+            if (allDuelsInCup.Any(d => d.Round == "CupSemiFinal"))
+            {
+                formatText += $"{"CupSemiFinal",66}\n\r\n\r";
+                foreach (var duel in allDuelsInCup.Where(d => d.Round == "CupSemiFinal"))
+                {
+                    var firstPlayer = PlayersToTournamentInPlaySystem.ListPlayersToTournament.FirstOrDefault(p => p.IdPLayer == duel.IdFirstPlayer);
+                    var secondPlayer = PlayersToTournamentInPlaySystem.ListPlayersToTournament.FirstOrDefault(p => p.IdPLayer == duel.IdSecondPlayer);
+
+                    formatTextUp += $"{$"{firstPlayer.FirstName} {firstPlayer.LastName}: {duel.ScoreFirstPlayer}",25}";
+
+                    formatTextDown += $"{$"{secondPlayer.FirstName} {secondPlayer.LastName}: {duel.ScoreSecondPlayer}",25}";
+                }
+                formatText += $"{formatTextUp,81}\n\r" + $"{formatTextDown,81}";
+                formatText += "\n\r\n\r";
+            }
+            if (allDuelsInCup.Any(d => d.Round == "CupQuarterFinal"))
+            {
+                formatTextDown = string.Empty;
+                formatTextUp = string.Empty;
+                formatText += $"{"CupQuarterFinal",68}\n\r\n\r";
+                foreach (var duel in allDuelsInCup.Where(d => d.Round == "CupQuarterFinal"))
+                {
+                    var firstPlayer = PlayersToTournamentInPlaySystem.ListPlayersToTournament.FirstOrDefault(p => p.IdPLayer == duel.IdFirstPlayer);
+                    var secondPlayer = PlayersToTournamentInPlaySystem.ListPlayersToTournament.FirstOrDefault(p => p.IdPLayer == duel.IdSecondPlayer);
+
+                    formatTextUp += $"{$"{firstPlayer.FirstName} {firstPlayer.LastName}: {duel.ScoreFirstPlayer}",25} ";
+
+                    formatTextDown += $"{$"{secondPlayer.FirstName} {secondPlayer.LastName}: {duel.ScoreSecondPlayer}",25} ";
+                }
+                formatText += $"{formatTextUp}\n\r" + $"{formatTextDown}";
+                formatText += "\n\r\n\r";
             }
         }
 
@@ -790,17 +809,13 @@ public class GroupPlaySystem : PlaySystems
             .Where(p => p.Round == "CupFinal").ToList();
         if (!_singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id).Any(d => d.Round == "CupFinal"))
         {
-            foreach (var player in listPlayerToBeAssignedToTheDuel)
+            if (listPlayerToBeAssignedToTheDuel.Count == 2)
             {
-                var secondPlayer = listPlayerToBeAssignedToTheDuel.FirstOrDefault(p => p.IdPLayer != player.IdPLayer);
-                if (secondPlayer != null)
-                {
-                    _singlePlayerDuelManager.NewTournamentSinglePlayerDuel(
-                    Tournament.Id,
-                    player.IdPLayer,
-                    secondPlayer.IdPLayer,
-                    "CupFinal");
-                }
+                _singlePlayerDuelManager.NewTournamentSinglePlayerDuel(
+                Tournament.Id,
+                listPlayerToBeAssignedToTheDuel[0].IdPLayer,
+                listPlayerToBeAssignedToTheDuel[1].IdPLayer,
+                "CupFinal");
             }
         }
     }
@@ -1149,8 +1164,8 @@ public class GroupPlaySystem : PlaySystems
         {
             actions.Remove(actions.First(a => a.Name == "Set Number Of Groups"));
             actions.Remove(actions.First(a => a.Name == "  <-----  Start Tournament"));
-            actions.Add(new MenuAction(3, "View Statistics", "GroupPlaySystem"));
-        }       
+            actions.Add(new MenuAction(3, "View Group Statistics", "GroupPlaySystem"));
+        }
         return actions;
     }
 
@@ -1173,12 +1188,12 @@ public class GroupPlaySystem : PlaySystems
                     }
                 }
                 break;
+
             case 3:
                 ConsoleService.WriteTitle($"Tournament {Tournament.Name}");
                 ConsoleService.WriteMessage(ViewStatisticOfText());
                 ConsoleService.GetKeyFromUser("Press any key ...");
                 break;
-
 
             default:
                 ConsoleService.WriteLineErrorMessage("Enter a valid operation ID");
@@ -1188,7 +1203,7 @@ public class GroupPlaySystem : PlaySystems
 
     protected override void EndTournament()
     {
-        throw new NotImplementedException();
+        _tournamentsManager.EndTournament(Tournament);
     }
 
     protected override void StartNextRound()
@@ -1202,13 +1217,15 @@ public class GroupPlaySystem : PlaySystems
         }
         else if (statistiklist.Any(p => p.Item2.Any(s => s.Item1.Round == "CupFinal")))
         {
-            ConsoleService.WriteLineMessage("The player who won the final match is the winner of the tournament.");
+            ConsoleService.WriteTitle("The player who won the final match is the winner of the tournament.");
             ConsoleService.GetKeyFromUser("Press Any Key...");
             CreateDuelsToTournament("CupFinal");
             StartOrInterruptedTournamentDuel();
         }
         else if (statistiklist.Any(p => p.Item2.Any(s => s.Item1.Round == "CupSemiFinal")))
         {
+            ConsoleService.WriteTitle("Start New Round");
+            ConsoleService.GetKeyFromUser("Press Any Key...");
             CreateDuelsToTournament("CupSemiFinal");
             StartOrInterruptedTournamentDuel();
         }
