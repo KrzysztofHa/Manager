@@ -32,7 +32,15 @@ public class Settings
                 ConsoleService.WriteLineMessage($"{i + 1}. {settingMenu[i].Name}");
             }
 
-            var operation = ConsoleService.GetIntNumberFromUser("Enter Option");
+            int? operation = null;
+            if (settingMenu.Count < 10)
+            {
+                operation = int.TryParse(ConsoleService.GetKeyFromUser("Enter Option").KeyChar.ToString(), out int parsedOperation) ? parsedOperation : null;
+            }
+            else
+            {
+                operation = ConsoleService.GetIntNumberFromUser("Enter Option");
+            }
             switch (operation)
             {
                 case 1:

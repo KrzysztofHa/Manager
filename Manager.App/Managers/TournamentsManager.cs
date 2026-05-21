@@ -39,7 +39,16 @@ public class TournamentsManager : ITournamentsManager
                 ConsoleService.WriteLineMessage($"{i + 1}. {optionPlayerMenu[i].Name}");
             }
 
-            var operation = ConsoleService.GetIntNumberFromUser("Enter Option");
+            int? operation = null;
+            if (optionPlayerMenu.Count < 10)
+            {
+                operation = int.TryParse(ConsoleService.GetKeyFromUser("Enter Option\n\r").KeyChar.ToString(), out int parsedOperation) ? parsedOperation : null;
+            }
+            else
+            {
+                operation = ConsoleService.GetIntNumberFromUser("Enter Option");
+            }
+
             switch (operation)
             {
                 case 1:
@@ -88,108 +97,6 @@ public class TournamentsManager : ITournamentsManager
             }
         }
     }
-
-    //private void StartTournament(Tournament tournament, PlayersToTournament playersToTournament)
-    //{
-    //    if (tournament == null || playersToTournament == null || tournament.End != DateTime.MinValue)
-    //    {
-    //        return;
-    //    }
-
-    //    _tournamentsService.StartTournament(tournament, _singlePlayerDuelManager);
-    //    CreateDuelsToTournament(tournament, playersToTournament);
-    //    var optionPlayerMenu = _actionService.GetMenuActionsByName("Start Tournament");
-    //    string listStartedDuelsInText = String.Empty;
-
-    //    while (true)
-    //    {
-    //        var allStartedDuels = _singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(tournament.Id)
-    //       .Where(d => d.StartGame != DateTime.MinValue && d.EndGame == DateTime.MinValue).Where(s => s.Interrupted.Equals(DateTime.MinValue)).ToList();
-
-    //        listStartedDuelsInText = _singlePlayerDuelManager.ConvertListSinglePlayerDuelsToText(allStartedDuels);
-
-    //        if (string.IsNullOrEmpty(listStartedDuelsInText))
-    //        {
-    //            listStartedDuelsInText = ViewGroupsOr2KO(tournament, playersToTournament);
-    //        }
-
-    //        ConsoleService.WriteTitle($"Tournaments {tournament.Name} | Game System: {tournament.GamePlaySystem} | Start {tournament.Start} | Number Of Tables {tournament.NumberOfTables}");
-
-    //        for (int i = 0; i < optionPlayerMenu.Count; i++)
-    //        {
-    //            ConsoleService.WriteLineMessage($"{i + 1}. {optionPlayerMenu[i].Name}");
-    //        }
-
-    //        var operation = ConsoleService.GetIntNumberFromUser("Enter Option", listStartedDuelsInText);
-
-    //        switch (operation)
-    //        {
-    //            case 1:
-    //                StartAndInterruptedTournamentDuel(tournament, playersToTournament);
-    //                break;
-
-    //            case 2:
-    //                UpdateDuelResult(tournament, playersToTournament);
-    //                break;
-
-    //            case 3:
-    //                ConsoleService.WriteTitle($"View Groups Of Tournament {tournament.Name}");
-    //                ConsoleService.WriteLineMessage(ViewGroupsOr2KO(tournament, playersToTournament));
-    //                ConsoleService.GetKeyFromUser("Press Any Key...");
-    //                break;
-
-    //            case 4:
-    //                var allDuelOfTournament = _singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(tournament.Id);
-    //                var listAllDuelsInText = _singlePlayerDuelManager.ConvertListSinglePlayerDuelsToText(allDuelOfTournament);
-    //                ConsoleService.WriteTitle($"All Duels Of Tournament {tournament.Name}");
-    //                ConsoleService.WriteLineMessage(listAllDuelsInText);
-    //                ConsoleService.GetKeyFromUser("Press Any Key...");
-    //                break;
-
-    //            case 5:
-    //                AddPlayersToTournament(tournament, playersToTournament);
-    //                break;
-
-    //            case 6:
-    //                RemovePlayerOfTournament(tournament, playersToTournament);
-    //                break;
-
-    //            case 7:
-    //                MovePlayer(tournament, playersToTournament);
-    //                break;
-
-    //            case 8:
-    //                ChangeRaceTo(tournament);
-    //                break;
-
-    //            case 9:
-    //                ChangeNumberOfTable(tournament, playersToTournament);
-    //                break;
-
-    //            case 10:
-    //                operation = null;
-    //                break;
-
-    //            default:
-    //                if (operation == null)
-    //                {
-    //                    if (ConsoleService.AnswerYesOrNo("You want to Exit?"))
-    //                    {
-    //                        break;
-    //                    }
-    //                    operation = 0;
-    //                }
-    //                ConsoleService.WriteLineErrorMessage("Enter a valid operation ID");
-    //                break;
-    //        }
-
-    //        if (operation == null)
-    //        {
-    //            _tournamentsService.InterruptTournament(tournament, _singlePlayerDuelManager);
-    //            break;
-    //        }
-    //    }
-    //}
 
     public void DeleteTournament()
     {
@@ -255,7 +162,7 @@ public class TournamentsManager : ITournamentsManager
     {
         StringBuilder inputString = new StringBuilder();
         List<Tournament> findTournamentTemp = _tournamentsService.SearchTournament(" ")
-            .Where(t => t.End == DateTime.MinValue && t.IsActive == true).ToList();
+            .Where(t => t.IsActive == true).ToList();
         List<Tournament> findTournament = [];
         List<Tournament> findTournamentToView = [];
         findTournament.AddRange(findTournamentTemp);
@@ -278,11 +185,11 @@ public class TournamentsManager : ITournamentsManager
         int indexSelectedTournament = 0;
         title = string.IsNullOrWhiteSpace(title) ? "Search Tournament" : title;
 
-        var headTableToview = title + $"\r\n    {" LP",-5}{"ID",-6}{"Name",-21}" +
+        var headTableToView = title + $"\r\n    {" LP",-5}{"ID",-6}{"Name",-21}" +
                     $"{"Game System",-16}{"Club Name",-21}{"Start",-15}{"End",-15}{"Players",-11}";
         do
         {
-            ConsoleService.WriteTitle(headTableToview);
+            ConsoleService.WriteTitle(headTableToView);
 
             foreach (var tournament in findTournamentToView)
             {
@@ -392,7 +299,7 @@ public class TournamentsManager : ITournamentsManager
             else if (keyFromUser.Key == ConsoleKey.Enter && findTournament.Any())
             {
                 var findTournamentToSelect = findTournament.First(p => findTournament.IndexOf(p) == indexSelectedTournament);
-                ConsoleService.WriteTitle(headTableToview);
+                ConsoleService.WriteTitle(headTableToView);
                 ConsoleService.WriteLineMessage($"{_tournamentsService.GetTournamentDetailView(findTournamentToSelect),107}");
 
                 if (ConsoleService.AnswerYesOrNo("Selected Player"))

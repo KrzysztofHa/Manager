@@ -6,6 +6,7 @@ public class SinglePlayerDuel : BaseEntity
 {
     public int NumberDuelOfTournament { get; set; }
     public int StartNumberInGroup { get; set; }
+    public int StartNumberInTournament { get; set; }
     public DateTime StartGame { get; set; }
     public DateTime EndGame { get; set; }
     public int RaceTo { get; set; }

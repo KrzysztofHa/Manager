@@ -24,7 +24,6 @@ internal class Program
         SparringManager sparringManager = new(actionService, playerManager, playerService);
         TournamentsManager turnamentsManager = new(actionService, playerManager, playerService);
 
-
         var mainMenu = actionService.GetMenuActionsByName("Main");
 
         while (true)
@@ -34,7 +33,15 @@ internal class Program
             {
                 ConsoleService.WriteLineMessage($"{i + 1}. {mainMenu[i].Name}");
             }
-            var operation = ConsoleService.GetIntNumberFromUser("Enter Option");
+            int? operation = null;
+            if (mainMenu.Count < 10)
+            {
+                operation = int.TryParse(ConsoleService.GetKeyFromUser("Enter Option").KeyChar.ToString(), out int parsedOperation) ? parsedOperation : null;
+            }
+            else
+            {
+                operation = ConsoleService.GetIntNumberFromUser("Enter Option");
+            }
             switch (operation)
             {
                 case 1:
@@ -42,22 +49,18 @@ internal class Program
                     break;
 
                 case 2:
-                    //Global Ranking
-                    break;
-
-                case 3:
                     sparringManager.SparringOptionsView();
                     break;
 
-                case 4:
+                case 3:
                     turnamentsManager.TournamentOptionsView();
                     break;
 
-                case 5:
+                case 4:
                     settings.ChangeSettings();
                     break;
 
-                case 6:
+                case 5:
                     operation = null;
                     break;
 

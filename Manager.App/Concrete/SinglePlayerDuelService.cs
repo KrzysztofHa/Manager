@@ -160,6 +160,7 @@ public class SinglePlayerDuelService : BaseService<SinglePlayerDuel>, ISinglePla
         if (duelsToRemove.Any(d => d.IdFirstPlayer == idPlayer || d.IdSecondPlayer == idPlayer))
         {
             duelsToRemove = duelsToRemove.Where(d => d.IdFirstPlayer == idPlayer || d.IdSecondPlayer == idPlayer).ToList();
+
             if (duelsToRemove.Any(d => d.EndGame != DateTime.MinValue && (d.StartGame != DateTime.MinValue && d.Interrupted == DateTime.MinValue)))
             {
                 return;
