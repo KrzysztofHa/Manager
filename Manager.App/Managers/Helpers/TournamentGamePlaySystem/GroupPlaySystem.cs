@@ -732,9 +732,42 @@ public class GroupPlaySystem : PlaySystems
         {
             return;
         }
+        var isSetRound = PlayersToTournamentInPlaySystem.ListPlayersToTournament
+                .All(p => string.IsNullOrEmpty(p.Group));
 
-        _tournamentsManager.StartTournament(Tournament);
-        CreateDuelsToTournament();
+        if (Tournament.NumberOfTables < 1 || isSetRound)
+        {
+            ConsoleService.WriteLineErrorMessage("Set the necessary options");
+        }
+        else
+        {
+            _tournamentsManager.StartTournament(Tournament);
+            CreateDuelsToTournament();
+            StartDuelsInRoundOfTableNumber();
+        }
+    }
+
+    private void StartDuelsInRoundOfTableNumber()
+    {
+        if (Tournament.NumberOfTables == 0)
+        {
+            ChangeNumberOfTable();
+            if (Tournament.NumberOfTables == 0)
+            {
+                return;
+            }
+        }
+        var duelsOfRound = _singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id)
+            .Where(d => d.EndGame == DateTime.MinValue && d.IdFirstPlayer != -1 && d.IdSecondPlayer != -1 && d.IsActive == true)
+            .OrderBy(m => m.StartNumberInGroup).ToList();
+
+        if (duelsOfRound.Count > 0 && !duelsOfRound.Any(d => d.StartGame != DateTime.MinValue))
+        {
+            for (var i = 0; i < Tournament.NumberOfTables; i++)
+            {
+                _singlePlayerDuelManager.StartSingleDuel(duelsOfRound[i]);
+            }
+        }
     }
 
     protected override void CreateDuelsToTournament(string round = "Eliminations")
@@ -743,51 +776,61 @@ public class GroupPlaySystem : PlaySystems
         {
             var listPlayerToBeAssignedToTheDuel = PlayersToTournamentInPlaySystem.ListPlayersToTournament
                 .Where(p => string.IsNullOrEmpty(p.Round)).ToList();
+
             if (listPlayerToBeAssignedToTheDuel.Count == 0)
             {
                 return;
+            }
+            else
+            {
+                for (int i = 0; i < listPlayerToBeAssignedToTheDuel.Count; i++)
+                {
+                    listPlayerToBeAssignedToTheDuel[i].Round = round;
+                }
             }
 
             if (PlayersToTournamentInPlaySystem.ListPlayersToTournament.Any(p => string.IsNullOrEmpty(p.Group)))
             {
                 return;
             }
-
-            var groupingPlayers = PlayersToTournamentInPlaySystem.ListPlayersToTournament.GroupBy(p => p.Group);
-
-            foreach (var group in groupingPlayers)
+            if (!_singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id).Any(d => d.Round == round && d.IdFirstPlayer != -1 && d.IdSecondPlayer != -1))
             {
-                var listPlayersOfGroup = group.ToList();
-                if (group.Any(p => p.Round == round))
+                var groupingPlayers = PlayersToTournamentInPlaySystem.ListPlayersToTournament.GroupBy(p => p.Group);
+
+                foreach (var group in groupingPlayers)
                 {
-                    listPlayersOfGroup = listPlayersOfGroup.OrderBy(p => p.Round).ToList();
+                    var listPlayersOfGroup = group.ToList();
+                    if (group.Any(p => p.Round == round))
+                    {
+                        listPlayersOfGroup = listPlayersOfGroup.OrderBy(p => p.Round).ToList();
+                    }
+
+                    for (int i = 0; i < listPlayersOfGroup.Count; i++)
+                    {
+                        if (!listPlayerToBeAssignedToTheDuel.Contains(listPlayersOfGroup[i]) && listPlayersOfGroup.Any(p => p.Round == round))
+                        {
+                            continue;
+                        }
+
+                        if (string.IsNullOrEmpty(listPlayersOfGroup[i].Round) || !listPlayersOfGroup[i].Round.Equals(round) || listPlayersOfGroup.LastIndexOf(listPlayersOfGroup[i]) == 0)
+                        {
+                            listPlayersOfGroup[i].Round = round;
+                        }
+
+                        for (int j = i + 1; j < listPlayersOfGroup.Count; j++)
+                        {
+                            _singlePlayerDuelManager.NewTournamentSinglePlayerDuel(
+                            Tournament.Id,
+                            listPlayersOfGroup[i].IdPLayer,
+                            listPlayersOfGroup[j].IdPLayer,
+                            round);
+                        }
+                    }
                 }
 
-                for (int i = 0; i < listPlayersOfGroup.Count; i++)
-                {
-                    if (!listPlayerToBeAssignedToTheDuel.Contains(listPlayersOfGroup[i]) && listPlayersOfGroup.Any(p => p.Round == round))
-                    {
-                        continue;
-                    }
-
-                    if (string.IsNullOrEmpty(listPlayersOfGroup[i].Round) || !listPlayersOfGroup[i].Round.Equals(round) || listPlayersOfGroup.LastIndexOf(listPlayersOfGroup[i]) == 0)
-                    {
-                        listPlayersOfGroup[i].Round = round;
-                    }
-
-                    for (int j = i + 1; j < listPlayersOfGroup.Count; j++)
-                    {
-                        _singlePlayerDuelManager.NewTournamentSinglePlayerDuel(
-                        Tournament.Id,
-                        listPlayersOfGroup[i].IdPLayer,
-                        listPlayersOfGroup[j].IdPLayer,
-                        round);
-                    }
-                }
+                PlayersToTournamentInPlaySystem.SavePlayersToTournament();
+                DetermineTheOrderOfDuelsToStartInGroup();
             }
-
-            PlayersToTournamentInPlaySystem.SavePlayersToTournament();
-            DetermineTheOrderOfDuelsToStartInGroup();
         }
         else if (round == "CupSemiFinal")
         {
@@ -1146,24 +1189,20 @@ public class GroupPlaySystem : PlaySystems
         List<MenuAction> actions =
         [
                new MenuAction(1, "Set Number Of Groups", "GroupPlaySystem"),
-               new MenuAction(2, "  <-----  Start Tournament", "GroupPlaySystem")
         ];
 
         if (Tournament.NumberOfGroups == 0)
         {
             actions.First(a => a.Name == "Set Number Of Groups").Name = "  <-----  Set Number Of Groups";
-            actions.Remove(actions.First(a => a.Name == "  <-----  Start Tournament"));
-        }
-
-        if (Tournament.NumberOfPlayer < 8 && actions.Exists(a => a.Name == "  <-----  Start Tournament"))
-        {
-            actions.Remove(actions.First(a => a.Name == "  <-----  Start Tournament"));
         }
 
         if (Tournament.Start != DateTime.MinValue)
         {
-            actions.Remove(actions.First(a => a.Name == "Set Number Of Groups"));
-            actions.Remove(actions.First(a => a.Name == "  <-----  Start Tournament"));
+            if (actions.Exists(a => a.Name == "Set Number Of Groups"))
+            {
+                actions.Remove(actions.First(a => a.Name == "Set Number Of Groups"));
+            }
+
             actions.Add(new MenuAction(3, "View Group Statistics", "GroupPlaySystem"));
         }
         return actions;
@@ -1220,14 +1259,14 @@ public class GroupPlaySystem : PlaySystems
             ConsoleService.WriteTitle("The player who won the final match is the winner of the tournament.");
             ConsoleService.GetKeyFromUser("Press Any Key...");
             CreateDuelsToTournament("CupFinal");
-            StartOrInterruptedTournamentDuel();
+            StartDuelsInRoundOfTableNumber();
         }
         else if (statistiklist.Any(p => p.Item2.Any(s => s.Item1.Round == "CupSemiFinal")))
         {
             ConsoleService.WriteTitle("Start New Round");
             ConsoleService.GetKeyFromUser("Press Any Key...");
             CreateDuelsToTournament("CupSemiFinal");
-            StartOrInterruptedTournamentDuel();
+            StartDuelsInRoundOfTableNumber();
         }
         else if (statistiklist.Any(p => p.Item2.Any(s => s.Item1.Round == "CupQuarterFinal")))
         {
@@ -1240,7 +1279,7 @@ public class GroupPlaySystem : PlaySystems
             "1st place of group D vs 2nd place of group A\n\r");
             ConsoleService.GetKeyFromUser("Press Any Key...");
             CreateDuelsToTournament("CupQuarterFinal");
-            StartOrInterruptedTournamentDuel();
+            StartDuelsInRoundOfTableNumber();
         }
     }
 }

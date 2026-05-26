@@ -118,6 +118,30 @@ public class TwoKOPlaySystem : PlaySystems
 
         _tournamentsManager.StartTournament(Tournament);
         CreateDuelsToTournament();
+        StartDuelsInRoundOfTableNumber();
+    }
+
+    private void StartDuelsInRoundOfTableNumber(string round = "Eliminations")
+    {
+        if (Tournament.Start != DateTime.MinValue && _singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id)
+            .Any(d => d.Round == round && d.StartGame != DateTime.MinValue))
+        {
+            var duelsToStart = _singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id)
+                .Where(d => d.EndGame == DateTime.MinValue && d.Round == round && d.IsActive == true && d.IdFirstPlayer != -1 && d.IdSecondPlayer != -1)
+                .OrderBy(d => d.NumberDuelOfTournament).ToList();
+
+            if (duelsToStart.Count > 0)
+            {
+                for (var i = 0; i < Tournament.NumberOfTables; i++)
+                {
+                    if (i >= duelsToStart.Count)
+                    {
+                        break;
+                    }
+                    _singlePlayerDuelManager.StartSingleDuel(duelsToStart[i]);
+                }
+            }
+        }
     }
 
     protected override void CreateDuelsToTournament(string round = "Eliminations")

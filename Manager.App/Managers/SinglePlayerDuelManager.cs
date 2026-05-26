@@ -245,6 +245,10 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
 
     public List<SinglePlayerDuel>? GetSinglePlayerDuelsByTournamentsOrSparrings(int idTournament = 0)
     {
+        if (!_singlePlayerDuelService.GetAllSinglePlayerDuel().Any(t => t.IdPlayerTournament == idTournament))
+        {
+            NewTournamentSinglePlayerDuel(idTournament, -1, -1);
+        }
         var listSinglesPlayerDuels = new List<SinglePlayerDuel>();
         if (idTournament == 0)
         {

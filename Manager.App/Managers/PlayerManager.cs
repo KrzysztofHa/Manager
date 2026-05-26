@@ -213,14 +213,14 @@ public class PlayerManager : IPlayerManager
         string updateString;
         foreach (var propertyItem in property)
         {
-            var formatAddressToView = $" {playerAddress.Street,-10}".Remove(11) + $" {playerAddress.BuildingNumber,-10}".Remove(11) +
+            var formatAddressToView = $" {playerAddress.Street,-10}".Remove(11) + $" {playerAddress.BuildingNumber,-19}".Remove(20) +
                  $" {playerAddress.City,-10}".Remove(11) + $" {playerAddress.Country,-10}".Remove(11) +
-                    $" {playerAddress.Zip,-5}".Remove(6);
+                    $" {playerAddress.Zip,-6}".Remove(7);
             var formatPlayerDataToView = $"{player.Id,-5}".Remove(5) + $" {player.FirstName,-20}".Remove(21) +
                $" {player.LastName,-20}".Remove(21) + formatAddressToView;
 
             ConsoleService.WriteTitle($"{title}\r\n{"ID",-6}{"First Name",-21}{"Last Name",-21}" +
-                   $"{"Street",-11}{"Building/Apartment",-11}{"City",-11}{"Country",-11}{"zip",-6}");
+                   $"{"Street",-11}{"Building/Apartment  ",-11}{"City",-11}{"Country",-11}{"zip",-6}");
 
             ConsoleService.WriteLineMessage(formatPlayerDataToView);
 

@@ -1,5 +1,4 @@
-﻿using System.Security.Cryptography.X509Certificates;
-using System.Text;
+﻿using System.Text;
 
 namespace Manager.Consol.Concrete;
 
@@ -286,15 +285,9 @@ public static class ConsoleService
     public static ConsoleKeyInfo GetKeyFromUser(string message = " ", string messageBack = " ")
     {
         CheckAndSetSizeWindow();
-        Console.CursorVisible = false;        
         Console.WriteLine("\n\r" + message);
-        var startCursorPosition = Console.GetCursorPosition();
-        Console.CursorVisible = false;
         Console.ForegroundColor = ConsoleColor.Green;
         Console.WriteLine("\n\r" + messageBack);
-        Console.SetCursorPosition(startCursorPosition.Left, startCursorPosition.Top);
-        Console.WriteLine(string.Empty.PadLeft(Console.BufferWidth));
-
         return Console.ReadKey(true);
     }
 
