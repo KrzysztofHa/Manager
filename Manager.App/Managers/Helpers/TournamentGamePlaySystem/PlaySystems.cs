@@ -41,7 +41,7 @@ public abstract class PlaySystems
 
     public abstract string ViewTournamentBracket();
 
-    public abstract string ViewStatisticOfText();
+    public abstract string GetStatisticsOfText();
 
     protected abstract void StartTournament();
 
@@ -70,8 +70,8 @@ public abstract class PlaySystems
         string title = GetType().Name;
 
         title = title.Remove(title.Length - "PlaySystems".Length + 1);
-        var viwBracket = ViewTournamentBracket();
-        if (string.IsNullOrEmpty(viwBracket))
+        var viewBracket = ViewTournamentBracket();
+        if (string.IsNullOrEmpty(viewBracket))
         {
             ConsoleService.WriteLineErrorMessage("The tournament bracket is empty.");
             return;
@@ -171,17 +171,18 @@ public abstract class PlaySystems
         List<MenuAction> listAction =
         [
             new MenuAction(0, "  <-----  Start Tournament", "PlaySystem"),
-            new MenuAction(1, "Start Duel / Interrupt Duel","PlaySystem"),
-            new MenuAction(2, "Update Duel Result", "PlaySystem"),
-            new MenuAction(3, "Tournament View", "PlaySystem"),
-            new MenuAction(4, "All Duels", "PlaySystem"),
-            new MenuAction(5, "Chenge Race To", "PlaySystem"),
-            new MenuAction(6, "Change Number Of Table", "PlaySystem"),
-            new MenuAction(7, "Add Players", "PlaySystem"),
-            new MenuAction(8, "Delete Player", "PlaySystem"),
-            new MenuAction(9, "Edit Tournament Bracket", "PlaySystem"),
-            new MenuAction(10, "Random Selection Of Players", "PlaySystem"),
-            new MenuAction(11, "Players List", "PlaySystem")
+            new MenuAction(1, "Start Duel","PlaySystem"),
+            new MenuAction(2, "Interrupt Duel","PlaySystem"),
+            new MenuAction(3, "Update Duel Result", "PlaySystem"),
+            new MenuAction(4, "Tournament View", "PlaySystem"),
+            new MenuAction(5, "All Duels", "PlaySystem"),
+            new MenuAction(6, "Chenge Race To", "PlaySystem"),
+            new MenuAction(7, "Change Number Of Table", "PlaySystem"),
+            new MenuAction(8, "Add Players", "PlaySystem"),
+            new MenuAction(9, "Delete Player", "PlaySystem"),
+            new MenuAction(10, "Edit Tournament Bracket", "PlaySystem"),
+            new MenuAction(11, "Random Selection Of Players", "PlaySystem"),
+            new MenuAction(12, "Players List", "PlaySystem")
         ];
 
         if (Tournament.Start == DateTime.MinValue)
@@ -193,7 +194,7 @@ public abstract class PlaySystems
                 listAction.First(a => a.Name == "Add Players").Name = " <----------  Add More Players";
             }
         }
-        if ((Tournament.NumberOfPlayer < 8 && Tournament.NumberOfTables < 1) && listAction.Exists(a => a.Name == "  <-----  Start Tournament"))
+        if ((Tournament.NumberOfPlayer < 8 || Tournament.NumberOfTables < 1) && listAction.Exists(a => a.Name == "  <-----  Start Tournament"))
         {
             listAction.Remove(listAction.First(a => a.Name == "  <-----  Start Tournament"));
         }
@@ -205,13 +206,20 @@ public abstract class PlaySystems
 
         if (Tournament.Start != DateTime.MinValue)
         {
+            if (listAction.Exists(a => a.Name == "Change Number Of Table"))
+            {
+                listAction.Remove(listAction.First(a => a.Name == "Change Number Of Table"));
+            }
+            if (listAction.Exists(a => a.Name == "  <-----  Start Tournament"))
+            {
+                listAction.Remove(listAction.First(a => a.Name == "  <-----  Start Tournament"));
+            }
+
             listAction.Remove(listAction.First(a => a.Name == "Random Selection Of Players"));
             listAction.Remove(listAction.First(a => a.Name == "Chenge Race To"));
-            listAction.Remove(listAction.First(a => a.Name == "Change Number Of Table"));
             listAction.Remove(listAction.First(a => a.Name == "Add Players"));
             listAction.Remove(listAction.First(a => a.Name == "Delete Player"));
             listAction.Remove(listAction.First(a => a.Name == "Edit Tournament Bracket"));
-            listAction.Remove(listAction.First(a => a.Name == "  <-----  Start Tournament"));
 
             if (!_singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id).Any(d => d.StartGame != DateTime.MinValue))
             {
@@ -219,7 +227,8 @@ public abstract class PlaySystems
             }
             if (Tournament.End != DateTime.MinValue)
             {
-                listAction.Remove(listAction.First(a => a.Name == "Start Duel / Interrupt Duel"));
+                listAction.Remove(listAction.First(a => a.Name == "Start Duel"));
+                listAction.Remove(listAction.First(a => a.Name == "Interrupt Duel"));
                 listAction.Remove(listAction.First(a => a.Name == "Update Duel Result"));
                 listAction.Remove(listAction.First(a => a.Name == "Tournament View"));
             }
@@ -241,20 +250,24 @@ public abstract class PlaySystems
                     break;
 
                 case 1:
-                    StartOrInterruptedTournamentDuel();
+                    StartTournamentDuel();
                     break;
 
                 case 2:
-                    UpdateDuelResult();
+                    InterruptionTournamentDuel();
                     break;
 
                 case 3:
+                    UpdateDuelResult();
+                    break;
+
+                case 4:
                     ConsoleService.WriteTitle($"{$"Tournament Bracket {Tournament.Name}",72}");
                     ConsoleService.WriteLineMessage(ViewTournamentBracket());
                     ConsoleService.GetKeyFromUser("Press Any Key");
                     break;
 
-                case 4:
+                case 5:
                     var allDuelOfTournament = _singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id);
                     var listAllDuelsInText = _singlePlayerDuelManager.ConvertListSinglePlayerDuelsToText(allDuelOfTournament);
                     ConsoleService.WriteTitle($"All Duels Of Tournament {Tournament.Name}");
@@ -262,31 +275,31 @@ public abstract class PlaySystems
                     ConsoleService.GetKeyFromUser("Press Any Key...");
                     break;
 
-                case 5:
+                case 6:
                     ChangeRaceTo();
                     break;
 
-                case 6:
+                case 7:
                     ChangeNumberOfTable();
                     break;
 
-                case 7:
+                case 8:
                     AddPlayers();
                     break;
 
-                case 8:
+                case 9:
                     RemovePlayerInTournament();
                     break;
 
-                case 9:
+                case 10:
                     EditBracket();
                     break;
 
-                case 10:
+                case 11:
                     RandomSelectionOfPlayers();
                     break;
 
-                case 11:
+                case 12:
                     PlayersToTournamentInPlaySystem.ViewListPlayersToTournament();
                     ConsoleService.GetKeyFromUser();
                     break;
@@ -426,7 +439,7 @@ public abstract class PlaySystems
         {
             Tournament.NumberOfTables = (int)numberOfTable;
             _tournamentsManager.UpdateTournament(Tournament);
-            StartOrInterruptedTournamentDuel();
+            AutomaticStartOrInterruptionTournamentDuel();
         }
     }
 
@@ -506,7 +519,7 @@ public abstract class PlaySystems
             if ((duelToUpdate.ScoreFirstPlayer == duelToUpdate.RaceTo || duelToUpdate.ScoreSecondPlayer == duelToUpdate.RaceTo) && duelToUpdate.ScoreSecondPlayer != duelToUpdate.ScoreFirstPlayer)
             {
                 _singlePlayerDuelManager.EndSinglePlayerDuel(duelToUpdate);
-                StartOrInterruptedTournamentDuel();
+                AutomaticStartOrInterruptionTournamentDuel();
             }
             else if (duelToUpdate.ScoreSecondPlayer == duelToUpdate.ScoreFirstPlayer && duelToUpdate.ScoreFirstPlayer == duelToUpdate.RaceTo)
             {
@@ -516,63 +529,37 @@ public abstract class PlaySystems
         }
     }
 
-    public void StartOrInterruptedTournamentDuel()
+    public void StartTournamentDuel()
     {
-        if (Tournament.NumberOfTables == 0)
-        {
-            ChangeNumberOfTable();
-            if (Tournament.NumberOfTables == 0)
-            {
-                return;
-            }
-        }
-
         var duelsOfTournament = _singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id)
             .Where(d => d.IdFirstPlayer != -1 && d.IdSecondPlayer != -1).ToList();
+        var round = duelsOfTournament.Count > 0 ? duelsOfTournament.Last().Round : string.Empty;
         var startedDuels = duelsOfTournament
-            .Where(d => d.StartGame != DateTime.MinValue && d.Interrupted == DateTime.MinValue && d.EndGame == DateTime.MinValue).ToList();
-        var completedDuelsOfRound = duelsOfTournament
-            .Where(d => d.EndGame != DateTime.MinValue && d.Round == startedDuels.FirstOrDefault()?.Round).ToList();
-        var duelsOfRound = duelsOfTournament.Where(d => d.Round == startedDuels.FirstOrDefault()?.Round).ToList();
+            .Where(d => d.StartGame != DateTime.MinValue && d.Interrupted == DateTime.MinValue && d.EndGame == DateTime.MinValue && d.Round == round).ToList();
 
-        if (duelsOfTournament.Any(d => d.StartGame != DateTime.MinValue))
+        if (startedDuels.Count < Tournament.NumberOfTables)
         {
-            if (duelsOfRound.Count - completedDuelsOfRound.Count > 0)
+            var duelsToStart = duelsOfTournament
+                .Where(m => m.StartGame == DateTime.MinValue || (m.StartGame != DateTime.MinValue && m.Interrupted != DateTime.MinValue))
+                        .ToList();
+
+            if (duelsToStart.Any())
             {
-                if (startedDuels.Count == Tournament.NumberOfTables)
+                foreach (var started in startedDuels)
                 {
-                    var duelToStart = _singlePlayerDuelManager.SelectDuelToStartByTournament(Tournament.Id, "Select Duel To Start");
-
-                    if (duelToStart != null)
-                    {
-                        var duelToIntrrypted = _singlePlayerDuelManager.SelectStartedDuelByTournament(Tournament.Id, "Select Duel To Stop");
-                        if (duelToIntrrypted != null)
-                        {
-                            duelToStart.TableNumber = duelToIntrrypted.TableNumber;
-                            duelToIntrrypted.TableNumber = 0;
-                            _singlePlayerDuelManager.InterruptDuel(duelToIntrrypted);
-                            _singlePlayerDuelManager.StartSingleDuel(duelToStart);
-                            _singlePlayerDuelManager.UpdateSinglePlayerDuel(duelToIntrrypted);
-                            _singlePlayerDuelManager.UpdateSinglePlayerDuel(duelToStart);
-                        }
-                    }
+                    duelsToStart = duelsToStart
+                        .Where(
+                        d => d.IdFirstPlayer != started.IdFirstPlayer
+                        && d.IdFirstPlayer != started.IdSecondPlayer
+                        && d.IdSecondPlayer != started.IdFirstPlayer
+                        && d.IdSecondPlayer != started.IdSecondPlayer).ToList();
                 }
-                else if (startedDuels.Count < Tournament.NumberOfTables)
+                if (duelsToStart.Any())
                 {
-                    var duelsToStart = duelsOfTournament.Except(startedDuels).Except(completedDuelsOfRound).OrderBy(d => d.StartNumberInTournament).ToList();
+                    var selectDuel = _singlePlayerDuelManager.SelectDuel(duelsToStart);
 
-                    if (duelsToStart.Any())
+                    if (selectDuel != null)
                     {
-                        foreach (var started in startedDuels)
-                        {
-                            duelsToStart = duelsToStart
-                                .Where(
-                                d => d.IdFirstPlayer != started.IdFirstPlayer
-                                && d.IdFirstPlayer != started.IdSecondPlayer
-                                && d.IdSecondPlayer != started.IdFirstPlayer
-                                && d.IdSecondPlayer != started.IdSecondPlayer).ToList();
-                        }
-
                         List<int> freeTables = new List<int>();
 
                         for (int i = 0; i < Tournament.NumberOfTables; i++)
@@ -587,18 +574,122 @@ public abstract class PlaySystems
                             }
                         }
 
-                        var numberDuelsTostart = freeTables.Count;
-
-                        if (freeTables.Count > duelsToStart.Count)
+                        if (freeTables.Count > 0)
                         {
-                            numberDuelsTostart = duelsToStart.Count;
+                            selectDuel.TableNumber = freeTables.First();
+                            _singlePlayerDuelManager.UpdateSinglePlayerDuel(selectDuel);
+                            _singlePlayerDuelManager.StartSingleDuel(selectDuel);
+                        }
+                    }
+                }
+                else
+                {
+                    ConsoleService.WriteTitle("");
+                    ConsoleService.WriteLineErrorMessage("No duels to start.");
+                    ConsoleService.GetKeyFromUser("Press any key...");
+                }
+            }
+            else
+            {
+                ConsoleService.WriteTitle("");
+                ConsoleService.WriteLineErrorMessage("No duels to start.");
+                ConsoleService.GetKeyFromUser("Press any key...");
+            }
+        }
+        else
+        {
+            ConsoleService.WriteTitle("");
+            ConsoleService.WriteLineErrorMessage("You cannot start a new duel.");
+            ConsoleService.GetKeyFromUser("No free tables. Press any key...");
+        }
+    }
+
+    public void InterruptionTournamentDuel()
+    {
+        var startedDuels = _singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id)
+            .Where(d => d.StartGame != DateTime.MinValue && d.Interrupted == DateTime.MinValue && d.EndGame == DateTime.MinValue).ToList();
+        if (startedDuels.Count > 0)
+        {
+            var duelToIntrrypted = _singlePlayerDuelManager.SelectStartedDuelByTournament(Tournament.Id, "Select Duel To Stop");
+            if (duelToIntrrypted != null)
+            {
+                duelToIntrrypted.TableNumber = 0;
+                _singlePlayerDuelManager.UpdateSinglePlayerDuel(duelToIntrrypted);
+                _singlePlayerDuelManager.InterruptDuel(duelToIntrrypted);
+            }
+        }
+    }
+
+    public void AutomaticStartOrInterruptionTournamentDuel()
+    {
+        if (Tournament.NumberOfTables == 0)
+        {
+            ChangeNumberOfTable();
+            if (Tournament.NumberOfTables == 0)
+            {
+                return;
+            }
+        }
+
+        var duelsOfTournament = _singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id)
+            .Where(d => d.IdFirstPlayer != -1 && d.IdSecondPlayer != -1).ToList();
+        var round = duelsOfTournament.Count > 0 ? duelsOfTournament.Last().Round : string.Empty;
+        var startedDuels = duelsOfTournament
+            .Where(d => d.StartGame != DateTime.MinValue && d.Interrupted == DateTime.MinValue && d.EndGame == DateTime.MinValue && d.Round == round).ToList();
+        var completedDuelsOfRound = duelsOfTournament
+            .Where(d => d.EndGame != DateTime.MinValue && d.Round == round).ToList();
+        var duelsOfRound = duelsOfTournament.Where(d => d.Round == round).ToList();
+
+        if (duelsOfTournament.Any(d => d.StartGame != DateTime.MinValue))
+        {
+            if (duelsOfRound.Count - completedDuelsOfRound.Count > 0)
+            {
+                if (startedDuels.Count < Tournament.NumberOfTables)
+                {
+                    var duelsToStart = duelsOfTournament.Where(m => m.StartGame == DateTime.MinValue || (m.StartGame != DateTime.MinValue && m.Interrupted != DateTime.MinValue))
+                        .Except(startedDuels).Except(completedDuelsOfRound).OrderBy(d => d.StartNumberInTournament).ToList();
+
+                    if (duelsToStart.Any())
+                    {
+                        foreach (var started in startedDuels)
+                        {
+                            duelsToStart = duelsToStart
+                                .Where(
+                                d => d.IdFirstPlayer != started.IdFirstPlayer
+                                && d.IdFirstPlayer != started.IdSecondPlayer
+                                && d.IdSecondPlayer != started.IdFirstPlayer
+                                && d.IdSecondPlayer != started.IdSecondPlayer).ToList();
                         }
 
-                        for (int i = 0; i < numberDuelsTostart; i++)
+                        if (duelsToStart.Any())
                         {
-                            duelsToStart[i].TableNumber = freeTables[i];
-                            _singlePlayerDuelManager.UpdateSinglePlayerDuel(duelsToStart[i]);
-                            _singlePlayerDuelManager.StartSingleDuel(duelsToStart[i]);
+                            List<int> freeTables = new List<int>();
+
+                            for (int i = 0; i < Tournament.NumberOfTables; i++)
+                            {
+                                if (startedDuels.Any(d => d.TableNumber == i + 1))
+                                {
+                                    continue;
+                                }
+                                else
+                                {
+                                    freeTables.Add(i + 1);
+                                }
+                            }
+
+                            var numberDuelsTostart = freeTables.Count;
+
+                            if (freeTables.Count > duelsToStart.Count)
+                            {
+                                numberDuelsTostart = duelsToStart.Count;
+                            }
+
+                            for (int i = 0; i < numberDuelsTostart; i++)
+                            {
+                                duelsToStart[i].TableNumber = freeTables[i];
+                                _singlePlayerDuelManager.UpdateSinglePlayerDuel(duelsToStart[i]);
+                                _singlePlayerDuelManager.StartSingleDuel(duelsToStart[i]);
+                            }
                         }
                     }
                 }
@@ -629,8 +720,7 @@ public abstract class PlaySystems
                 }
             }
         }
-
-        if (duelsOfTournament.All(d => d.EndGame != DateTime.MinValue) && duelsOfTournament.Count > 1)
+        if (duelsOfRound.Count > 0 && duelsOfRound.All(d => d.EndGame != DateTime.MinValue))
         {
             StartNextRound();
         }

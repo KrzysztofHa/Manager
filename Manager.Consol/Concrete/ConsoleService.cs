@@ -224,7 +224,7 @@ public static class ConsoleService
         CheckAndSetSizeWindow();
         Console.Clear();
         Console.ForegroundColor = ConsoleColor.Green;
-        Console.WriteLine($"{title}\n");
+        Console.WriteLine($"{title}");
         Console.ForegroundColor = ConsoleColor.White;
     }
 
@@ -285,7 +285,7 @@ public static class ConsoleService
     public static ConsoleKeyInfo GetKeyFromUser(string message = " ", string messageBack = " ")
     {
         CheckAndSetSizeWindow();
-        Console.WriteLine("\n\r" + message);
+        Console.WriteLine(message);
         Console.ForegroundColor = ConsoleColor.Green;
         Console.WriteLine("\n\r" + messageBack);
         return Console.ReadKey(true);

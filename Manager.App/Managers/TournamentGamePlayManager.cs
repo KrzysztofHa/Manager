@@ -66,9 +66,14 @@ public class TournamentGamePlayManager
             var round = _singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id).LastOrDefault();
             string message = string.Empty;
             string messageBack = string.Empty;
+            var numberOfGroups = string.Empty;
+            if (Tournament.NumberOfGroups!=0)
+            {
+                numberOfGroups = $" | Number Of Groups: {Tournament.NumberOfGroups}";
+            }
             string title = $"Tournaments {Tournament.Name} | Game System: {Tournament.GamePlaySystem} | Round: {round.Round}\n\r" +
-                $"Number of PLayers: {Tournament.NumberOfPlayer} | Number Of Groups: {Tournament.NumberOfGroups} | " +
-                $"Type Name Of Game: {firstDuel.TypeNameOfGame} | " +
+                $"Number of PLayers: {Tournament.NumberOfPlayer}" +
+                $" | Type Name Of Game: {firstDuel.TypeNameOfGame} | {numberOfGroups}" +
                 $"Race To: {firstDuel.RaceTo} | Nr. of Tabes {Tournament.NumberOfTables}";
 
             for (int i = 0; i < optionTournamentGamePlayMenuList.Count; i++)
@@ -101,7 +106,7 @@ public class TournamentGamePlayManager
                 else if (_singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id)
                     .All(d => d.EndGame != DateTime.MinValue && d.Round == "Eliminations"))
                 {
-                    message = playSystem.ViewStatisticOfText();
+                    message = playSystem.GetStatisticsOfText();
                     ConsoleService.GetKeyFromUser("Press any key to continue...");
                 }
                 else

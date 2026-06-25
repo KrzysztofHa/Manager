@@ -24,8 +24,6 @@ namespace Manager.App.Abstract
 
         SinglePlayerDuel? SelectStartedDuelByTournament(int idTournament, string title = "Select Started Duels", string backText = " ");
 
-        SinglePlayerDuel? SelectDuelToStartByTournament(int idTournament, string title = "Select Interrupted Duels", string backText = " ");
-
         public SinglePlayerDuel? SelectInterruptedDuelBySparring(string title = "Sparring", string backText = " ");
 
         SinglePlayerDuel? SelectDuel(List<SinglePlayerDuel> singlePlayerDuels, string title = " ", string backText = " ");

@@ -6,6 +6,7 @@ using Manager.Domain.Entity;
 
 using Manager.Helpers;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Manager.App.Managers;
 
@@ -245,7 +246,7 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
 
     public List<SinglePlayerDuel>? GetSinglePlayerDuelsByTournamentsOrSparrings(int idTournament = 0)
     {
-        if (!_singlePlayerDuelService.GetAllSinglePlayerDuel().Any(t => t.IdPlayerTournament == idTournament))
+        if (!_singlePlayerDuelService.GetAllSinglePlayerDuel().Any(t => t.IdPlayerTournament == idTournament) && idTournament != 0)
         {
             NewTournamentSinglePlayerDuel(idTournament, -1, -1);
         }
@@ -281,7 +282,7 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
             FirstPlayer = $"{player.FirstName} {player.LastName}",
             SecondPleyer = duel.IdFirstPlayer != -1 && duel.IdSecondPlayer == -1 ? "Free Win" : listPlayers.Where(p => p.Id == duel.IdSecondPlayer)
             .Select(n => new { FulNamen = n.FirstName + " " + n.LastName }).First().FulNamen,
-            duel.StartNumberInTournament,
+            duel.NumberDuelOfTournament,
             duel.TypeNameOfGame,
             duel.RaceTo,
             duel.CreatedDateTime,
@@ -291,18 +292,24 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
             duel.TableNumber,
 
             duel.Group,
-            StartGame = duel.StartGame.Equals(DateTime.MinValue) ? "Waiting" : duel.StartGame.ToShortTimeString(),
+            StartGame = duel.StartGame.Equals(DateTime.MinValue) ? "Waiting" : duel.StartGame.ToString(),
             Inrerrupted = !duel.Interrupted.Equals(DateTime.MinValue) ? "Interrtupted" : "In Progress",
-            EndGame = duel.EndGame.Equals(DateTime.MinValue) ? "----" : duel.EndGame.ToShortTimeString(),
+            EndGame = duel.EndGame.Equals(DateTime.MinValue) ? "----" : duel.EndGame.ToString(),
         }).OrderBy(d => d.CreatedDateTime);
 
         string FormatToTextDuelsView = string.Empty;
+        string group = string.Empty;
+
         foreach (var duelView in tally)
         {
+            if (!string.IsNullOrEmpty(duelView.Group))
+            {
+                group = "Group: { duelView.Group}";
+            }
             var endGame = duelView.StartGame.Equals("Waiting") ? duelView.EndGame : duelView.Inrerrupted;
             endGame = !duelView.StartGame.Equals("Waiting") && !duelView.EndGame.Equals("----") ? duelView.EndGame : endGame;
 
-            FormatToTextDuelsView += $"\r\nMatch: {duelView.StartNumberInTournament} Group: {duelView.Group} Type Game: {duelView.TypeNameOfGame}" +
+            FormatToTextDuelsView += $"\r\nMatch: {duelView.NumberDuelOfTournament} {group} Type Game: {duelView.TypeNameOfGame}" +
             $" Race To: {duelView.RaceTo} Table: {duelView.TableNumber} " +
             $"Start Game: {duelView.StartGame} End Game: {endGame}" +
             $"\r\n{duelView.FirstPlayer,45} : {duelView.ScoreFirstPlayer}" +
@@ -362,15 +369,6 @@ public class SinglePlayerDuelManager : ISinglePlayerDuelManager
           .Where(d => d.Interrupted == DateTime.MinValue && !d.StartGame.Equals(DateTime.MinValue) && d.EndGame == DateTime.MinValue
           && d.IdPlayerTournament == idTournament).ToList();
         return SelectDuel(foundDuels, title, backText);
-    }
-
-    public SinglePlayerDuel? SelectDuelToStartByTournament(int idTournament, string title = "Select Interrupted Duels", string backText = " ")
-    {
-        List<SinglePlayerDuel> foundDuels = _singlePlayerDuelService.GetAllSinglePlayerDuel()
-            .Where(d => d.IdPlayerTournament == idTournament
-            && d.StartGame != DateTime.MinValue && d.Interrupted == DateTime.MinValue || (d.IdFirstPlayer == -1 && d.IdSecondPlayer == -1)).ToList();
-
-        return SelectDuel(_singlePlayerDuelService.GetAllSinglePlayerDuel().Where(d => d.IdPlayerTournament == idTournament).Except(foundDuels).ToList(), title, backText);
     }
 
     public void SearchDuel()

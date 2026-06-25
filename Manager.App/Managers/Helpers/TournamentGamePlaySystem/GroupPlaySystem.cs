@@ -465,14 +465,14 @@ public class GroupPlaySystem : PlaySystems
             var playersToKnockout = 8;
             var playersToKnockoutOfGroup = 8 / Tournament.NumberOfGroups;
 
-            var playerToKnockout = statisticsList.SelectMany(g => g.Item2.Where(p => p.Item1.GroupPosition <= 2)).ToList();
+            var playerToKnockout = statisticsList.SelectMany(g => g.Item2.Where(p => p.Item1.GroupPosition <= playersToKnockoutOfGroup)).ToList();
 
             foreach (var group in statisticsList)
             {
                 var positionOfCupAfterGroup = 5;
                 for (int i = 1; i <= group.Item2.Count; i++)
                 {
-                    if (i <= 2)
+                    if (i <= playersToKnockout)
                     {
                         group.Item2.ElementAt(i - 1).Item1.Round = "CupQuarterFinal";
                         group.Item2.ElementAt(i - 1).Item1.CupPosition = positionOfCupAfterGroup;
@@ -572,7 +572,7 @@ public class GroupPlaySystem : PlaySystems
         }
     }
 
-    public override string ViewStatisticOfText()
+    public override string GetStatisticsOfText()
     {
         var formatText = string.Empty;
         var statisticList = GetStatistic();
@@ -738,16 +738,15 @@ public class GroupPlaySystem : PlaySystems
         if (Tournament.NumberOfTables < 1 || isSetRound)
         {
             ConsoleService.WriteLineErrorMessage("Set the necessary options");
+            return;
         }
-        else
-        {
-            _tournamentsManager.StartTournament(Tournament);
-            CreateDuelsToTournament();
-            StartDuelsInRoundOfTableNumber();
-        }
+
+        _tournamentsManager.StartTournament(Tournament);
+        CreateDuelsToTournament();
+        StartDuelsInRoundOfTableNumber();
     }
 
-    private void StartDuelsInRoundOfTableNumber()
+    private void StartDuelsInRoundOfTableNumber(string round = "Eliminations")
     {
         if (Tournament.NumberOfTables == 0)
         {
@@ -758,14 +757,19 @@ public class GroupPlaySystem : PlaySystems
             }
         }
         var duelsOfRound = _singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id)
-            .Where(d => d.EndGame == DateTime.MinValue && d.IdFirstPlayer != -1 && d.IdSecondPlayer != -1 && d.IsActive == true)
-            .OrderBy(m => m.StartNumberInGroup).ToList();
+            .Where(d => d.EndGame == DateTime.MinValue && d.IdFirstPlayer != -1 && d.IdSecondPlayer != -1 && d.IsActive == true && d.Round == round)
+            .OrderBy(m => m.StartNumberInTournament).ToList();
 
-        if (duelsOfRound.Count > 0 && !duelsOfRound.Any(d => d.StartGame != DateTime.MinValue))
+        if (duelsOfRound.Count > 0 && duelsOfRound.All(d => d.StartGame == DateTime.MinValue))
         {
             for (var i = 0; i < Tournament.NumberOfTables; i++)
             {
-                _singlePlayerDuelManager.StartSingleDuel(duelsOfRound[i]);
+                if (i < duelsOfRound.Count)
+                {
+                    duelsOfRound[i].TableNumber = i + 1;
+                    _singlePlayerDuelManager.UpdateSinglePlayerDuel(duelsOfRound[i]);
+                    _singlePlayerDuelManager.StartSingleDuel(duelsOfRound[i]);
+                }
             }
         }
     }
@@ -1230,7 +1234,7 @@ public class GroupPlaySystem : PlaySystems
 
             case 3:
                 ConsoleService.WriteTitle($"Tournament {Tournament.Name}");
-                ConsoleService.WriteMessage(ViewStatisticOfText());
+                ConsoleService.WriteMessage(GetStatisticsOfText());
                 ConsoleService.GetKeyFromUser("Press any key ...");
                 break;
 
@@ -1259,14 +1263,14 @@ public class GroupPlaySystem : PlaySystems
             ConsoleService.WriteTitle("The player who won the final match is the winner of the tournament.");
             ConsoleService.GetKeyFromUser("Press Any Key...");
             CreateDuelsToTournament("CupFinal");
-            StartDuelsInRoundOfTableNumber();
+            StartDuelsInRoundOfTableNumber("CupFinal");
         }
         else if (statistiklist.Any(p => p.Item2.Any(s => s.Item1.Round == "CupSemiFinal")))
         {
             ConsoleService.WriteTitle("Start New Round");
             ConsoleService.GetKeyFromUser("Press Any Key...");
             CreateDuelsToTournament("CupSemiFinal");
-            StartDuelsInRoundOfTableNumber();
+            StartDuelsInRoundOfTableNumber("CupSemiFinal");
         }
         else if (statistiklist.Any(p => p.Item2.Any(s => s.Item1.Round == "CupQuarterFinal")))
         {
@@ -1279,7 +1283,7 @@ public class GroupPlaySystem : PlaySystems
             "1st place of group D vs 2nd place of group A\n\r");
             ConsoleService.GetKeyFromUser("Press Any Key...");
             CreateDuelsToTournament("CupQuarterFinal");
-            StartDuelsInRoundOfTableNumber();
+            StartDuelsInRoundOfTableNumber("CupQuarterFinal");
         }
     }
 }
