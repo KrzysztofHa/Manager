@@ -7,6 +7,8 @@ namespace Manager.App.Managers.Helpers.GamePlaySystem;
 
 public class TwoKOPlaySystem : PlaySystems
 {
+    // This class represents a tournament play system that follows a two-knockout (2KO) format.
+    // It inherits from the PlaySystems base class and provides specific implementations for adding players, moving players, starting the tournament, creating duels, and viewing the tournament bracket.
     public TwoKOPlaySystem(Tournament tournament, ITournamentsManager tournamentsManager, ISinglePlayerDuelManager singlePlayerDuelManager, PlayersToTournament playersToTournament, IPlayerService playerService, IPlayerManager playerManager) : base(tournament, tournamentsManager, singlePlayerDuelManager, playersToTournament, playerService, playerManager)
     {
     }
@@ -27,6 +29,12 @@ public class TwoKOPlaySystem : PlaySystems
 
     private void AssignPlayersToGroupAndPosition()
     {
+        // This method assigns players to groups and positions within the tournament.
+        // It first retrieves a list of players who are currently in the tournament and orders them by their position.
+        // It then iterates through the list of players and assigns them to groups (A, B, C, etc.) and positions within those groups.
+        // The group is determined by the index of the player in the list, and the position within the group is incremented for each player.
+        // Finally, it saves the updated player information to the tournament.
+
         var listPlayersToTournament = PlayersToTournamentInPlaySystem.ListPlayersToTournament.OrderBy(p => p.Position).ToList();
         char group = (char)65;
         var positionInGroup = 1;
@@ -48,6 +56,12 @@ public class TwoKOPlaySystem : PlaySystems
 
     protected override void MovePlayer()
     {
+        // This method allows the user to move a player to a new position in the tournament bracket.
+        // It first retrieves a list of players who are currently in the tournament and have not yet completed their duels or matches.
+        // It then prompts the user to select a player to move and enter a new position for that player.
+        // If the new position is valid, it swaps the positions of the selected player and the player currently in that position.
+        // Finally, it updates the player information in the tournament to reflect the new positions.
+
         List<Player> players = new List<Player>();
         foreach (var playerToTournament in PlayersToTournamentInPlaySystem.ListPlayersToTournament)
         {
@@ -96,6 +110,9 @@ public class TwoKOPlaySystem : PlaySystems
 
     protected override void StartTournament()
     {
+        // This method starts the tournament if there are enough players and the tournament has not already ended.
+        // It first checks if the number of players in the tournament is less than 8 or if the tournament has already ended. If either condition is true, it returns without starting the tournament.
+        // If the tournament can be started, it calls the StartTournament method of the tournaments manager to start the tournament.
         if (Tournament.NumberOfPlayer < 8 || Tournament.End != DateTime.MinValue)
         {
             return;
@@ -108,6 +125,12 @@ public class TwoKOPlaySystem : PlaySystems
 
     private void StartDuelsInRoundOfTableNumber(string round = "Eliminations")
     {
+        // This method starts the duels in the current round of the tournament based on the number of tables available.
+        // It retrieves all the duels in the tournament and checks if there are any duels that have not yet started.
+        // If there are duels that have not started, it starts them based on the number of tables available in the tournament.
+        // The method assigns table numbers to the duels and updates their start time.
+        // It also handles the case where there are duels with a free win (i.e., one player has no opponent) and starts those duels as well.
+
         var allDuels = _singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id)
             .Where(d => d.IdFirstPlayer != -1 && d.IdSecondPlayer != -1).ToList();
 
@@ -249,6 +272,13 @@ public class TwoKOPlaySystem : PlaySystems
 
     private void CreateDuelsKnockOutRound(string round)
     {
+        // This method creates duels for the knockout rounds of the tournament based on the current round and the players who have qualified for that round.
+        // It first retrieves the list of players who have qualified for the knockout round and orders them by their position.
+        // It then creates new duels for the players in pairs, assigning them to the appropriate round and updating their positions and knockout status.
+        // The method handles the "Cup Quarter Final", "Cup Semi Final", and "Cup Final" rounds, creating the necessary duels for each round based on the number of qualified players.
+        // It also updates the player information in the tournament to reflect their progress in the knockout rounds.
+        // Finally, it saves the updated player information to the tournament.
+
         if (round == "Cup Quarter Final")
         {
             var listPlayers = PlayersToTournamentInPlaySystem.GetPlayersToTournament();
@@ -538,7 +568,7 @@ public class TwoKOPlaySystem : PlaySystems
         int numberItemOfLine = 6;
         int item = 0;
         var listAllDuels = _singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id).Where(d => d.IdFirstPlayer != -1 && d.IdSecondPlayer != -1 || d.IdFirstPlayer != -1 && d.IdSecondPlayer == -1).ToList();
-        var duelsGroupedByRound = listAllDuels.GroupBy(d => d.Round).OrderBy(g => g.Key);
+        var duelsGroupedByRound = listAllDuels.Where(m => m.Round.Contains("Eliminations")).GroupBy(d => d.Round).OrderByDescending(g => g.Key);
 
         if (PlayersToTournamentInPlaySystem.ListPlayersToTournament.Count > 0 && !listAllDuels.Any())
         {
@@ -572,10 +602,77 @@ public class TwoKOPlaySystem : PlaySystems
         }
         else
         {
-            numberItemOfLine = 5;
-            var carr = new char[25].ToString();
-            var len = carr.Length;
             formatText += $"\n\rTournament Bracket 2KO System\n\r\n\r";
+            var listPlayerToTournamentSortedByPosition = PlayersToTournamentInPlaySystem.ListPlayersToTournament
+           .OrderBy(p => p.Position)
+           .ToList();
+            var formatTextUp = string.Empty;
+            var formatTextDown = string.Empty;
+
+            if (listPlayerToTournamentSortedByPosition.Any(p => p.Round == "Cup Quarter Final"))
+            {
+                var groupingByRound = listPlayerToTournamentSortedByPosition
+                    .GroupBy(p => p.Round)
+                    .ToList();
+                var allDuelsInCup = _singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id)
+                    .Where(d => d.Round == "Cup Quarter Final" || d.Round == "Cup Semi Final" || d.Round == "Cup Final").ToList();
+
+                if (listPlayerToTournamentSortedByPosition.Any(d => d.Round == "Winner"))
+                {
+                    formatText += "\n\r";
+                    formatText += $"{$"Winner: {listPlayerToTournamentSortedByPosition
+                        .FirstOrDefault(p => p.Round == "Winner").FirstName} {listPlayerToTournamentSortedByPosition
+                        .FirstOrDefault(p => p.Round == "Winner").LastName}\n\r",68}";
+                    formatText += $"{"---------------",67}\n\r\n\r";
+                }
+                if (allDuelsInCup.Any(d => d.Round == "Cup Final"))
+                {
+                    formatText += $"{"Cup Final",63}\n\r";
+                    foreach (var duel in allDuelsInCup.Where(d => d.Round == "Cup Final"))
+                    {
+                        var firstPlayer = PlayersToTournamentInPlaySystem.ListPlayersToTournament.FirstOrDefault(p => p.IdPLayer == duel.IdFirstPlayer);
+                        var secondPlayer = PlayersToTournamentInPlaySystem.ListPlayersToTournament.FirstOrDefault(p => p.IdPLayer == duel.IdSecondPlayer);
+                        formatText += $"{$""}" + "\n\r";
+                        formatText += $"{$" {firstPlayer.FirstName} {firstPlayer.LastName}: {duel.ScoreFirstPlayer}",67}\n\r";
+                        formatText += $"{$" {secondPlayer.FirstName} {secondPlayer.LastName}: {duel.ScoreSecondPlayer}",67}";
+                        formatText += "\n\r\n\r";
+                    }
+                }
+                if (allDuelsInCup.Any(d => d.Round == "Cup Semi Final"))
+                {
+                    formatText += $"{"Cup Semi Final",66}\n\r\n\r";
+                    foreach (var duel in allDuelsInCup.Where(d => d.Round == "Cup Semi Final"))
+                    {
+                        var firstPlayer = PlayersToTournamentInPlaySystem.ListPlayersToTournament.FirstOrDefault(p => p.IdPLayer == duel.IdFirstPlayer);
+                        var secondPlayer = PlayersToTournamentInPlaySystem.ListPlayersToTournament.FirstOrDefault(p => p.IdPLayer == duel.IdSecondPlayer);
+
+                        formatTextUp += $"{$"{firstPlayer.FirstName} {firstPlayer.LastName}: {duel.ScoreFirstPlayer}",25}";
+
+                        formatTextDown += $"{$"{secondPlayer.FirstName} {secondPlayer.LastName}: {duel.ScoreSecondPlayer}",25}";
+                    }
+                    formatText += $"{formatTextUp,81}\n\r" + $"{formatTextDown,81}";
+                    formatText += "\n\r\n\r";
+                }
+                if (allDuelsInCup.Any(d => d.Round == "Cup Quarter Final"))
+                {
+                    formatTextDown = string.Empty;
+                    formatTextUp = string.Empty;
+                    formatText += $"{"Cup Quarter Final",68}\n\r\n\r";
+                    foreach (var duel in allDuelsInCup.Where(d => d.Round == "Cup Quarter Final"))
+                    {
+                        var firstPlayer = PlayersToTournamentInPlaySystem.ListPlayersToTournament.FirstOrDefault(p => p.IdPLayer == duel.IdFirstPlayer);
+                        var secondPlayer = PlayersToTournamentInPlaySystem.ListPlayersToTournament.FirstOrDefault(p => p.IdPLayer == duel.IdSecondPlayer);
+
+                        formatTextUp += $"{$"{firstPlayer.FirstName} {firstPlayer.LastName}: {duel.ScoreFirstPlayer}",25} ";
+
+                        formatTextDown += $"{$"{secondPlayer.FirstName} {secondPlayer.LastName}: {duel.ScoreSecondPlayer}",25} ";
+                    }
+                    formatText += $"{formatTextUp}\n\r" + $"{formatTextDown}";
+                    formatText += "\n\r\n\r";
+                }
+            }
+            numberItemOfLine = 5;
+
             foreach (var key in duelsGroupedByRound)
             {
                 formatText += $"Round: {key.First().Round}\n\r";
@@ -630,6 +727,9 @@ public class TwoKOPlaySystem : PlaySystems
 
     protected override List<MenuAction> GetExtendedMenuAction()
     {
+        // This method returns a list of extended menu actions for the 2KO tournament system.
+        // It creates a new list of MenuAction objects and adds a single action for viewing statistics.
+
         List<MenuAction> actions = new List<MenuAction>();
 
         actions.Add(new MenuAction(0, "View Statistics", "TwoKOPlaySystem"));
@@ -639,6 +739,8 @@ public class TwoKOPlaySystem : PlaySystems
 
     protected override void RemovePlayers(PlayerToTournament playerToRemove)
     {
+        // This method removes a player from the tournament and updates the player list and positions accordingly.
+        // It first checks if the player to remove is not null, and if so, it removes the player from the tournament duels using the _singlePlayerDuelManager.
         if (playerToRemove != null)
         {
             _singlePlayerDuelManager.RemoveTournamentDuel(Tournament, playerToRemove.IdPLayer);
@@ -653,6 +755,12 @@ public class TwoKOPlaySystem : PlaySystems
 
     private List<Tuple<PlayerToTournament, List<Tuple<string, int>>>> GetStatistics()
     {
+        // This method calculates and returns the statistics for all players in the tournament.
+        // It retrieves the duels in the eliminations round and calculates the number of wins, losses, points won, points lost, and the difference between points won and lost for each player.
+        // It then creates a list of tuples containing the player and their corresponding statistics.
+        // The statistics are ordered by the number of wins and the difference between points won and lost.
+        // The method returns the ordered list of statistics for all players in the tournament.
+
         var statisticsList = new List<Tuple<PlayerToTournament, List<Tuple<string, int>>>>();
 
         Tuple<PlayerToTournament, List<Tuple<string, int>>> duelsStatistic;
@@ -723,11 +831,17 @@ public class TwoKOPlaySystem : PlaySystems
 
     public override string GetStatisticsOfText()
     {
+        // This method generates a text representation of the tournament statistics for the 2KO system.
+        // It retrieves the statistics for all players and formats the text to display the players'
+        // positions, names, and various statistics such as matches played, wins, losses, points won, points lost, and the difference between points won and lost.
+        // The method returns the formatted text representation of the tournament statistics.
+        // It uses the GetStatistics method to retrieve the statistics and then formats the text accordingly.
+
         var statistics = GetStatistics().OrderBy(p => p.Item1.Position);
         var statistickInText = string.Empty;
         var tableHead = statistics.First().Item2.Aggregate(string.Empty, (current, head) => current + $"{head.Item1} ");
         statistickInText = $"{$"{tableHead}",74}\n\r\n\r" + statistics.Aggregate(string.Empty, (current, stat) => current
-        + $"{stat.Item1.Position}. {stat.Item1.TinyFulName}{stat.Item2.First(s => s.Item1 == "Played").Item2,-5}" +
+        + $"{$"{stat.Item1.Position}.",-3} {stat.Item1.TinyFulName}{stat.Item2.First(s => s.Item1 == "Played").Item2,-5}" +
         $"{stat.Item2.First(s => s.Item1 == "Win").Item2,-5}{stat.Item2.First(s => s.Item1 == "Lost").Item2,-5}{stat.Item2.First(s => s.Item1 == "Pt.Win").Item2,-8}" +
         $"{stat.Item2.First(s => s.Item1 == "Pt.Lost").Item2,-5}" +
         $"{stat.Item2.First(s => s.Item1 == "Pt.Win").Item2 - stat.Item2.First(s => s.Item1 == "Pt.Lost").Item2,6}\n\r");
@@ -736,11 +850,17 @@ public class TwoKOPlaySystem : PlaySystems
 
     protected override void EndTournament()
     {
+        // This method ends the tournament by calling the EndTournament method of the tournaments manager.
         _tournamentsManager.EndTournament(Tournament);
     }
 
     protected override void StartNextRound()
     {
+        // This method starts the next round of the tournament based on the last completed round.
+        // It retrieves the last completed round from the list of duels in the tournament and determines the next round to be played.
+        // It then creates the matchups for the next round and starts the duels for that round.
+        // If the last completed round is "Cup Final", it ends the tournament and displays the winner.
+
         var lastRound = _singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id)
             .LastOrDefault(d => d.EndGame != DateTime.MinValue).Round;
         if (lastRound != null && lastRound == "Eliminations")
@@ -767,9 +887,9 @@ public class TwoKOPlaySystem : PlaySystems
         else if (lastRound == "Eliminations Round IV")
         {
             ConsoleService.WriteTitle($"End of Eliminations Tournament {Tournament.Name}");
-            ConsoleService.WriteMessage("Creating matchups for the round (Cup Quarter Final)");
-            ConsoleService.WriteMessage("The top 8 players qualify for the knockout stage.");
-            ConsoleService.WriteMessage("Creating matchups for the round (Cup Quarter Final)");
+            ConsoleService.WriteLineMessage("Creating matchups for the round (Cup Quarter Final)");
+            ConsoleService.WriteLineMessage("The top 8 players qualify for the knockout stage.");
+            ConsoleService.WriteLineMessage("Creating matchups for the round (Cup Quarter Final)");
             ConsoleService.GetKeyFromUser("Press Any Key..");
             var listPlayersNoQualified = PlayersToTournamentInPlaySystem.ListPlayersToTournament.Where(p => p.Position > 8).ToList();
             foreach (var player in listPlayersNoQualified)
@@ -783,7 +903,7 @@ public class TwoKOPlaySystem : PlaySystems
         else if (lastRound == "Cup Quarter Final")
         {
             ConsoleService.WriteTitle($"End of Cup Quarter Final Tournament {Tournament.Name}");
-            ConsoleService.WriteMessage("Creating matchups for the round (Cup Semi Final)");
+            ConsoleService.WriteLineMessage("Creating matchups for the round (Cup Semi Final)");
 
             ConsoleService.GetKeyFromUser("Press Any Key..");
             CreateDuelsToTournament("Cup Semi Final");
@@ -792,7 +912,7 @@ public class TwoKOPlaySystem : PlaySystems
         else if (lastRound == "Cup Semi Final")
         {
             ConsoleService.WriteTitle($"End of Cup Semi Final Tournament {Tournament.Name}");
-            ConsoleService.WriteMessage("Creating matchups for the round (Cup Final)");
+            ConsoleService.WriteLineMessage("Creating matchups for the round (Cup Final)");
             ConsoleService.GetKeyFromUser("Press Any Key..");
             CreateDuelsToTournament("Cup Final");
             StartDuelsInRoundOfTableNumber("Cup Final");
@@ -822,7 +942,7 @@ public class TwoKOPlaySystem : PlaySystems
             var winners = listPlayers.First(p => p.Round == "Winner");
             ConsoleService.WriteTitle($"End of Cup Final Tournament {Tournament.Name}");
             ConsoleService.WriteLineMessageActionSuccess($"Winner: {winners.FirstName} {winners.LastName}");
-            ConsoleService.WriteMessage("The tournament has ended.");
+            ConsoleService.WriteLineMessage("The tournament has ended.");
             ConsoleService.GetKeyFromUser("Press Any Key..");
             EndTournament();
         }

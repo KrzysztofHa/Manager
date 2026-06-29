@@ -7,12 +7,19 @@ namespace Manager.App.Managers.Helpers.GamePlaySystem;
 
 public class GroupPlaySystem : PlaySystems
 {
+    // This class represents a group play system for a tournament. It inherits from the PlaySystems class and provides specific implementations for adding players, moving players, starting the tournament, creating duels, and viewing the tournament bracket in a group play format.
+    // The class constructor initializes the base class with the provided tournament, tournaments manager, single player duel manager, players to tournament, player service, and player manager.
+    // The AddPlayers method adds players to the tournament and assigns them to groups and positions if there are more than 8 players. It also creates duels for the tournament if there are new players and the tournament has started.
     public GroupPlaySystem(Tournament tournament, ITournamentsManager tournamentsManager, ISinglePlayerDuelManager singlePlayerDuelManager, PlayersToTournament playersToTournament, IPlayerService playerService, IPlayerManager playerManager) : base(tournament, tournamentsManager, singlePlayerDuelManager, playersToTournament, playerService, playerManager)
     {
     }
 
     private void CreateQuarterFinalMatches()
     {
+        // This method creates quarter-final matches for the tournament based on the advancing players from the group stage. It collects the advancing players per group, ordered by their GroupPosition, and generates match pairings based on the number of groups in the tournament (2, 4, or 8 groups). The method checks for existing duels to avoid duplicates and creates new duels for the quarter-final round if necessary.
+        // The method uses LINQ to filter and group players, and it defines a helper function to check for existing duels. Depending on the number of groups, it generates match pairings according to specific seeding rules and creates new duels using the _singlePlayerDuelManager.
+        // The method returns early if there are no advancing players or if the required groups are not present.
+
         // Collect advancing players per group ordered by GroupPosition
         var advancingPlayers = PlayersToTournamentInPlaySystem.ListPlayersToTournament
             .Where(p => p.Round == "CupQuarterFinal")
@@ -121,6 +128,11 @@ public class GroupPlaySystem : PlaySystems
 
     public void SetGroups()
     {
+        // This method sets the number of groups for the tournament based on the number of players.
+        // It checks the number of players and prompts the user to select the number of groups if there are multiple valid options.
+        // The method also updates the tournament with the selected number of groups and assigns players to groups randomly.
+        // If there are not enough players, it displays an error message.
+
         int numberOfGroups = 0;
         int? enterNumber = 0;
 
@@ -224,6 +236,9 @@ public class GroupPlaySystem : PlaySystems
 
     private void AssignPlayersToGroups()
     {
+        // This method assigns players to groups for the tournament based on the number of groups specified in the tournament settings.
+        // It randomly shuffles the list of players and assigns them to groups in a round-robin fashion.
+        // If there are any remaining players after evenly distributing them among the groups, they are assigned to the groups in order.
         List<PlayerToTournament> randomList = [.. PlayersToTournamentInPlaySystem.ListPlayersToTournament];
 
         char group = (char)65;
@@ -262,6 +277,12 @@ public class GroupPlaySystem : PlaySystems
 
     private void DetermineTheOrderOfDuelsToStartInGroup()
     {
+        // This method determines the order of duels to start in the group stage of the tournament.
+        // It retrieves all active duels for the tournament and groups players by their assigned groups.
+        // It generates a queue of duels for each group based on the number of players and their positions in the group.
+        // The method updates the StartNumberInGroup and StartNumberInTournament properties of each duel accordingly.
+        // It also handles cases where there are an odd number of players in a group and ensures that duels are created without duplicates.
+
         var allTournamentDuels = _singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id)
             .Where(d => d.IsActive == true && d.IdFirstPlayer != -1);
         if (allTournamentDuels.Count() > 0)
@@ -350,6 +371,12 @@ public class GroupPlaySystem : PlaySystems
 
     public List<Tuple<string, List<Tuple<PlayerToTournament, List<Tuple<string, int>>, List<Tuple<int, bool>>>>>> GetStatistic()
     {
+        // This method retrieves statistics for the tournament, grouped by player groups.
+        // It calculates the number of matches played, wins, points won, and points lost for each player in the tournament.
+        // It also tracks direct duels between players and their outcomes.
+        // The method returns a list of tuples containing group names and player statistics, including match results and direct duel outcomes.
+        // The statistics are used to determine player rankings and positions within their respective groups.
+
         var statisticsList = new List<Tuple<string, List<Tuple<PlayerToTournament, List<Tuple<string, int>>, List<Tuple<int, bool>>>>>>();
         var statisticsListOfGroup = new List<Tuple<PlayerToTournament, List<Tuple<string, int>>, List<Tuple<int, bool>>>>();
         Tuple<PlayerToTournament, List<Tuple<string, int>>, List<Tuple<int, bool>>> duelStatistic;
@@ -445,6 +472,8 @@ public class GroupPlaySystem : PlaySystems
 
     private void SetPositionInGroup(List<Tuple<PlayerToTournament, List<Tuple<string, int>>, List<Tuple<int, bool>>>> statistics)
     {
+        // This method sets the position of players within their respective groups based on their performance in matches.
+        // It orders the players by their number of wins, points won, and points lost, and assigns a GroupPosition to each player accordingly.
         if (!_singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id).Any(d => d.Round == "CupQuarterFinal"))
         {
             statistics = statistics.OrderByDescending(s => s.Item2.FirstOrDefault(t => t.Item1 == "Win").Item2)
@@ -460,6 +489,10 @@ public class GroupPlaySystem : PlaySystems
 
     private void SetCupPosition(List<Tuple<string, List<Tuple<PlayerToTournament, List<Tuple<string, int>>, List<Tuple<int, bool>>>>>> statisticsList, List<SinglePlayerDuel>? allDuel)
     {
+        // This method sets the cup position of players based on their performance in the group stage and knockout rounds of the tournament.
+        // It checks if there are any duels in the "CupQuarterFinal" round and assigns cup positions accordingly.
+        // It also handles the progression of players through the knockout rounds, updating their cup positions and rounds based on match results.
+
         if (!allDuel.Any(m => m.Round == "CupQuarterFinal"))
         {
             var playersToKnockout = 8;
@@ -574,6 +607,9 @@ public class GroupPlaySystem : PlaySystems
 
     public override string GetStatisticsOfText()
     {
+        // This method generates a formatted string representation of the tournament statistics, grouped by player groups.
+        // It retrieves the statistics using the GetStatistic method and formats the output to display group names, player names, match results, and other relevant information.
+        // The method returns the formatted string, which can be used for display or reporting purposes.
         var formatText = string.Empty;
         var statisticList = GetStatistic();
 
@@ -607,6 +643,8 @@ public class GroupPlaySystem : PlaySystems
 
     public override string ViewTournamentBracket()
     {
+        // This method generates a formatted string representation of the tournament bracket, including the cup rounds and player matchups.
+        // It retrieves the necessary data from the tournament and player lists, formats the output to display cup rounds, player names, scores, and other relevant information.
         var formatText = string.Empty;
         var formatTextUp = string.Empty;
         var formatTextDown = string.Empty;
@@ -728,6 +766,10 @@ public class GroupPlaySystem : PlaySystems
 
     protected override void StartTournament()
     {
+        // This method starts the tournament by checking if the necessary conditions are met,
+        // such as having enough players and ensuring the tournament has not already ended.
+        // It also checks if the players have been assigned to groups and if the number of tables is set.
+
         if (Tournament.NumberOfPlayer < 8 || Tournament.End != DateTime.MinValue)
         {
             return;
@@ -748,6 +790,11 @@ public class GroupPlaySystem : PlaySystems
 
     private void StartDuelsInRoundOfTableNumber(string round = "Eliminations")
     {
+        // This method starts the duels in the specified round of the tournament based on the number of tables available.
+        // It retrieves the active duels for the specified round and assigns them to tables for play.
+        // If there are no tables set, it prompts the user to change the number of tables before proceeding.
+        // The method updates the table numbers for the duels and starts them accordingly.
+
         if (Tournament.NumberOfTables == 0)
         {
             ChangeNumberOfTable();
@@ -776,6 +823,11 @@ public class GroupPlaySystem : PlaySystems
 
     protected override void CreateDuelsToTournament(string round = "Eliminations")
     {
+        // This method creates duels for the tournament based on the specified round.
+        // It assigns players to duels in the "Eliminations" round, ensuring that players are grouped and matched appropriately.
+        // It also handles the creation of duels for the "CupSemiFinal", "CupQuarterFinal", and "CupFinal" rounds, generating matchups based on player performance and progression through the tournament.
+        // The method updates the player rounds and saves the tournament state accordingly.
+        // It also determines the order of duels to start in the group stage.
         if (round == "Eliminations")
         {
             var listPlayerToBeAssignedToTheDuel = PlayersToTournamentInPlaySystem.ListPlayersToTournament
@@ -852,6 +904,10 @@ public class GroupPlaySystem : PlaySystems
 
     private void CreateCupFinalMatch()
     {
+        // This method creates the final match of the cup tournament by checking if there are two players assigned to the "CupFinal" round.
+        // If there are two players and no existing duel for the "CupFinal" round, it creates a new duel between the two players.
+        // It ensures that the final match is set up correctly based on the players' progression through the tournament.
+
         var listPlayerToBeAssignedToTheDuel = PlayersToTournamentInPlaySystem.ListPlayersToTournament
             .Where(p => p.Round == "CupFinal").ToList();
         if (!_singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id).Any(d => d.Round == "CupFinal"))
@@ -869,6 +925,10 @@ public class GroupPlaySystem : PlaySystems
 
     private void CreateCupSemiFinalMaches()
     {
+        // This method creates the semi-final matches of the cup tournament based on the number of groups in the tournament.
+        // It retrieves the players assigned to the "CupSemiFinal" round and generates matchups based on their group positions.
+        // It handles different scenarios for tournaments with 2, 4, or 8 groups, ensuring that the semi-final matches are set up correctly based on the players' performance in the group stage.
+
         var listPlayerToBeAssignedToTheDuel = PlayersToTournamentInPlaySystem.ListPlayersToTournament
             .Where(p => p.Round == "CupSemiFinal").ToList();
 
@@ -1052,6 +1112,13 @@ public class GroupPlaySystem : PlaySystems
 
     public override void AddPlayers()
     {
+        // This method adds players to the tournament and assigns them to groups if applicable.
+        // It checks if there are any new players to be added and if any players have been assigned to groups.
+        // If there are new players and groups are defined, it assigns the new players to groups in a round-robin fashion.
+        // It also saves the updated player list and creates duels for the tournament if it has already started.
+        // It ensures that the tournament is properly set up with players and groups before proceeding with the matches.
+        // The method also handles the creation of duels for the tournament if it has already started, ensuring that the matches are set up correctly based on the players' group assignments.
+
         var newplayers = PlayersToTournamentInPlaySystem.AddPlayersToTournament();
         if (newplayers.Count > 0 && PlayersToTournamentInPlaySystem.ListPlayersToTournament.Any(p => !string.IsNullOrEmpty(p.Group)))
         {
@@ -1079,6 +1146,9 @@ public class GroupPlaySystem : PlaySystems
 
     protected override void RemovePlayers(PlayerToTournament playerToRemove)
     {
+        // This method removes a player from the tournament and checks if the minimum number of players in the group is maintained.
+        // It retrieves the grouping of players by their assigned groups and checks if the group of the player to be removed has more than two players.
+
         var groupingPlayer = PlayersToTournamentInPlaySystem.ListPlayersToTournament.GroupBy(d => d.Group);
         if (groupingPlayer.FirstOrDefault(g => g.Key == playerToRemove.Group).Count() <= 2)
         {
@@ -1093,6 +1163,10 @@ public class GroupPlaySystem : PlaySystems
 
     protected override void RandomSelectionOfPlayers()
     {
+        // This method performs a random selection of players for the tournament and assigns them to groups if applicable.
+        // It checks if the number of groups in the tournament is set and calls the base method for random selection of players.
+        // If the number of groups is not set, it prompts the user to set the groups before proceeding with the random selection.
+
         if (Tournament.NumberOfGroups != 0)
         {
             base.RandomSelectionOfPlayers();
@@ -1106,6 +1180,10 @@ public class GroupPlaySystem : PlaySystems
 
     protected override void MovePlayer()
     {
+        // This method allows the user to move a player from one group to another within the tournament.
+        // It retrieves the list of players who can currently be transferred and checks if they have completed any duels or matches.
+        // If there are eligible players, it prompts the user to select a player to move and allows them to choose a new group for that player.
+
         List<Player> players = new List<Player>();
         foreach (var playerToTournament in PlayersToTournamentInPlaySystem.ListPlayersToTournament)
         {
@@ -1190,6 +1268,13 @@ public class GroupPlaySystem : PlaySystems
 
     protected override List<MenuAction> GetExtendedMenuAction()
     {
+        // This method retrieves a list of extended menu actions for the tournament gameplay system.
+        // It creates a list of menu actions, including the option to set the number of groups and view group statistics.
+        // It also checks the current state of the tournament and modifies the menu actions accordingly, such as highlighting the "Set Number Of Groups" option if the number of groups is not set.
+        // The method returns the list of menu actions to be displayed in the tournament menu.
+        // It allows the user to perform additional actions related to the tournament, such as setting the number of groups and viewing statistics.
+        // The menu actions are dynamically generated based on the tournament's current state and the user's interactions with the system.
+
         List<MenuAction> actions =
         [
                new MenuAction(1, "Set Number Of Groups", "GroupPlaySystem"),
@@ -1214,6 +1299,10 @@ public class GroupPlaySystem : PlaySystems
 
     protected override void ExecuteExtendedAction(MenuAction menuAction)
     {
+        // This method executes the selected extended action from the tournament menu based on the provided menu action.
+        // It uses a switch statement to determine which action to perform based on the ID of the selected menu action.
+        // The available actions include setting the number of groups, starting the tournament, and viewing group statistics.
+        // The method handles the execution of each action accordingly, ensuring that the appropriate functionality is triggered based on the user's selection.
         var swichOption = menuAction.Id;
         switch (swichOption)
         {
@@ -1246,11 +1335,20 @@ public class GroupPlaySystem : PlaySystems
 
     protected override void EndTournament()
     {
+        // This method ends the tournament by calling the EndTournament method of the tournaments manager.
+        // It performs any necessary cleanup or finalization tasks related to the tournament and ensures that the tournament is properly concluded.
+        // It may also handle any additional actions or notifications related to the end of the tournament, such as displaying results or updating records.
         _tournamentsManager.EndTournament(Tournament);
     }
 
     protected override void StartNextRound()
     {
+        // This method starts the next round of the tournament based on the current state of the tournament and the results of previous rounds.
+        // It checks the statistics of the tournament to determine if there are any winners or if the next round should be initiated.
+        // It handles the progression of the tournament through different rounds, such as the cup final, semi-final, and quarter-final stages.
+        //It prompts the user for input and provides information about the current state of the tournament before proceeding with the next round.
+        // The method ensures that the tournament progresses smoothly and that the appropriate actions are taken based on the results of previous matches and the current state of the tournament.
+
         var statistiklist = GetStatistic().ToList();
         if (statistiklist.Any(p => p.Item2.Any(s => s.Item1.Round == "Winner")))
         {

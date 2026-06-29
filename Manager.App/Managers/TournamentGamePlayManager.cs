@@ -67,7 +67,7 @@ public class TournamentGamePlayManager
             string message = string.Empty;
             string messageBack = string.Empty;
             var numberOfGroups = string.Empty;
-            if (Tournament.NumberOfGroups!=0)
+            if (Tournament.NumberOfGroups != 0)
             {
                 numberOfGroups = $" | Number Of Groups: {Tournament.NumberOfGroups}";
             }

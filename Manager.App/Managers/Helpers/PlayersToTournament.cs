@@ -162,7 +162,7 @@ public class PlayersToTournament
             var listPlayer = ListPlayersToTournament.OrderBy(p => p.CupPosition).ToList();            
             foreach (var player in listPlayer)
             {
-                formatText = $"{listPlayer.IndexOf(player) + 1}.{player.CupPosition,10}{player.FirstName,15}{player.LastName,15}{player.Country,15}";
+                formatText = $"{$"{listPlayer.IndexOf(player) + 1}.",-3}{player.CupPosition,10}{player.FirstName,15}{player.LastName,15}{player.Country,15}";
                 ConsoleService.WriteLineMessage(formatText);
             }
         }

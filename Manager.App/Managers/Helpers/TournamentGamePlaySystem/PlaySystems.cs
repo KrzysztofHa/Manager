@@ -6,7 +6,12 @@ namespace Manager.App.Managers.Helpers.TournamentGamePlaySystem;
 
 public abstract class PlaySystems
 {
+    // <summary>
+    // The PlaySystems class is an abstract base class that provides a framework for managing tournament gameplay systems.
+    // It defines common properties and methods that can be shared among different tournament play systems.
+    // </summary>
     protected Tournament Tournament { get; }
+
     protected PlayersToTournament PlayersToTournamentInPlaySystem { get; }
     protected readonly ISinglePlayerDuelManager _singlePlayerDuelManager;
     protected readonly ITournamentsManager _tournamentsManager;
@@ -55,6 +60,12 @@ public abstract class PlaySystems
 
     private void EditBracket()
     {
+        // Display the menu for editing the tournament bracket
+        // The menu options include moving players, resetting the bracket, random selection of players, and exiting the menu
+        // If the tournament has already started, the random selection option is removed from the menu
+        // The user can perform actions based on their selection, and changes can be saved or discarded before exiting the menu
+        // The method also handles the display of the tournament bracket and checks for an empty list of players
+
         List<MenuAction> optionPlayerMenu =
         [
             new MenuAction(1, "Move Player", "EditBracket"),
@@ -168,6 +179,12 @@ public abstract class PlaySystems
 
     private List<MenuAction> GetMenuActions()
     {
+        // The GetMenuActions method generates a list of menu actions based on the current state of the tournament.
+        // It creates a list of MenuAction objects representing different actions that can be performed in the tournament gameplay system.
+        // The method checks the tournament's start date, number of players, and number of tables to determine which actions should be available.
+        // It also allows for extended menu actions to be added by calling the GetExtendedMenuAction method.
+        // The resulting list of menu actions is returned for use in the tournament gameplay system.
+
         List<MenuAction> listAction =
         [
             new MenuAction(0, "  <-----  Start Tournament", "PlaySystem"),
@@ -240,6 +257,12 @@ public abstract class PlaySystems
 
     public void ExecuteAction(MenuAction menuAction)
     {
+        // The ExecuteAction method executes the selected menu action based on the provided MenuAction object.
+        // It determines the action to be performed based on the menuAction's Id and MenuName properties.
+        // If the MenuName is "PlaySystem", it performs specific actions related to tournament gameplay,
+        // such as starting the tournament, starting duels, interrupting duels, updating duel results, viewing the tournament bracket,
+        // displaying player lists, etc.
+
         var swichOption = menuAction.Id;
         if (menuAction.MenuName == "PlaySystem")
         {
@@ -317,6 +340,9 @@ public abstract class PlaySystems
 
     private void RemovePlayerInTournament()
     {
+        // The RemovePlayerInTournament method handles the removal of a player from the tournament.
+        // It checks if the tournament has started and displays a warning message to the user about potential disruptions to the group structure.
+        // It also checks if the minimum number of players (8) is met before allowing the removal.
         List<Player> players = new List<Player>();
 
         if (Tournament.Start != DateTime.MinValue)
@@ -378,6 +404,11 @@ public abstract class PlaySystems
 
     private void ChangeRaceTo()
     {
+        // The ChangeRaceTo method allows the user to change the number of games required to win a duel in the tournament.
+        // It retrieves the list of duels for the tournament and checks if any matches in the current round have already ended.
+        // If so, it displays an error message and prevents the change. Otherwise, it prompts the user to enter a
+        // new value for the number of games (between 3 and 20) and updates the RaceTo property for all duels in the current round.
+
         var duels = _singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id).ToList();
         var round = duels.First(d => d.EndGame == DateTime.MinValue).Round;
 
@@ -412,6 +443,10 @@ public abstract class PlaySystems
 
     protected void ChangeNumberOfTable()
     {
+        // The ChangeNumberOfTable method allows the user to change the number of tables used in the tournament.
+        // It first checks if any duels have already started in the tournament.
+        // If so, it displays the current number of tables and informs the user that changes to the tournament settings are limited based on ongoing matches.
+
         ConsoleService.WriteTitle("Chenge Number Of Table\n\r");
 
         string textToDisplayIfNoDuelsIsStarted = "After entering the number of Tables,\n\r" +
@@ -445,6 +480,11 @@ public abstract class PlaySystems
 
     protected virtual void RandomSelectionOfPlayers()
     {
+        // The RandomSelectionOfPlayers method randomly assigns positions to players in the tournament bracket.
+        // It first checks if there are at least 8 players and if the tournament has not started yet.
+        // If these conditions are met, it creates a random list of players and assigns them positions in the bracket.
+        // The method then saves the updated list of players to the tournament.
+
         if (PlayersToTournamentInPlaySystem.ListPlayersToTournament.Count < 8 || Tournament.Start != DateTime.MinValue)
         {
             return;
@@ -531,6 +571,12 @@ public abstract class PlaySystems
 
     public void StartTournamentDuel()
     {
+        // The StartTournamentDuel method is responsible for starting a duel in the tournament.
+        // It retrieves the list of duels for the tournament and checks if there are any duels that have already started.
+        // If there are duels that have started, it checks if the number of started duels is less than the number of tables available in the tournament.
+        // If there are duels that can be started, it selects a duel to start and assigns it to a free table.
+        // If there are no duels to start or if there are no free tables, it displays appropriate error messages to the user.
+
         var duelsOfTournament = _singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id)
             .Where(d => d.IdFirstPlayer != -1 && d.IdSecondPlayer != -1).ToList();
         var round = duelsOfTournament.Count > 0 ? duelsOfTournament.Last().Round : string.Empty;
@@ -606,6 +652,10 @@ public abstract class PlaySystems
 
     public void InterruptionTournamentDuel()
     {
+        // The InterruptionTournamentDuel method is responsible for interrupting a duel in the tournament.
+        // It retrieves the list of duels for the tournament and checks if there are any duels that have already started and are not interrupted or ended.
+        // If there are started duels, it prompts the user to select a duel to interrupt.
+
         var startedDuels = _singlePlayerDuelManager.GetSinglePlayerDuelsByTournamentsOrSparrings(Tournament.Id)
             .Where(d => d.StartGame != DateTime.MinValue && d.Interrupted == DateTime.MinValue && d.EndGame == DateTime.MinValue).ToList();
         if (startedDuels.Count > 0)
@@ -622,6 +672,10 @@ public abstract class PlaySystems
 
     public void AutomaticStartOrInterruptionTournamentDuel()
     {
+        // The AutomaticStartOrInterruptionTournamentDuel method automatically manages the starting and interruption of duels in the tournament.
+        // It checks the number of tables available in the tournament and retrieves the list of duels for the tournament.
+        // It determines the current round and identifies started duels, completed duels, and duels of the current round.
+
         if (Tournament.NumberOfTables == 0)
         {
             ChangeNumberOfTable();
