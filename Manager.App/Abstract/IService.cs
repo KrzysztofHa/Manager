@@ -6,6 +6,8 @@ public interface IService<T>
 
     int AddItem(T item);
 
+    void AddRangeItems(List<T> items);
+
     int UpdateItem(T item);
 
     void RemoveItem(T item);

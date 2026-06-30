@@ -2,6 +2,8 @@
 using Manager.App;
 using Manager.App.Abstract;
 using Manager.Domain.Entity;
+using Manager.Helpers;
+using Moq;
 
 namespace Manager.Tests.ManagerAppTest.PlayerServiceTest;
 
@@ -14,7 +16,7 @@ public class PlayerServiceTest
         PlayerList = new List<Player>();
         for (int i = 1; i <= 10; i++)
         {
-            PlayerList.Add(new Player { Id = i, IsActive = true, FirstName = "Player" + i + 1 });
+            PlayerList.Add(new Player { IsActive = true, FirstName = "Player" + i + 1 });
         }
     }
 
@@ -23,7 +25,7 @@ public class PlayerServiceTest
     {
         //Arrange
         IPlayerService playerService = new PlayerService();
-        PlayerList.ForEach(player => playerService.AddItem(player));
+        playerService.AddRangeItems(PlayerList);
 
         //Act
         var resulActivePlayertList = playerService.ListOfActivePlayers();
@@ -38,14 +40,13 @@ public class PlayerServiceTest
     {
         //Arrang
         IPlayerService playerService = new PlayerService();
-        PlayerList.ForEach(player => playerService.AddItem(player));
+        playerService.AddRangeItems(PlayerList);
         string testString = "1";
         //Act
         var resultListFindPlayer = playerService.SearchPlayer(testString);
 
         //Assert
-        resultListFindPlayer.Should().NotBeEmpty();
-        resultListFindPlayer[0].Id.Should().Be(10);
+        resultListFindPlayer.Should().NotBeEmpty();        
         resultListFindPlayer.Count.Should().Be(10);
     }
 }

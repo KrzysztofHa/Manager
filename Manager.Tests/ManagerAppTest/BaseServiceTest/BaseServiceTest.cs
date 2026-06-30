@@ -15,7 +15,7 @@ public class BaseServiceTest
         {
             SomListOfElements.Add(new Player { Id = i, IsActive = true, FirstName = "Player" + i + 1 });
         }
-        baseService.AddItem(SomListOfElements.First(p => p.IsActive = true));
+        baseService.AddRangeItems(SomListOfElements);
     }
 
     [Fact]

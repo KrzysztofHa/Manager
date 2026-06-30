@@ -17,6 +17,19 @@ public class BaseService<T> : IService<T> where T : BaseEntity
         LoadList();
     }
 
+    public void AddRangeItems(List<T> itemsToAdd)
+    {
+        foreach (T item in itemsToAdd)
+        {
+            item.CreatedById = 1;
+            item.Id = Items.Count + 1;
+            item.IsActive = true;
+            item.CreatedDateTime = DateTime.Now;
+        }
+
+        Items.AddRange(itemsToAdd);
+    }
+
     public int AddItem(T item)
     {
         if (Items.Any())
@@ -27,7 +40,7 @@ public class BaseService<T> : IService<T> where T : BaseEntity
         {
             item.Id = 1;
         }
-        item.CreatedById = ActiveUserNameOrId.IdActiveUser;
+        //item.CreatedById = ActiveUserNameOrId.IdActiveUser;
         item.IsActive = true;
         item.CreatedDateTime = DateTime.Now;
         Items.Add(item);
@@ -44,7 +57,7 @@ public class BaseService<T> : IService<T> where T : BaseEntity
     {
         if (Items.Any() && item != null)
         {
-            item.ModifiedById = ActiveUserNameOrId.IdActiveUser;
+            //item.ModifiedById = ActiveUserNameOrId.IdActiveUser;
             item.ModifiedDateTime = DateTime.Now;
             item.ModifiedDateTime = DateTime.Now;
             item.IsActive = false;
@@ -58,7 +71,7 @@ public class BaseService<T> : IService<T> where T : BaseEntity
         {
             entity = item;
             entity.ModifiedDateTime = DateTime.Now;
-            entity.ModifiedById = ActiveUserNameOrId.IdActiveUser;
+            //entity.ModifiedById = ActiveUserNameOrId.IdActiveUser;
             return entity.Id;
         }
         return 0;
