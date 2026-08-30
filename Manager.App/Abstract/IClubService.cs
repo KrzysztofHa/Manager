@@ -4,7 +4,7 @@ namespace Manager.App.Abstract
 {
     public interface IClubService : IService<Club>
     {
-        List<Club> SearchClub(string searchString);
+        List<Club> SearchClub(string searchString = "");
 
         public Club AddClubAddress(Club club, Address address);
 

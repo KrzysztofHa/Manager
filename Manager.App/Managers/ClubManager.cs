@@ -18,7 +18,7 @@ public class ClubManager : IClubManager
 
     public Club SearchClub(string title)
     {
-        List<Club> findClubsList = _clubService.SearchClub(" ");
+        List<Club> findClubsList = _clubService.SearchClub();
 
         if (!findClubsList.Any())
         {

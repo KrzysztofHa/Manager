@@ -6,14 +6,13 @@ namespace Manager.App.Concrete;
 
 public class ClubService : BaseService<Club>, IClubService
 {
-    public List<Club> SearchClub(string searchString = " ")
+    public List<Club> SearchClub(string searchString = "")
     {
         List<Club> findClubsList = [];
-        if (!string.IsNullOrEmpty(searchString))
-        {
-            findClubsList = [.. GetAllItem().Where(c => $"{c.Id} {c.Name}".ToLower()
+
+        findClubsList = [.. GetAllItem().Where(c => $"{c.Id} {c.Name}".ToLower()
             .Contains(searchString.ToLower())).OrderBy(i => i.Name)];
-        }
+
         return findClubsList;
     }
 

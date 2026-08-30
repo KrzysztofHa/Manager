@@ -202,7 +202,9 @@ public static class ConsoleService
             {
                 Console.SetCursorPosition(startCursorLeft, startCursorTop);
                 for (int i = startCursorTop; i <= endCursorTop; i++)
+                {
                     Console.WriteLine("{0}", string.Empty.PadRight(Console.BufferWidth));
+                }
                 Console.SetCursorPosition(startCursorLeft, startCursorTop);
                 Console.ForegroundColor = ConsoleColor.White;
                 return true;
@@ -211,7 +213,10 @@ public static class ConsoleService
             {
                 Console.SetCursorPosition(startCursorLeft, startCursorTop);
                 for (int i = startCursorTop; i <= endCursorTop; i++)
+                {
                     Console.WriteLine("{0}", string.Empty.PadRight(Console.BufferWidth));
+                }
+
                 Console.ForegroundColor = ConsoleColor.White;
                 Console.SetCursorPosition(startCursorLeft, startCursorTop);
                 return false;
